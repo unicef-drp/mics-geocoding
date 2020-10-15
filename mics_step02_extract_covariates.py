@@ -1,6 +1,7 @@
 from qgis.core import QgsProject #QGIS3
 from qgis.PyQt.QtCore import QVariant
 from pathlib import Path
+from datetime import datetime
 import pandas as pd
 
 import itertools
@@ -156,10 +157,10 @@ def zonal_stats(vector_path, raster_path, cluster_no_field, nodata_value=None, g
     rds = None
     return stats
 
-ref_lyr_name = 'civ_cluster_buffers'
+ref_lyr_name = 'cluster_buffers'
 # add ref areas to spatial index
 ref_lyr = [layer for layer in QgsProject.instance().mapLayers().values() if layer.name() == ref_lyr_name][0]
-ref_shp = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Covariates\civ_cluster_buffers.shp'
+ref_shp = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\CIV\cluster_buffers.shp'
 cluster_no_field_name = 'cluster'
 
 input_csv = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Covariates\_input_covariates.txt'
@@ -191,29 +192,28 @@ for i in f:
 		input_field_columnname_id = line.index(input_field_columnname)
 	if c != 0:
 		line = re.split('\t', i.strip())
-		inputs.append({'file': line[input_file_id], 'format': line[input_fileformat_id], 'sum_stat': line[input_field_sumstat_id], 'column': line[input_field_columnname_id]})
+		inputs.append({'file': line[input_file_id], 'file_format': line[input_fileformat_id], 'sum_stat': line[input_field_sumstat_id], 'column': line[input_field_columnname_id]})
 	c = c + 1
 
-for input in inputs:
-	file_name = input['file']
+for input_row in inputs:
+	file_name = input_row['file']
 	file_path = os.path.join(basefolder, file_name)
-	format = input['format']
-	sum_stat = input['sum_stat']
-	column_name = input['column']
-	# if format == 'GeoTIFF':
-	# 	stats = zonal_stats(ref_shp,file_path,'cluster',-99999)
-	# 	results_df = pd.DataFrame(stats)[[sum_stat, 'fid', 'cluster']]
-	# 	results_df.columns = [column_name, 'fid', 'cluster_orig']
-	# 	# summary_df.join(results_df,'fid')
-	# 	summary_df = pd.merge(summary_df, results_df[[column_name, 'fid', 'cluster_orig']], on='fid', how='left')
-	if format == 'Shapefile':
-		search_gdf = gpd.read_file(file_path)
+	file_format = input_row['file_format']
+	sum_stat = input_row['sum_stat']
+	column_name = input_row['column']
+	if file_format == 'GeoTIFF':
+		stats = zonal_stats(ref_shp,file_path,'cluster',-99999)
+		results_df = pd.DataFrame(stats)[[sum_stat, 'cluster']]
+		results_df.columns = [column_name, 'cluster']
+		summary_df = pd.merge(summary_df, results_df[[column_name, 'cluster']], on='cluster', how='inner')
+	if file_format == 'Shapefile':
+		# search_gdf = gpd.read_file(file_path)
 		if sum_stat == 'distance_to_nearest':
 			# create layer for shortest distance
 			shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(file_name), 'memory')
 			shortest_dist_prov = shortest_dist_lyr.dataProvider()
 			shortest_dist_prov.addAttributes(
-				[QgsField("cluster_id", QVariant.String), QgsField("nearestfid", QVariant.String),
+				[QgsField("cluster", QVariant.String), QgsField("nearestfid", QVariant.String),
 				 QgsField("dist", QVariant.Double)])
 			shortest_dist_lyr.updateFields()
 
@@ -234,10 +234,16 @@ for input in inputs:
 				line_merc = QgsGeometry(line)
 				line_merc.transform(tr)
 
-				feat.setAttributes([cluster_ft.id(), minDistLine, line_merc.length()])
+				feat.setAttributes([cluster_ft['cluster'], minDistLine, line_merc.length()])
 				shortest_dist_prov.addFeatures([feat])
 
 			# Update extent of the layer
 			shortest_dist_lyr.updateExtents()
 			# Add the layer to the Layers panel
 			registry.addMapLayer(shortest_dist_lyr)
+
+			search_fts = [{'cluster': ft['cluster'], column_name: ft['dist']} for ft in
+						  shortest_dist_lyr.getFeatures()]
+			# Convert the dictionary into DataFrame
+			search_shp_df = pd.DataFrame(search_fts)
+			summary_df = pd.merge(summary_df, search_shp_df[[column_name, 'cluster']], on='cluster', how='inner')

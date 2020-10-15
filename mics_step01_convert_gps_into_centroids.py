@@ -2,39 +2,64 @@ from qgis.core import QgsProject #QGIS3
 from qgis.PyQt.QtCore import QVariant
 import random
 import processing
+from datetime import datetime
 from pathlib import Path
 import pandas as pd
 import numpy as np
 
+######################################
+# CONFIG FOR CIV - CSV input
+input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\CIV\MICS5_GPS_CIV.csv'
+cluster_no_field = 'NGRAP'  # column name with cluster number
+cluster_type_field = 'NMIL'  # column name with cluster type
+lat_field = 'LAT'  # column name with latitude (WGS84) coordinate (must be double, not string)
+lon_field = 'LONG'  # column name with longitude (WGS84) coordinate (must be double, not string)
+
+# CONFIG FOR CIV - SHP input
+# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\CIV\civ_admbnda_adm2_cntig_20160527.shp'
+# cluster_no_field = 'cluster'
+# cluster_type_field = 'type'
+
+urban_types = ['1']  # values form the cluster type column that belong to urban type
+rural_types = ['2']  # values form the cluster type column that belong to rural type
+
+ref_lyr_name = 'civ_admbnda_adm2_cntig_20160527'  # name of the QGIS layer with admin boundaries
+ref_id_field = 'admin2Pcod'  # column name with a unique ID (e.g. pcode) for admin unit
+
+######################################
+
+
 def displacepoint(x, y, max_distance=5000):
 	# calculates new point up to a given distance away from original point.All values should be provided in meters
 
-	#Generate a random angle between 0 and 360
+	# Generate a random angle between 0 and 360
 	angle_degree_internal = random.randint(0, 360)
-	#Convert the random angle from degrees to radians
+	# Convert the random angle from degrees to radians
 	angle_radian = angle_degree_internal * (math.pi / 180)
 
-	#Generate a random distance by multiplying the max distance by a random number between 0 and 1
+	# Generate a random distance by multiplying the max distance by a random number between 0 and 1
 	distance_internal = random.random() * max_distance
 
-	#Generate the offset by applying trig formulas (law of cosines) using the distance as the hypotenuse solving for the other sides
+	# Generate the offset by applying trig formulas (law of cosines) using the distance as the hypotenuse solving for
+	# the other sides
 	x_offset = math.sin(angle_radian) * distance_internal
 	y_offset = math.cos(angle_radian) * distance_internal
 	if 90 < angle_degree_internal <= 270: x_offset *= -1
 	if angle_degree_internal > 180: y_offset *= -1
 
-	#Add the offset to the orginal coordinate (in meters)
+	# Add the offset to the original coordinate (in meters)
 	new_x_internal = x + x_offset
 	new_y_internal = y + y_offset
 
 	return new_x_internal, new_y_internal, distance_internal, angle_degree_internal
+
 
 def getval(ft, field):
 	if field:
 		val = ft[field]
 		if val:
 			if isinstance(val, basestring):
-				result = "{}".format(val.encode('UTF-8').strip())
+				result = "{}".format(val.encode('UTF-8').decode('UTF-8').strip())  # ToDo: decode or encode???: val.encode('UTF-8').strip()
 			else:
 				result = "{}".format(val)
 		else:
@@ -43,36 +68,13 @@ def getval(ft, field):
 		result = ""
 	return result
 
-# CONFIG FOR LAO
-# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\Laos\lao_gps_clusters_modif.csv'
-# cluster_no_field = 'GP1'
-# cluster_type_field = 'GP2'
-# lat_field = 'GP8D'
-# lon_field = 'GP9D'
-# urban_types = ['1']
-# rural_types = ['2', '3']
-# ref_lyr_name = 'lao_bnd_admin2_ngd2018'
-# ref_id_field = 'ADM2_PCODE'
+# CONFIG FOR LAO input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS
+# geocoding\Sample data\Laos\lao_gps_clusters_modif.csv' cluster_no_field = 'GP1' cluster_type_field = 'GP2'
+# lat_field = 'GP8D' lon_field = 'GP9D' urban_types = ['1'] rural_types = ['2', '3'] ref_lyr_name =
+# 'lao_bnd_admin2_ngd2018' ref_id_field = 'ADM2_PCODE'
 
 
-# CONFIG FOR CIV - CSV input
-input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\CIV\MICS5_GPS_CIV.csv'
-cluster_no_field = 'NGRAP'
-cluster_type_field = 'NMIL'
 
-# CONFIG FOR CIV - SHP input
-input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\CIV\sample_polygon_clusters_from_convex_hulls_non_empty_geom2.shp'
-cluster_no_field = 'cluster'
-cluster_type_field = 'type'
-
-
-lat_field = 'LAT'
-lon_field = 'LONG'
-urban_types = ['1']
-rural_types = ['2']
-
-ref_lyr_name = 'civ_admbnda_adm2_cntig_20160527'
-ref_id_field = 'admin2Pcod'
 
 ##################################
 # READ LIST OF INPUT COORDINATES
@@ -126,7 +128,6 @@ ref_lyr = [layer for layer in QgsProject.instance().mapLayers().values() if laye
 ref_fts_index = QgsSpatialIndex(ref_lyr.getFeatures())
 
 cluster_polygon_lyr = QgsVectorLayer(input_file_clusters, "Cluster Polygons", "ogr")
-QgsProject.instance().addMapLayer(cluster_polygon_lyr) #QGIS3
 
 sourceCrs = QgsCoordinateReferenceSystem(4326)
 destCrs = QgsCoordinateReferenceSystem(3857)
@@ -307,7 +308,7 @@ for cluster_centroid_ft in cluster_centroid_lyr.getFeatures():
 
 		if ref_id_after == ref_id_before: con = False
 		iterations += 1
-		print("Cluster: {}, ref_id_before: {}, ref_id_after: {}, iteration: {}". format(cl,ref_id_before,ref_id_after,iterations))
+		print("Cluster: {}, ref_id_before: {}, ref_id_after: {}, iteration: {}". format(cluster_centroid_ft['cluster'], ref_id_before, ref_id_after, iterations))
 		if iterations > 10: con = False
 
 	feat_disp_centroid = QgsFeature()
@@ -363,6 +364,11 @@ if input_file_clusters_format == "csv":
 	# Add the layer to the Layers panel
 	registry.addMapLayer(cluster_multipt_lyr)
 
+if input_file_clusters_format == "shp":
+	cluster_polygon_lyr.updateExtents()
+	registry.addMapLayer(cluster_polygon_lyr)
+
+
 # Update extent of the layer
 cluster_disp_centroid_buffer_lyr.updateExtents()
 # Add the layer to the Layers panel
@@ -383,3 +389,4 @@ cluster_disp_centroid_lyr.updateExtents()
 # Add the layer to the Layers panel
 registry.addMapLayer(cluster_disp_centroid_lyr)
 
+print("Successfully completed at {}".format(datetime.now()))
