@@ -28,6 +28,24 @@ ref_id_field = 'admin2Pcod'  # column name with a unique ID (e.g. pcode) for adm
 
 ######################################
 
+# ToDo: for buffers crossing antimeridian, use a modified CS: "GEOGCRS["WGS 84",
+#     DATUM["World Geodetic System 1984",
+#         ELLIPSOID["WGS 84",6378137,298.257223563,
+#             LENGTHUNIT["metre",1]]],
+#     PRIMEM["Greenwich",180,
+#         ANGLEUNIT["degree",0.0174532925199433]],
+#     CS[ellipsoidal,2],
+#         AXIS["geodetic latitude (Lat)",north,
+#             ORDER[1],
+#             ANGLEUNIT["degree",0.0174532925199433]],
+#         AXIS["geodetic longitude (Lon)",east,
+#             ORDER[2],
+#             ANGLEUNIT["degree",0.0174532925199433]],
+#     USAGE[
+#         SCOPE["unknown"],
+#         AREA["World"],
+#         BBOX[-90,-180,90,180]]]"
+
 
 def displacepoint(x, y, max_distance=5000):
 	# calculates new point up to a given distance away from original point.All values should be provided in meters

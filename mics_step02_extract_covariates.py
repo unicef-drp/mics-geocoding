@@ -1,8 +1,8 @@
+import os
 from qgis.core import QgsProject #QGIS3
 from qgis.PyQt.QtCore import QVariant
 from pathlib import Path
 from datetime import datetime
-import pandas as pd
 
 import itertools
 from operator import itemgetter
@@ -160,15 +160,17 @@ def zonal_stats(vector_path, raster_path, cluster_no_field, nodata_value=None, g
 ref_lyr_name = 'cluster_buffers'
 # add ref areas to spatial index
 ref_lyr = [layer for layer in QgsProject.instance().mapLayers().values() if layer.name() == ref_lyr_name][0]
-ref_shp = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\CIV\cluster_buffers.shp'
+ref_shp = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\cluster_buffers.shp'
 cluster_no_field_name = 'cluster'
 
-input_csv = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Covariates\_input_covariates.txt'
+input_csv = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\_input_covariates.txt'
 input_field_filename = 'FileName'
 input_field_fileformat = 'FileFormat'
 input_field_sumstat = 'SummaryStatistic'
 input_field_columnname = 'ColumnName'
 basefolder = Path(input_csv).parent
+
+out_file_name = os.path.join(basefolder, "output_covariates.csv")
 
 f = open(input_csv, "r")
 c = 0
@@ -194,13 +196,14 @@ for i in f:
 		line = re.split('\t', i.strip())
 		inputs.append({'file': line[input_file_id], 'file_format': line[input_fileformat_id], 'sum_stat': line[input_field_sumstat_id], 'column': line[input_field_columnname_id]})
 	c = c + 1
-
+c = 1
 for input_row in inputs:
 	file_name = input_row['file']
 	file_path = os.path.join(basefolder, file_name)
 	file_format = input_row['file_format']
 	sum_stat = input_row['sum_stat']
 	column_name = input_row['column']
+	print("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(c, file_name, file_format, sum_stat, column_name))
 	if file_format == 'GeoTIFF':
 		stats = zonal_stats(ref_shp,file_path,'cluster',-99999)
 		results_df = pd.DataFrame(stats)[[sum_stat, 'cluster']]
@@ -223,7 +226,6 @@ for input_row in inputs:
 				cswc = min(
 					[(l.id(), l.geometry().closestSegmentWithContext(cluster_ft.geometry().centroid().asPoint())) for l in
 					 search_features], key=itemgetter(1))
-				# cswc = min([(s.id(), s.geometry().closestSegmentWithContext(QgsPoint(cluster_ft.geometry().centroid().asPoint()))) for s in search_features], key=itemgetter(1))
 				minDistPoint = cswc[1][1]  # nearest point on line
 				minDistLine = cswc[0]  # line id of nearest point
 				feat = QgsFeature()
@@ -247,3 +249,9 @@ for input_row in inputs:
 			# Convert the dictionary into DataFrame
 			search_shp_df = pd.DataFrame(search_fts)
 			summary_df = pd.merge(summary_df, search_shp_df[[column_name, 'cluster']], on='cluster', how='inner')
+	c = c + 1
+
+summary_df.to_csv(out_file_name, sep=',', encoding='utf-8')
+
+print("Output file saved to {}".format(out_file_name))
+print("Successfully completed at {}".format(datetime.now()))
