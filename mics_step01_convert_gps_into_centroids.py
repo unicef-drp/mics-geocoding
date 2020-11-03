@@ -1,22 +1,20 @@
+import random
 from qgis.core import QgsProject #QGIS3
 from qgis.PyQt.QtCore import QVariant
-import random
-import processing
 from datetime import datetime
 from pathlib import Path
-import pandas as pd
-import numpy as np
+
 
 ######################################
-# CONFIG FOR CIV - CSV input
-input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\CIV\MICS5_GPS_CIV.csv'
+# CONFIG FOR CIV
+input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\NorthMacedonia\MICS6_MKD National_Georef.csv'
 cluster_no_field = 'NGRAP'  # column name with cluster number
 cluster_type_field = 'NMIL'  # column name with cluster type
 lat_field = 'LAT'  # column name with latitude (WGS84) coordinate (must be double, not string)
 lon_field = 'LONG'  # column name with longitude (WGS84) coordinate (must be double, not string)
 
 # CONFIG FOR CIV - SHP input
-# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\CIV\civ_admbnda_adm2_cntig_20160527.shp'
+# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\civ_admbnda_adm2_cntig_20160527.shp'
 # cluster_no_field = 'cluster'
 # cluster_type_field = 'type'
 
@@ -27,6 +25,49 @@ ref_lyr_name = 'civ_admbnda_adm2_cntig_20160527'  # name of the QGIS layer with 
 ref_id_field = 'admin2Pcod'  # column name with a unique ID (e.g. pcode) for admin unit
 
 ######################################
+
+######################################
+# CONFIG FOR North Macedonia
+input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\NorthMacedonia\MICS6_MKD National_Georef.csv'
+cluster_no_field = 'CLUSTER_NO'  # column name with cluster number
+cluster_type_field = 'HH6_ClusterType'  # column name with cluster type
+lat_field = 'FI'  # column name with latitude (WGS84) coordinate (must be double, not string)
+lon_field = 'L'  # column name with longitude (WGS84) coordinate (must be double, not string)
+
+# CONFIG FOR CIV - SHP input
+# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\civ_admbnda_adm2_cntig_20160527.shp'
+# cluster_no_field = 'cluster'
+# cluster_type_field = 'type'
+
+urban_types = ['1']  # values form the cluster type column that belong to urban type
+rural_types = ['2']  # values form the cluster type column that belong to rural type
+
+ref_lyr_name = 'MKD_admn_adm3_py_EuroGeographics-NTES_pp'  # name of the QGIS layer with admin boundaries
+ref_id_field = 'SHN3'  # column name with a unique ID (e.g. pcode) for admin unit
+
+######################################
+
+######################################
+# # CONFIG FOR LAO
+# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\lao_gps_clusters.csv'
+# cluster_no_field = 'GP1'  # column name with cluster number
+# cluster_type_field = 'GP2'  # column name with cluster type
+# lat_field = 'GP8D'  # column name with latitude (WGS84) coordinate (must be double, not string)
+# lon_field = 'GP9D'  # column name with longitude (WGS84) coordinate (must be double, not string)
+#
+# # CONFIG FOR CIV - SHP input
+# # input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\civ_admbnda_adm2_cntig_20160527.shp'
+# # cluster_no_field = 'cluster'
+# # cluster_type_field = 'type'
+#
+# urban_types = ['1']  # values form the cluster type column that belong to urban type
+# rural_types = ['2','3']  # values form the cluster type column that belong to rural type
+#
+# ref_lyr_name = 'lao_bnd_admin1_ngd2018'  # name of the QGIS layer with admin boundaries
+# ref_id_field = 'ADM1_PCODE'  # column name with a unique ID (e.g. pcode) for admin unit
+
+######################################
+
 
 # ToDo: for buffers crossing antimeridian, use a modified CS: "GEOGCRS["WGS 84",
 #     DATUM["World Geodetic System 1984",
@@ -86,13 +127,6 @@ def getval(ft, field):
 		result = ""
 	return result
 
-# CONFIG FOR LAO input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS
-# geocoding\Sample data\Laos\lao_gps_clusters_modif.csv' cluster_no_field = 'GP1' cluster_type_field = 'GP2'
-# lat_field = 'GP8D' lon_field = 'GP9D' urban_types = ['1'] rural_types = ['2', '3'] ref_lyr_name =
-# 'lao_bnd_admin2_ngd2018' ref_id_field = 'ADM2_PCODE'
-
-
-
 
 ##################################
 # READ LIST OF INPUT COORDINATES
@@ -129,6 +163,13 @@ cluster_disp_centroid_prov = cluster_disp_centroid_lyr.dataProvider()
 cluster_disp_centroid_prov.addAttributes([QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int), QgsField("lon_orig", QVariant.Double), QgsField("lat_orig", QVariant.Double), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double), QgsField("disp_dist_m", QVariant.Double), QgsField("disp_angle", QVariant.Double), QgsField("refar_id_b", QVariant.String), QgsField("refar_id_a", QVariant.String), QgsField("iter", QVariant.Int)])
 cluster_disp_centroid_lyr.updateFields()
 
+# create layer for anonymized displaced centroids
+cluster_anonym_disp_centroid_lyr = QgsVectorLayer('Point?crs=epsg:4326', 'Cluster Anonymized Displaced Centroids', 'memory')
+cluster_anonym_disp_centroid_prov = cluster_anonym_disp_centroid_lyr.dataProvider()
+cluster_anonym_disp_centroid_prov.addAttributes([QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double)])
+cluster_anonym_disp_centroid_lyr.updateFields()
+
+
 # create layer for displacement links
 cluster_centroid_disp_links_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Cluster Displacement Links', 'memory')
 cluster_centroid_disp_links_prov = cluster_centroid_disp_links_lyr.dataProvider()
@@ -141,24 +182,33 @@ cluster_disp_centroid_buffer_prov = cluster_disp_centroid_buffer_lyr.dataProvide
 cluster_disp_centroid_buffer_prov.addAttributes([QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int), QgsField("buf_dist", QVariant.Double)])
 cluster_disp_centroid_buffer_lyr.updateFields()
 
+# create layer for anonymized buffers
+cluster_anonym_disp_centroid_buffer_lyr = QgsVectorLayer('Polygon?crs=epsg:4326', 'Cluster Anonymized Buffers', 'memory')
+cluster_anonym_disp_centroid_buffer_prov = cluster_anonym_disp_centroid_buffer_lyr.dataProvider()
+cluster_anonym_disp_centroid_buffer_prov.addAttributes([QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("buf_dist", QVariant.Double)])
+cluster_anonym_disp_centroid_buffer_lyr.updateFields()
+
+
 # add ref areas to spatial index
 ref_lyr = [layer for layer in QgsProject.instance().mapLayers().values() if layer.name() == ref_lyr_name][0]
 ref_fts_index = QgsSpatialIndex(ref_lyr.getFeatures())
 
+# create layer for cluster polygons (for use if the input is shp not csv)
 cluster_polygon_lyr = QgsVectorLayer(input_file_clusters, "Cluster Polygons", "ogr")
 
+# define geographic and projected coordinate systems
 sourceCrs = QgsCoordinateReferenceSystem(4326)
 destCrs = QgsCoordinateReferenceSystem(3857)
 tr = QgsCoordinateTransform(sourceCrs, destCrs, QgsProject.instance())
 
+# check type of input file: extension must be csv or shp
 input_file_clusters_format = Path(input_file_clusters).suffix[1:]
-
 
 rural_displaced_points = 0
 cluster_centroid_fts = []
 
 if input_file_clusters_format == "csv":
-	f = open(input_file_clusters, "r")
+	f = open(input_file_clusters, "r", encoding='utf-8-sig')
 	c = 0
 	gps_coords = []
 
@@ -216,26 +266,17 @@ if input_file_clusters_format == "csv":
 		angle_deg = cluster_convexhull_mbb[2]
 		width_m = cluster_convexhull_mbb[3]
 		height_m = cluster_convexhull_mbb[4]
-		if area_m2 == 1.7976931348623157e+308: area_m2 = 0
-		if angle_deg == 1.7976931348623157e+308: angle_deg = 0
-		if width_m == 1.7976931348623157e+308: width_m = 0
-		if height_m == 1.7976931348623157e+308: height_m = 0
-
-		# if counter <= 3:
-		# 	area_m2 = 0
-		# 	angle_deg = 0
-		# 	width_m = 0
-		# 	height_m = 0
-		# else:
-		# 	area_m2 = cluster_convexhull_mbb[1]
-		# 	angle_deg = cluster_convexhull_mbb[2]
-		# 	width_m = cluster_convexhull_mbb[3]
-		# 	height_m = cluster_convexhull_mbb[4]
+		if area_m2 == 1.7976931348623157e+308: area_m2 = 0 # handling infinity values
+		if angle_deg == 1.7976931348623157e+308: angle_deg = 0 # handling infinity values
+		if width_m == 1.7976931348623157e+308: width_m = 0 # handling infinity values
+		if height_m == 1.7976931348623157e+308: height_m = 0 # handling infinity values
 
 		cluster_convexhull_ft.setAttributes([cl[0], cl[1], counter, area_m2, angle_deg, width_m, height_m])
 		cluster_convexhull_prov.addFeatures([cluster_convexhull_ft])
 
 		cluster_centroid_ft = QgsFeature()
+
+		# determine if pole of inaccessibility can be determined
 		if cluster_convexhull_ft.geometry().poleOfInaccessibility(100)[0].isNull():
 			cluster_centroid_ft.setGeometry(cluster_multipt_ft.geometry().centroid())
 		else:
@@ -329,10 +370,17 @@ for cluster_centroid_ft in cluster_centroid_lyr.getFeatures():
 		print("Cluster: {}, ref_id_before: {}, ref_id_after: {}, iteration: {}". format(cluster_centroid_ft['cluster'], ref_id_before, ref_id_after, iterations))
 		if iterations > 10: con = False
 
+	# add displaced centroid
 	feat_disp_centroid = QgsFeature()
 	feat_disp_centroid.setGeometry(displaced_point_wgs)
 	feat_disp_centroid.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], cluster_centroid_ft['count'], cluster_centroid_ft.geometry().asPoint().x(), cluster_centroid_ft.geometry().asPoint().y(), displaced_point_wgs.asPoint().x(), displaced_point_wgs.asPoint().y(), distance, angle_degree, ref_id_before, ref_id_after, iterations])
 	cluster_disp_centroid_prov.addFeatures([feat_disp_centroid])
+
+	# add anoymized displaced centroid
+	feat_anonym_disp_centroid = QgsFeature()
+	feat_anonym_disp_centroid.setGeometry(displaced_point_wgs)
+	feat_anonym_disp_centroid.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], displaced_point_wgs.asPoint().x(), displaced_point_wgs.asPoint().y()])
+	cluster_anonym_disp_centroid_prov.addFeatures([feat_anonym_disp_centroid])
 
 	# add displacement links
 	centroid_disp_links_ft = QgsFeature()
@@ -340,12 +388,10 @@ for cluster_centroid_ft in cluster_centroid_lyr.getFeatures():
 	centroid_disp_links_ft.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], cluster_centroid_ft['count'], cluster_centroid_ft.geometry().asPoint().x(), cluster_centroid_ft.geometry().asPoint().y(), displaced_point_wgs.asPoint().x(), displaced_point_wgs.asPoint().y(), distance, angle_degree, ref_id_before, ref_id_after, iterations])
 	cluster_centroid_disp_links_prov.addFeatures([centroid_disp_links_ft])
 
-
 	# copy geometry of displaced centroid
 	displaced_feat_centroid_mercator = QgsGeometry(feat_disp_centroid.geometry())
 	# transform copy of the centroid into Web Mercator
 	displaced_feat_centroid_mercator.transform(tr)
-	# cluster_centroid_ft_geom_merc
 
 	# create buffers around displaced centroids
 	disp_centroid_buff_geom = displaced_feat_centroid_mercator.buffer(max_displace_distance, 20)
@@ -354,6 +400,12 @@ for cluster_centroid_ft in cluster_centroid_lyr.getFeatures():
 	disp_centroid_buff_ft.setGeometry(disp_centroid_buff_geom)
 	disp_centroid_buff_ft.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], cluster_centroid_ft['count'], max_displace_distance])
 	cluster_disp_centroid_buffer_prov.addFeatures([disp_centroid_buff_ft])
+
+	# create buffers around displaced centroids
+	disp_anonym_centroid_buff_ft = QgsFeature()
+	disp_anonym_centroid_buff_ft.setGeometry(disp_centroid_buff_geom)
+	disp_anonym_centroid_buff_ft.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], max_displace_distance])
+	cluster_anonym_disp_centroid_buffer_prov.addFeatures([disp_anonym_centroid_buff_ft])
 
 	# create buffers around original centroids
 	# centroid_buff = cluster_centroid_ft_geom_merc.buffer(max_displace_distance, 20)
@@ -367,44 +419,37 @@ for cluster_centroid_ft in cluster_centroid_lyr.getFeatures():
 registry = QgsProject.instance()
 
 if input_file_clusters_format == "csv":
-	# Update extent of the layer
+	# Update extent of the layer and add to map
 	cluster_convexhull_lyr.updateExtents()
-	# Add the layer to the Layers panel
 	registry.addMapLayer(cluster_convexhull_lyr)
 
-	# Update extent of the layer
 	gps_coords_lyr.updateExtents()
-	# Add the layer to the Layers panel
 	registry.addMapLayer(gps_coords_lyr)
 
-	# Update extent of the layer
 	cluster_multipt_lyr.updateExtents()
-	# Add the layer to the Layers panel
 	registry.addMapLayer(cluster_multipt_lyr)
 
 if input_file_clusters_format == "shp":
 	cluster_polygon_lyr.updateExtents()
 	registry.addMapLayer(cluster_polygon_lyr)
 
-
-# Update extent of the layer
+# Update extent of the layer and add to map
 cluster_disp_centroid_buffer_lyr.updateExtents()
-# Add the layer to the Layers panel
 registry.addMapLayer(cluster_disp_centroid_buffer_lyr)
 
-# Update extent of the layer
+cluster_anonym_disp_centroid_buffer_lyr.updateExtents()
+registry.addMapLayer(cluster_anonym_disp_centroid_buffer_lyr)
+
 cluster_centroid_disp_links_lyr.updateExtents()
-# Add the layer to the Layers panel
 registry.addMapLayer(cluster_centroid_disp_links_lyr)
 
-# Update extent of the layer
 cluster_centroid_lyr.updateExtents()
-# Add the layer to the Layers panel
 registry.addMapLayer(cluster_centroid_lyr)
 
-# Update extent of the layer
 cluster_disp_centroid_lyr.updateExtents()
-# Add the layer to the Layers panel
 registry.addMapLayer(cluster_disp_centroid_lyr)
+
+cluster_anonym_disp_centroid_lyr.updateExtents()
+registry.addMapLayer(cluster_anonym_disp_centroid_lyr)
 
 print("Successfully completed at {}".format(datetime.now()))
