@@ -6,17 +6,17 @@ from pathlib import Path
 
 
 ######################################
-# CONFIG FOR CIV
-input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\NorthMacedonia\MICS6_MKD National_Georef.csv'
-cluster_no_field = 'NGRAP'  # column name with cluster number
-cluster_type_field = 'NMIL'  # column name with cluster type
+# CONFIG FOR MKD
+# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\NorthMacedonia\MICS6_MKD National_Georef.csv'
+# cluster_no_field = 'NGRAP'  # column name with cluster number
+# cluster_type_field = 'NMIL'  # column name with cluster type
 lat_field = 'LAT'  # column name with latitude (WGS84) coordinate (must be double, not string)
 lon_field = 'LONG'  # column name with longitude (WGS84) coordinate (must be double, not string)
 
 # CONFIG FOR CIV - SHP input
-# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\civ_admbnda_adm2_cntig_20160527.shp'
-# cluster_no_field = 'cluster'
-# cluster_type_field = 'type'
+input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\MICS5_GPS_CIV.csv'
+cluster_no_field = 'NGRAP'
+cluster_type_field = 'NMIL'
 
 urban_types = ['1']  # values form the cluster type column that belong to urban type
 rural_types = ['2']  # values form the cluster type column that belong to rural type
@@ -28,22 +28,22 @@ ref_id_field = 'admin2Pcod'  # column name with a unique ID (e.g. pcode) for adm
 
 ######################################
 # CONFIG FOR North Macedonia
-input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\NorthMacedonia\MICS6_MKD National_Georef.csv'
-cluster_no_field = 'CLUSTER_NO'  # column name with cluster number
-cluster_type_field = 'HH6_ClusterType'  # column name with cluster type
-lat_field = 'FI'  # column name with latitude (WGS84) coordinate (must be double, not string)
-lon_field = 'L'  # column name with longitude (WGS84) coordinate (must be double, not string)
+# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\NorthMacedonia\MICS6_MKD National_Georef.csv'
+# cluster_no_field = 'CLUSTER_NO'  # column name with cluster number
+# cluster_type_field = 'HH6_ClusterType'  # column name with cluster type
+# lat_field = 'FI'  # column name with latitude (WGS84) coordinate (must be double, not string)
+# lon_field = 'L'  # column name with longitude (WGS84) coordinate (must be double, not string)
 
 # CONFIG FOR CIV - SHP input
 # input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\civ_admbnda_adm2_cntig_20160527.shp'
 # cluster_no_field = 'cluster'
 # cluster_type_field = 'type'
 
-urban_types = ['1']  # values form the cluster type column that belong to urban type
-rural_types = ['2']  # values form the cluster type column that belong to rural type
-
-ref_lyr_name = 'MKD_admn_adm3_py_EuroGeographics-NTES_pp'  # name of the QGIS layer with admin boundaries
-ref_id_field = 'SHN3'  # column name with a unique ID (e.g. pcode) for admin unit
+# urban_types = ['1']  # values form the cluster type column that belong to urban type
+# rural_types = ['2']  # values form the cluster type column that belong to rural type
+#
+# ref_lyr_name = 'MKD_admn_adm3_py_EuroGeographics-NTES_pp'  # name of the QGIS layer with admin boundaries
+# ref_id_field = 'SHN3'  # column name with a unique ID (e.g. pcode) for admin unit
 
 ######################################
 
