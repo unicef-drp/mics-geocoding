@@ -9,6 +9,7 @@
 ##
 ## ###########################################################################
 
+from re import S
 import typing
 from qgis.core import *  # QGIS3
 from qgis.PyQt.QtCore import QVariant
@@ -33,6 +34,8 @@ class Step01Manager():
         self.layers = {}
         self.centroidLoader = CentroidsLoader.CentroidsLoader()
         self.centroidDisplacer = CentroidsDisplacer.CentroidsDisplacer()
+        self.isLoaded = False
+        self.isDisplaced = False
 
 ####################################################################
 # Main steps.
@@ -40,18 +43,16 @@ class Step01Manager():
 
     def loadCentroids(self) -> None:
         self.centroidDisplacer.clearLayers()
-        self.layers[Utils.LayersName.CENTROIDS] = self.centroidLoader.loadCentroids()
-        Logger.logInfo("load centroids manager: " + str(hex(id(self.layers[Utils.LayersName.CENTROIDS]))))
+        self.layers[Utils.LayersType.CENTROIDS] = self.centroidLoader.loadCentroids()
+        self.isLoaded = True
+        Logger.logInfo("load centroids manager: " + str(hex(id(self.layers[Utils.LayersType.CENTROIDS]))))
 
     def displaceCentroids(self) -> None:
         Logger.logInfo("[MANAGER] Begin to displace the centroids at {}".format(datetime.now()))
         self.centroidLoader.putLayersOnTop()
-        layers = QgsProject.instance().mapLayersByName(Utils.LayersName.CENTROIDS)
-        if not layers:
-            self.loadCentroids()
-        self.centroidDisplacer.setCentroidsLayer(self.layers[Utils.LayersName.CENTROIDS])
+        self.centroidDisplacer.setCentroidsLayer(self.layers[Utils.LayersType.CENTROIDS])
         self.centroidDisplacer.displaceCentroids()
-
+        self.isDisplaced = True
         Logger.logInfo("[MANAGER] Centroids displaced at {}".format(datetime.now()))
 
 ####################################################################
@@ -76,7 +77,6 @@ class Step01Manager():
         self.centroidLoader.input_file = file
 
     def setReferenceLayer(self, ref_lyr_file: str) -> None:
-        # load reference layer
         self.centroidDisplacer.setReferenceLayer(ref_lyr_file)
         self.centroidLoader.putLayersOnTop()
 
@@ -88,3 +88,15 @@ class Step01Manager():
 
     def setRuralTypes(self, types: typing.List[str]) -> None:
         self.centroidDisplacer.rural_types = types
+
+    def setOutputsDirectory(self, dir: str) -> None:
+        Utils.LayersName.outputDirectory = dir
+
+    def setBasename(self, basename: str) -> None:
+        self.centroidLoader.clearLayers()
+        self.centroidDisplacer.clearLayers()
+        Utils.LayersName.basename = basename
+        if self.isLoaded:
+            self.loadCentroids()
+        if self.isDisplaced:
+            self.displaceCentroids()

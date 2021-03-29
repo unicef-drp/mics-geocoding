@@ -6,7 +6,7 @@
 name=MicsGeocodePlugin
 qgisMinimumVersion=3.0
 description=MicsGeocodePlugin
-version=0.1
+version=0.2
 author=e
 email=e
 

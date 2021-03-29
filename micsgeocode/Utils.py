@@ -11,59 +11,100 @@
 
 from qgis.core import *  # QGIS3
 
+from PyQt5 import QtCore
+
 from pathlib import Path
 
 import typing
 from enum import Enum
 from .Logger import Logger
 
-class LayersName(str, Enum):
-    """ Layer - handle layer naming
-    """
-    CENTROIDS = "Cluster Centroids"
-    POLYGONS = "Cluster Polygons"
-    GPS = "GPS Cluster Points"
-    MULTIPLT = "Cluster Multi-Points"  # Utils.LayersName.MULTIPLT
-    CONVEXHULL = "Cluster Convex Hulls"  # Utils.LayersName.CONVEXHULL
+class LayersType(str, Enum):
+    CENTROIDS = "CENTROIDS"
+    POLYGONS = "POLYGONS"
+    GPS = "GPS"
+    MULTIPLT = "MULTIPLT"
+    CONVEXHULL = "CONVEXHULL"
+    BUFFERS = "BUFFERS"
+    BUFFERSANON = "BUFFERSANON"
+    LINKS = "LINKS"
+    DISPLACED = "DISPLACED"
+    DISPLACEDANON = "DISPLACEDANON"
 
-    BUFFERS = "Cluster Buffers"  # Utils.LayersName.BUFFERS
-    # Utils.LayersName.BUFFERSANON
-    BUFFERSANON = "Cluster Anonymized Buffers"
-    LINKS = "Cluster Displacement Links"  # Utils.LayersName.LINKS
+class LayersName():
+    basename = ""
+    outputDirectory = ""
+    layerNames = {
+        LayersType.CENTROIDS: "cluster_centroids",
+        LayersType.POLYGONS: "cluster_polygons",
+        LayersType.GPS: "GPS_cluster_points",
+        LayersType.MULTIPLT: "cluster_multi-points",
+        LayersType.CONVEXHULL: "cluster_convex_hulls",
+        LayersType.BUFFERS: "cluster_buffers",
+        LayersType.BUFFERSANON: "cluster_anonymized_buffers",
+        LayersType.LINKS: "cluster_displacement_links",
+        LayersType.DISPLACED: "cluster_displaced_centroids",
+        LayersType.DISPLACEDANON: "cluster_anonymized_displaced_centroids",
+    }
 
-    DISPLACED = "Cluster Displaced Centroids"  # Utils.LayersName.DISPLACED
-    # cluster_anonym_disp_centroid
-    DISPLACEDANON = "Cluster Anonymized Displaced Centroids"
-    # create layer for displaced centroids
+    @staticmethod
+    def layerName(t: LayersType) -> str :
+        if LayersName.basename:
+            return LayersName.basename + '_' + LayersName.layerNames[t]
+        return LayersName.layerNames[t]
 
-def removeLayerIfExists(layerName: str) -> None:
+    @staticmethod
+    def fileName(t: LayersType) -> str :
+        if LayersName.basename:
+            return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + LayersName.layerNames[t] + ".shp"
+        return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.layerNames[t] + ".shp"
+
+def removeLayerIfExistsByName(layerName: str) -> None:
     """ Remove existing layer with the same name. Avoid duplication when run multiple times.
     """
     layers = QgsProject.instance().mapLayersByName(layerName)
     if layers:
         QgsProject.instance().removeMapLayer(layers[0])
 
-def putLayerOnTopIfExists(layerName: str) -> None:
+def removeLayerIfExists(layerType: LayersType) -> None:
+    """ Remove existing layer with the same name. Avoid duplication when run multiple times.
+    """
+    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
+    if layers:
+        QgsProject.instance().removeMapLayer(layers[0])
+
+def putLayerOnTopIfExists(layerType: LayersType) -> None:
     """ Put layer on top if it exists
     """
-    layers = QgsProject.instance().mapLayersByName(layerName)
+    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
     if layers:
         lyr = QgsProject.instance().takeMapLayer(layers[0])
         if lyr:
             QgsProject.instance().addMapLayer(lyr)
 
-
-def createLayer(layerType: str, layerName: str, layerAttributes: typing.List[QgsField]) -> QgsVectorLayer:
+def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typing.List[QgsField]) -> QgsVectorLayer:
     """ Create layer method, given a type, a name and some attributes
     """
-    removeLayerIfExists(layerName)
-
-    layer = QgsVectorLayer(layerType, layerName, 'memory')
+    removeLayerIfExists(layerCategorie)
+    # error = QgsVectorFileWriter.writeAsVectorFormatV2(layer, "testdata/my_new_shapefile", transform_context, save_options)
+    layer = QgsVectorLayer(layerType, LayersName.layerName(layerCategorie), 'memory')
     provider = layer.dataProvider()
     provider.addAttributes(layerAttributes)
     layer.updateFields()
+
     return layer
 
+def writeLayerIfExists(layerType: LayersType) -> None:
+    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
+    if layers:
+        provider = layers[0].dataProvider()
+        # writer = QgsVectorFileWriter( "output_path_and_name.shp", provider.encoding(), provider.fields(), QGis.WKBPolygon, provider.crs() )
+        writer = QgsVectorFileWriter.writeAsVectorFormat(
+            layers[0],
+            LayersName.fileName(layerType),
+            provider.encoding(),
+            provider.crs(),
+            driverName='ESRI Shapefile')
 
 def getval(ft: QgsFeature, field: QgsField) -> str:
     """ get value as string from feature / field combo

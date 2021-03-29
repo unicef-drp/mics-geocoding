@@ -26,6 +26,17 @@ class mics_geocode_config_reader:
 			else:
 				self.mainWindow.ui.tabWidget.setCurrentIndex(1)
 
+			if 'global' in configReader:
+				if 'basename' in configReader['global']:
+					self.mainWindow.ui.basenameLineEdit.setText(configReader['global']['basename'])
+					self.mainWindow.onBasenameLineEditChanged()
+
+				if 'outputDir' in configReader['global']:
+					try:
+						self.mainWindow.ui.outputDirLineEdit.setText( os.path.realpath(os.path.join(project_root_path, configReader['global']['outputDir'])))
+					except:
+						self.mainWindow.ui.outputDirLineEdit.clear()
+
 			if 'ReferenceLayer' in configReader:
 				if 'fileReferenceLayer' in configReader['ReferenceLayer']:
 					try:

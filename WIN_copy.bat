@@ -56,6 +56,7 @@ set PLUGIN_FILES=%PLUGIN_FILES%;ui_mics_geocode_plugin_dialog.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mics_geocode_plugin_main_window.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mics_geocode_config_reader.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mics_geocode_config_writer.py
+set PLUGIN_FILES=%PLUGIN_FILES%;mics_geocode_plugin_version.py
 set PLUGIN_FILES=%PLUGIN_FILES%;resources.py
 
 FOR %%F IN (%PLUGIN_FILES%) DO (

@@ -8,7 +8,7 @@
 
 import os
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 from pathlib import Path
 import re
 
@@ -36,6 +36,9 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.setWindowTitle(self.title)
         self.needsSave = False
 
+        pixmap = QtGui.QPixmap(":/plugins/MicsGeocodePlugin/logo_nobg.png")
+        self.ui.labelLogo.setPixmap(pixmap)
+
         self.step01manager = step01.Step01Manager()
         self.step02manager = step02.Step02Manager()
 
@@ -55,7 +58,15 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
 
         self.move(pos)
 
+        regex = QtCore.QRegExp("[a-zA-Z][a-zA-Z0-9]{0,15}")
+        validator = QtGui.QRegExpValidator(regex)
+        self.ui.basenameLineEdit.setValidator(validator)
+
         # Signals Slots
+        self.ui.basenameLineEdit.editingFinished.connect(self.onBasenameLineEditChanged)
+        self.ui.outputDirToolButton.clicked.connect(self.onOutputDirToolButtonClicked)
+        self.ui.outputDirLineEdit.textChanged.connect(self.onOutputDirLineEditChanged)
+
         self.ui.referenceLayerToolButton.clicked.connect(self.onReferenceLayerToolButtonClicked)
         self.ui.referenceLayerLineEdit.textChanged.connect(self.onReferenceLayerFileChanged)
         self.ui.referenceLayerFieldCombobox.currentTextChanged.connect(self.onReferenceLayerFieldComboboxTextChanged)
@@ -105,6 +116,8 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
 
         # Gui Init Values - here.
         self.ui.tabWidget.setCurrentIndex(0)
+        self.ui.basenameLineEdit.setText("basename")
+        self.ui.outputDirLineEdit.setText(QtCore.QDir.tempPath())
 
         # config management
         settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
@@ -155,8 +168,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
     def onLoadConfigButtonClicked(self):
         settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
-        file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            None, "Open config file", dir, "*.mgc")
+        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open config file", dir, "*.mgc")
         if file:
             self.open(file)
             settings.setValue("last_file_directory", os.path.dirname(file))
@@ -186,6 +198,46 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             settings.setValue("last_file_directory", os.path.dirname(file))
             settings.setValue("last_config_file", file)
             self.updateSaveStatus(False)
+
+    # #############################################################
+    # Output directory
+    # #############################################################
+
+    def onOutputDirToolButtonClicked(self):
+        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        path = settings.value("last_file_directory", QtCore.QDir.homePath())
+        dir = QtWidgets.QFileDialog.getExistingDirectory(None, "Select output directory", path)
+        if dir:
+            self.outputDirectory = dir
+            self.ui.outputDirLineEdit.setText(dir)
+            settings.setValue("last_file_directory", dir)
+
+    def onOutputDirLineEditChanged(self):
+        dir = QtCore.QDir(self.ui.outputDirLineEdit.text())
+
+        self.ui.groupBoxCentroid.setEnabled(dir.exists())
+        self.ui.groupBoxDisplacer.setEnabled(dir.exists())
+
+        if dir.exists():
+            self.step01manager.setOutputsDirectory(self.ui.outputDirLineEdit.text())
+            self.updateSaveStatus(True)
+
+    # #############################################################
+    # Centroids Source
+    # #############################################################
+
+    def onBasenameLineEditChanged(self):
+        if self.ui.basenameLineEdit.hasAcceptableInput():
+            Logger.logInfo("PASPSPAPAPSAPSAPPSAPSAPSALLLLLLL YES")
+            self.step01manager.setBasename(self.ui.basenameLineEdit.text())
+            self.updateSaveStatus(True)
+        else:
+            msgBox = QtWidgets.QMessageBox()
+            msgBox.setText("Invalid basename")
+            msgBox.setInformativeText("The basename " + self.ui.basenameLineEdit.text() + " is not valid.")
+            msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            msgBox.setDefaultButton(QtWidgets.QMessageBox.Ok)
+            ret = msgBox.exec_()
 
     # #############################################################
     # Centroids Source
@@ -255,7 +307,8 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             self.ui.longitudeFieldComboBox.setEnabled(False)
             self.ui.latitudeFieldComboBox.setEnabled(False)
 
-        self.step01manager.loadCentroids()
+        self.ui.loadCentroidsButton.click()
+
         self.updateSaveStatus(True)
 
     def onLoadCentroidsButtonCLicked(self):
@@ -314,11 +367,9 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
 
         fields = Utils.getFieldsListAsStrArray(self.ui.referenceLayerLineEdit.text())
         if fields:
-            Logger.logInfo("HERE " + '@'.join(fields))
             self.ui.referenceLayerFieldCombobox.addItems(fields)
             self.ui.referenceLayerFieldCombobox.setEnabled(True)
         else:
-            Logger.logInfo("NOT HERE")
             self.ui.referenceLayerFieldCombobox.setEnabled(False)
 
         self.updateSaveStatus(True)

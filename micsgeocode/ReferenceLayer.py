@@ -10,6 +10,7 @@
 ## ###########################################################################
 
 from qgis.core import *  # QGIS3
+from PyQt5 import QtCore  # QGIS3
 
 import os
 from .Logger import Logger
@@ -26,7 +27,7 @@ class ReferenceLayer():
         self.ref_fts_index = None
 
     def clear(self):
-        Utils.removeLayerIfExists(self.__layerName)
+        Utils.removeLayerIfExistsByName(self.__layerName)
         self.__layerName = ""
         self.layer = None
 
@@ -36,10 +37,16 @@ class ReferenceLayer():
         """
         self.clear()
         try:
-            self.__layerName = os.path.basename(input_file)
-            self.layer = QgsVectorLayer(input_file, self.__layerName)
+            fi = QtCore.QFileInfo(input_file)
+            self.__layerName = fi.baseName()
+
+            layers = QgsProject.instance().mapLayersByName(self.__layerName)
+            if not layers:
+                self.layer = QgsVectorLayer(input_file, self.__layerName)
+            else:
+                self.layer = layers[0]
             QgsProject.instance().addMapLayer(self.layer)
             self.ref_fts_index = QgsSpatialIndex(self.layer.getFeatures())
-            # qgis.utils.iface.mapCanvas().setExtent(self.layer.extent())
+
         except:
             self.clear()

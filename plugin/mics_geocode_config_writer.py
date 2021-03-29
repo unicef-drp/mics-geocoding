@@ -35,9 +35,18 @@ class mics_geocode_config_writer:
 			except:
 				centroid_file = ""
 
+			try:
+				output_dir = os.path.relpath(self.mainWindow.ui.outputDirLineEdit.text(), project_root_path)
+			except:
+				output_dir = ""
 
 			configWriter['program'] = {'name' : 'MicsGeocodePlugin', 'version' : '0.0.1'}
 			configWriter['state'] = {'isStep1' : (self.mainWindow.ui.tabWidget.currentIndex() == 0)}
+
+			configWriter['global'] = {
+				'basename': self.mainWindow.ui.basenameLineEdit.text(),
+				'outputDir': output_dir
+			}
 
 			configWriter['ReferenceLayer'] = {
 				'fileReferenceLayer': ref_file,

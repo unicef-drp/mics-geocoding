@@ -28,6 +28,7 @@ from qgis.core import QgsMessageLog
 
 from .resources import *
 from .mics_geocode_plugin_main_window import MicsGeocodePluginMainWindow
+from .mics_geocode_plugin_version import MICS_GEOCODE_PLUGIN_VERSION
 
 class MicsGeocodePlugin:
     """QGIS Plugin Implementation."""
@@ -50,13 +51,10 @@ class MicsGeocodePlugin:
         self.actions = []
         self.menu = 'MicsGeocodePlugin'
 
-        # Check if plugin was started the first time in current QGIS session
-        # Must be set in initGui() to survive plugin reloads
-        self.first_start = None
+        self.icon_path = ":/plugins/MicsGeocodePlugin/icon_nobg.png"
 
     def add_action(
         self,
-        icon_path,
         text,
         callback,
         enabled_flag=True,
@@ -104,7 +102,7 @@ class MicsGeocodePlugin:
         :rtype: QAction
         """
 
-        icon = QtGui.QIcon(icon_path)
+        icon = QtGui.QIcon(self.icon_path)
         action = QtWidgets.QAction(icon, text, parent)
         action.triggered.connect(callback)
         action.setEnabled(enabled_flag)
@@ -131,15 +129,10 @@ class MicsGeocodePlugin:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/MicsGeocodePlugin/icon.png'
         self.add_action(
-            icon_path,
             text='Mics Geocode Plugin',
             callback=self.run,
             parent=self.iface.mainWindow())
-
-        # will be set False in run()
-        self.first_start = True
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -151,12 +144,8 @@ class MicsGeocodePlugin:
 
     def run(self):
         """Run method that performs all the real work"""
-
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start is True:
-            self.mainDialog = MicsGeocodePluginMainWindow(self, "0.0.1")
-            self.first_start = False
+        self.mainDialog = MicsGeocodePluginMainWindow(self, MICS_GEOCODE_PLUGIN_VERSION)
+        self.mainDialog.setWindowIcon(QtGui.QIcon(self.icon_path))
 
         # show the dialog
         self.mainDialog.show()

@@ -74,14 +74,16 @@ class CentroidsDisplacer():
         for cluster_centroid_ft in self.centroidLayer.getFeatures():
             self.__displaceCentroid(cluster_centroid_ft)
 
+        self.writeLayers()
+
         Logger.logSuccess("Centroids succcessfully displaced at {}".format(datetime.now()))
 
     def clearLayers(self) -> None:
-        Utils.removeLayerIfExists(Utils.LayersName.BUFFERS)
-        Utils.removeLayerIfExists(Utils.LayersName.BUFFERSANON)
-        Utils.removeLayerIfExists(Utils.LayersName.LINKS)
-        Utils.removeLayerIfExists(Utils.LayersName.DISPLACED)
-        Utils.removeLayerIfExists(Utils.LayersName.DISPLACEDANON)
+        Utils.removeLayerIfExists(Utils.LayersType.BUFFERS)
+        Utils.removeLayerIfExists(Utils.LayersType.BUFFERSANON)
+        Utils.removeLayerIfExists(Utils.LayersType.LINKS)
+        Utils.removeLayerIfExists(Utils.LayersType.DISPLACED)
+        Utils.removeLayerIfExists(Utils.LayersType.DISPLACEDANON)
         self.__generatedLayers.clear()
 
     def setReferenceLayer(self, referenceLayer):
@@ -90,6 +92,13 @@ class CentroidsDisplacer():
 
     def setCentroidsLayer(self, centroidsLayer):
         self.centroidLayer = centroidsLayer
+
+    def writeLayers(self) -> None:
+        Utils.writeLayerIfExists(Utils.LayersType.BUFFERS)
+        Utils.writeLayerIfExists(Utils.LayersType.BUFFERSANON)
+        Utils.writeLayerIfExists(Utils.LayersType.LINKS)
+        Utils.writeLayerIfExists(Utils.LayersType.DISPLACED)
+        Utils.writeLayerIfExists(Utils.LayersType.DISPLACEDANON)
 
 ####################################################################
 # DisplaceCentroids
@@ -216,46 +225,46 @@ class CentroidsDisplacer():
 
     def __createOutputsMemoryLayer(self):
         # create layer for buffers
-        self.__generatedLayers[Utils.LayersName.BUFFERS] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersName.BUFFERS, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int), QgsField("buf_dist", QVariant.Double)])
+        self.__generatedLayers[Utils.LayersType.BUFFERS] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.BUFFERS, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int), QgsField("buf_dist", QVariant.Double)])
 
         # create layer for anonymized buffers
-        self.__generatedLayers[Utils.LayersName.BUFFERSANON] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersName.BUFFERSANON, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("buf_dist", QVariant.Double)])
+        self.__generatedLayers[Utils.LayersType.BUFFERSANON] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.BUFFERSANON, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("buf_dist", QVariant.Double)])
 
         # create layer for displacement links
-        self.__generatedLayers[Utils.LayersName.LINKS] = Utils.createLayer('LineString?crs='+Transforms.layer_proj, Utils.LayersName.LINKS, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int), QgsField("lon_orig", QVariant.Double), QgsField("lat_orig", QVariant.Double), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double), QgsField("disp_dist_m", QVariant.Double), QgsField("disp_angle", QVariant.Double), QgsField("refar_id_b", QVariant.String), QgsField("refar_id_a", QVariant.String), QgsField("iter", QVariant.Int)])
+        self.__generatedLayers[Utils.LayersType.LINKS] = Utils.createLayer('LineString?crs='+Transforms.layer_proj, Utils.LayersType.LINKS, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int), QgsField("lon_orig", QVariant.Double), QgsField("lat_orig", QVariant.Double), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double), QgsField("disp_dist_m", QVariant.Double), QgsField("disp_angle", QVariant.Double), QgsField("refar_id_b", QVariant.String), QgsField("refar_id_a", QVariant.String), QgsField("iter", QVariant.Int)])
 
         # create layer for displaced centroids
-        self.__generatedLayers[Utils.LayersName.DISPLACED] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersName.DISPLACED, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int), QgsField("lon_orig", QVariant.Double), QgsField("lat_orig", QVariant.Double), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double), QgsField("disp_dist_m", QVariant.Double), QgsField("disp_angle", QVariant.Double), QgsField("refar_id_b", QVariant.String), QgsField("refar_id_a", QVariant.String), QgsField("iter", QVariant.Int)])
+        self.__generatedLayers[Utils.LayersType.DISPLACED] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.DISPLACED, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int), QgsField("lon_orig", QVariant.Double), QgsField("lat_orig", QVariant.Double), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double), QgsField("disp_dist_m", QVariant.Double), QgsField("disp_angle", QVariant.Double), QgsField("refar_id_b", QVariant.String), QgsField("refar_id_a", QVariant.String), QgsField("iter", QVariant.Int)])
 
         # create layer for anonymized displaced centroids
-        self.__generatedLayers[Utils.LayersName.DISPLACEDANON] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersName.DISPLACEDANON, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double)])
+        self.__generatedLayers[Utils.LayersType.DISPLACEDANON] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.DISPLACEDANON, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double)])
 
         # add layers to project following correct z order
-        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersName.BUFFERS])
-        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersName.BUFFERSANON])
-        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersName.LINKS])
-        Utils.putLayerOnTopIfExists(Utils.LayersName.CENTROIDS) # fix z order
-        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersName.DISPLACED])
-        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersName.DISPLACEDANON])
+        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.BUFFERS])
+        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.BUFFERSANON])
+        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.LINKS])
+        Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS) # fix z order
+        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.DISPLACED])
+        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.DISPLACEDANON])
 
     def __updateOutputsMemoryLayer(self, cluster_centroid_ft, displaced_point_wgs, distance, angle_degree, ref_id_before, max_displace_distance, ref_id_after, iterations):
         # add displaced centroid
         feat_disp_centroid = QgsFeature()
         feat_disp_centroid.setGeometry(displaced_point_wgs)
         feat_disp_centroid.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], cluster_centroid_ft['count'], cluster_centroid_ft.geometry().asPoint().x(), cluster_centroid_ft.geometry().asPoint().y(), displaced_point_wgs.asPoint().x(), displaced_point_wgs.asPoint().y(), distance, angle_degree, ref_id_before, ref_id_after, iterations])
-        self.__generatedLayers[Utils.LayersName.DISPLACED].dataProvider().addFeatures([feat_disp_centroid])
+        self.__generatedLayers[Utils.LayersType.DISPLACED].dataProvider().addFeatures([feat_disp_centroid])
 
         # add anoymized displaced centroid
         feat_anonym_disp_centroid = QgsFeature()
         feat_anonym_disp_centroid.setGeometry(displaced_point_wgs)
         feat_anonym_disp_centroid.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], displaced_point_wgs.asPoint().x(), displaced_point_wgs.asPoint().y()])
-        self.__generatedLayers[Utils.LayersName.DISPLACEDANON].dataProvider().addFeatures([feat_anonym_disp_centroid])
+        self.__generatedLayers[Utils.LayersType.DISPLACEDANON].dataProvider().addFeatures([feat_anonym_disp_centroid])
 
         # add displacement links
         centroid_disp_links_ft = QgsFeature()
         centroid_disp_links_ft.setGeometry(QgsGeometry.fromPolylineXY([cluster_centroid_ft.geometry().asPoint(), feat_disp_centroid.geometry().asPoint()]))
         centroid_disp_links_ft.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], cluster_centroid_ft['count'], cluster_centroid_ft.geometry().asPoint().x(), cluster_centroid_ft.geometry().asPoint().y(), displaced_point_wgs.asPoint().x(), displaced_point_wgs.asPoint().y(), distance, angle_degree, ref_id_before, ref_id_after, iterations])
-        self.__generatedLayers[Utils.LayersName.LINKS].dataProvider().addFeatures([centroid_disp_links_ft])
+        self.__generatedLayers[Utils.LayersType.LINKS].dataProvider().addFeatures([centroid_disp_links_ft])
 
         # copy geometry of displaced centroid
         displaced_feat_centroid_mercator = QgsGeometry(feat_disp_centroid.geometry())
@@ -269,13 +278,13 @@ class CentroidsDisplacer():
         disp_centroid_buff_ft = QgsFeature()
         disp_centroid_buff_ft.setGeometry(disp_centroid_buff_geom)
         disp_centroid_buff_ft.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], cluster_centroid_ft['count'], max_displace_distance])
-        self.__generatedLayers[Utils.LayersName.BUFFERS].dataProvider().addFeatures([disp_centroid_buff_ft])
+        self.__generatedLayers[Utils.LayersType.BUFFERS].dataProvider().addFeatures([disp_centroid_buff_ft])
 
         # create buffers around displaced centroids
         disp_anonym_centroid_buff_ft = QgsFeature()
         disp_anonym_centroid_buff_ft.setGeometry(disp_centroid_buff_geom)
         disp_anonym_centroid_buff_ft.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], max_displace_distance])
-        self.__generatedLayers[Utils.LayersName.BUFFERSANON].dataProvider().addFeatures([disp_anonym_centroid_buff_ft])
+        self.__generatedLayers[Utils.LayersType.BUFFERSANON].dataProvider().addFeatures([disp_anonym_centroid_buff_ft])
 
         # create buffers around original centroids
         # centroid_buff = cluster_centroid_ft_geom_merc.buffer(max_displace_distance, 20)
@@ -283,4 +292,4 @@ class CentroidsDisplacer():
         # feat_centroid_buff = QgsFeature()
         # feat_centroid_buff.setGeometry(centroid_buff)
         # feat_centroid_buff.setAttributes([cl[0], cl[1], counter, max_displace_distance])
-        # Utils.LayersName.BUFFERS_prov.addFeatures([feat_centroid_buff])
+        # Utils.LayersType.BUFFERS_prov.addFeatures([feat_centroid_buff])
