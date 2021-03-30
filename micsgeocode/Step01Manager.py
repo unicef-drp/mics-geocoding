@@ -9,17 +9,10 @@
 ##
 ## ###########################################################################
 
-from re import S
 import typing
-from qgis.core import *  # QGIS3
-from qgis.PyQt.QtCore import QVariant
-
 from . import CentroidsLoader as CentroidsLoader
 from . import CentroidsDisplacer as CentroidsDisplacer
-
 from . import Utils
-from .Logger import Logger
-from datetime import datetime
 
 ####################################################################
 # Class Step01Manager
@@ -41,58 +34,22 @@ class Step01Manager():
 # Main steps.
 ####################################################################
 
-    def loadCentroids(self) -> None:
+    def loadCentroids(self) -> typing.NoReturn:
         self.centroidDisplacer.clearLayers()
         self.layers[Utils.LayersType.CENTROIDS] = self.centroidLoader.loadCentroids()
         self.isLoaded = True
-        Logger.logInfo("load centroids manager: " + str(hex(id(self.layers[Utils.LayersType.CENTROIDS]))))
 
-    def displaceCentroids(self) -> None:
-        Logger.logInfo("[MANAGER] Begin to displace the centroids at {}".format(datetime.now()))
+    def displaceCentroids(self) -> typing.NoReturn:
         self.centroidLoader.putLayersOnTop()
         self.centroidDisplacer.setCentroidsLayer(self.layers[Utils.LayersType.CENTROIDS])
         self.centroidDisplacer.displaceCentroids()
         self.isDisplaced = True
-        Logger.logInfo("[MANAGER] Centroids displaced at {}".format(datetime.now()))
 
 ####################################################################
 # accessors
 ####################################################################
 
-    def setLatField(self, field: str) -> None:
-        self.centroidLoader.lat_field = 'Lat'
-
-    def setLongField(self, field: str) -> None:
-        self.centroidLoader.lon_field = field
-
-    def setClusterNoField(self, field: str) -> None:
-        self.centroidLoader.cluster_no_field = field
-        self.centroidDisplacer.cluster_no_field = field
-
-    def setClusterTypeField(self, field: str) -> None:
-        self.centroidLoader.cluster_type_field = field
-        self.centroidDisplacer.cluster_type_field = field
-
-    def setCentroidFile(self, file: str) -> None:
-        self.centroidLoader.input_file = file
-
-    def setReferenceLayer(self, ref_lyr_file: str) -> None:
-        self.centroidDisplacer.setReferenceLayer(ref_lyr_file)
-        self.centroidLoader.putLayersOnTop()
-
-    def setReferenceLayerField(self, ref_id_field: str) -> None:
-        self.centroidDisplacer.ref_id_field = ref_id_field
-
-    def setUrbanTypes(self, types: typing.List[str]) -> None:
-        self.centroidDisplacer.urban_types = types
-
-    def setRuralTypes(self, types: typing.List[str]) -> None:
-        self.centroidDisplacer.rural_types = types
-
-    def setOutputsDirectory(self, dir: str) -> None:
-        Utils.LayersName.outputDirectory = dir
-
-    def setBasename(self, basename: str) -> None:
+    def setBasename(self, basename: str) -> typing.NoReturn:
         self.centroidLoader.clearLayers()
         self.centroidDisplacer.clearLayers()
         Utils.LayersName.basename = basename
@@ -100,3 +57,36 @@ class Step01Manager():
             self.loadCentroids()
         if self.isDisplaced:
             self.displaceCentroids()
+
+    def setCentroidFile(self, file: str) -> typing.NoReturn:
+        self.centroidLoader.input_file = file
+
+    def setClusterNoField(self, field: str) -> typing.NoReturn:
+        self.centroidLoader.cluster_no_field = field
+        self.centroidDisplacer.cluster_no_field = field
+
+    def setClusterTypeField(self, field: str) -> typing.NoReturn:
+        self.centroidLoader.cluster_type_field = field
+        self.centroidDisplacer.cluster_type_field = field
+
+    def setLatField(self, field: str) -> typing.NoReturn:
+        self.centroidLoader.lat_field = 'Lat'
+
+    def setLongField(self, field: str) -> typing.NoReturn:
+        self.centroidLoader.lon_field = field
+
+    def setOutputsDirectory(self, dir: str) -> typing.NoReturn:
+        Utils.LayersName.outputDirectory = dir
+
+    def setReferenceLayer(self, ref_lyr_file: str) -> typing.NoReturn:
+        self.centroidDisplacer.setReferenceLayer(ref_lyr_file)
+        self.centroidLoader.putLayersOnTop()
+
+    def setReferenceLayerField(self, ref_id_field: str) -> typing.NoReturn:
+        self.centroidDisplacer.ref_id_field = ref_id_field
+
+    def setRuralTypes(self, types: typing.List[str]) -> typing.NoReturn:
+        self.centroidDisplacer.rural_types = types
+
+    def setUrbanTypes(self, types: typing.List[str]) -> typing.NoReturn:
+        self.centroidDisplacer.urban_types = types

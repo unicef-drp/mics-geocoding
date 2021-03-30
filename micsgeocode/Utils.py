@@ -49,31 +49,35 @@ class LayersName():
 
     @staticmethod
     def layerName(t: LayersType) -> str :
+        """ generates layer name for UI
+        """
         if LayersName.basename:
             return LayersName.basename + '_' + LayersName.layerNames[t]
         return LayersName.layerNames[t]
 
     @staticmethod
     def fileName(t: LayersType) -> str :
+        """ generates layer name for file
+        """
         if LayersName.basename:
             return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + LayersName.layerNames[t] + ".shp"
         return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.layerNames[t] + ".shp"
 
-def removeLayerIfExistsByName(layerName: str) -> None:
+def removeLayerIfExistsByName(layerName: str) -> typing.NoReturn:
     """ Remove existing layer with the same name. Avoid duplication when run multiple times.
     """
     layers = QgsProject.instance().mapLayersByName(layerName)
     if layers:
         QgsProject.instance().removeMapLayer(layers[0])
 
-def removeLayerIfExists(layerType: LayersType) -> None:
+def removeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
     """ Remove existing layer with the same name. Avoid duplication when run multiple times.
     """
     layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
     if layers:
         QgsProject.instance().removeMapLayer(layers[0])
 
-def putLayerOnTopIfExists(layerType: LayersType) -> None:
+def putLayerOnTopIfExists(layerType: LayersType) -> typing.NoReturn:
     """ Put layer on top if it exists
     """
     layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
@@ -86,6 +90,7 @@ def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typ
     """ Create layer method, given a type, a name and some attributes
     """
     removeLayerIfExists(layerCategorie)
+
     # error = QgsVectorFileWriter.writeAsVectorFormatV2(layer, "testdata/my_new_shapefile", transform_context, save_options)
     layer = QgsVectorLayer(layerType, LayersName.layerName(layerCategorie), 'memory')
     provider = layer.dataProvider()
@@ -94,17 +99,20 @@ def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typ
 
     return layer
 
-def writeLayerIfExists(layerType: LayersType) -> None:
+def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
+    """ Write hte layer on disk, if it exists in the project instance
+    """
     layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
     if layers:
-        provider = layers[0].dataProvider()
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.driverName = "ESRI Shapefile"
+
         # writer = QgsVectorFileWriter( "output_path_and_name.shp", provider.encoding(), provider.fields(), QGis.WKBPolygon, provider.crs() )
-        writer = QgsVectorFileWriter.writeAsVectorFormat(
+        writer = QgsVectorFileWriter.writeAsVectorFormatV2(
             layers[0],
             LayersName.fileName(layerType),
-            provider.encoding(),
-            provider.crs(),
-            driverName='ESRI Shapefile')
+            QgsCoordinateTransformContext(),
+            options)
 
 def getval(ft: QgsFeature, field: QgsField) -> str:
     """ get value as string from feature / field combo
@@ -140,7 +148,9 @@ def getFieldsListAsStrArray(file: str) -> typing.List[str]:
             fieldList = f.readline().strip().split(',')
     return fieldList
 
-def layerCrossesTheMeridian(layer) -> bool:
+def layerCrossesTheMeridian(layer: QgsVectorLayer) -> bool:
+    """ add a convenient method that checks if a layer crosses the antimeridian
+    """
     try:
         ext = layer.extent()
         return ext.xMinimum() == -180 and ext.xMaximum() == 180

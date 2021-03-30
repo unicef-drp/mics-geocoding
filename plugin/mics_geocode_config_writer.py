@@ -1,6 +1,16 @@
-import platform
+## ###########################################################################
+##
+# mics_geocode_config_reader.py
+##
+# Author: Etienne Delclaux
+# Created: 17/03/2021 11:15:56 2016 (+0200)
+##
+# Description:
+##
+## ###########################################################################
+
 import os
-from os.path import relpath
+import typing
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -10,21 +20,18 @@ from .micsgeocode.Logger import Logger
 import configparser
 
 class mics_geocode_config_writer:
-
-	## #####################################################################
-	## Start, Load, Unload
-	## #####################################################################
+	'''Handle the writing of a config file
+	'''
 	def __init__(self, fileMGC, mainWindow):
 		self.mainWindow = mainWindow
 		self.fileMGC = fileMGC
 
-	def writeConfig(self):
+	def writeConfig(self) -> typing.NoReturn:
 		try:
-			project_root_path = os.path.dirname(os.path.realpath(self.fileMGC))
-
 			configWriter = configparser.ConfigParser()
 
-
+			# Compute relative path
+			project_root_path = os.path.dirname(os.path.realpath(self.fileMGC))
 			try:
 				ref_file = os.path.relpath(self.mainWindow.ui.referenceLayerLineEdit.text(), project_root_path)
 			except:
@@ -56,18 +63,13 @@ class mics_geocode_config_writer:
 			}
 			configWriter['CentroidsSource'] = {
 				'file': centroid_file,
-				'stackIndex': str(self.mainWindow.ui.stackFields.currentIndex()),
 				'numeroIndex': str(self.mainWindow.ui.numeroFieldComboBox.currentIndex()),
 				'typeIndex': str(self.mainWindow.ui.typeFieldComboBox.currentIndex()),
 				'latIndex': str(self.mainWindow.ui.latitudeFieldComboBox.currentIndex()),
 				'longIndex': str(self.mainWindow.ui.longitudeFieldComboBox.currentIndex()),
-				'numeroIndexLE': str(self.mainWindow.ui.numeroFieldLineEdit.text()),
-				'typeIndexLE': str(self.mainWindow.ui.typeFieldLineEdit.text()),
-				'latIndexLE': str(self.mainWindow.ui.latitudeFieldLineEdit.text()),
-				'longIndexLE': str(self.mainWindow.ui.longitudeFieldLineEdit.text())
 			}
 
 			with open(self.fileMGC, 'w') as file:
 				configWriter.write(file)
 		except:
-			Logger.logInfo("A problem occured while saving the project to :  " + self.fileMGC)
+			Logger.logWarn("[ConfigWriter] A problem occured while saving the project to :  " + self.fileMGC)

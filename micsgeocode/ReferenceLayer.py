@@ -1,6 +1,6 @@
 ## ###########################################################################
 ##
-# Step01Manager.py
+# ReferenceLayer.py
 ##
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
@@ -12,7 +12,8 @@
 from qgis.core import *  # QGIS3
 from PyQt5 import QtCore  # QGIS3
 
-import os
+import typing
+
 from .Logger import Logger
 import qgis.utils
 
@@ -26,7 +27,7 @@ class ReferenceLayer():
         self.__layerName = ""
         self.ref_fts_index = None
 
-    def clear(self):
+    def clear(self) -> typing.NoReturn:
         Utils.removeLayerIfExistsByName(self.__layerName)
         self.__layerName = ""
         self.layer = None

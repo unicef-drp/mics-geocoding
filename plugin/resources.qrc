@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/plugins/MicsGeocodePlugin" >
-        <file>icon_bg_w.png</file>
-        <file>icon_nobg.png</file>
-        <file>logo_bg_w.png</file>
-        <file>logo_nobg.png</file>
+        <file>icon_gis.png</file>
+        <file>icon_bars.png</file>
+        <file>logo_w-unicef.png</file>
+        <file>logo_wo-unicef.png</file>
     </qresource>
 </RCC>

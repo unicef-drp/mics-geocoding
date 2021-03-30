@@ -1,5 +1,16 @@
-import platform
+## ###########################################################################
+##
+# mics_geocode_config_reader.py
+##
+# Author: Etienne Delclaux
+# Created: 17/03/2021 11:15:56 2016 (+0200)
+##
+# Description:
+##
+## ###########################################################################
+
 import os
+import typing
 
 import configparser
 
@@ -7,15 +18,15 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from .micsgeocode.Logger import Logger
 class mics_geocode_config_reader:
-	## #####################################################################
-	## Start, Load, Unload
-	## #####################################################################
+	'''Handle the reading of a config file
+	'''
 	def __init__(self, fileMGC, mainWindow):
 		self.mainWindow = mainWindow
 		self.fileMGC = fileMGC
 
-	def readConfig(self):
+	def readConfig(self) -> typing.NoReturn:
 		try:
+			# Retrieve config directory - used later for absolute file path reconstruction
 			project_root_path = os.path.dirname(os.path.realpath(self.fileMGC))
 
 			configReader = configparser.ConfigParser()
@@ -53,11 +64,10 @@ class mics_geocode_config_reader:
 			if 'CentroidsSource' in configReader:
 				if 'file' in configReader['CentroidsSource']:
 					try:
+						# Construt absolute path path from relative path
 						self.mainWindow.ui.centroidsSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CentroidsSource']['file'])))
 					except:
 						self.mainWindow.ui.centroidsSourceFileLineEdit.clear()
-				if 'stackIndex'in configReader['CentroidsSource']:
-					self.mainWindow.ui.stackFields.setCurrentIndex(int(configReader['CentroidsSource']['stackIndex']))
 				if 'numeroIndex' in configReader['CentroidsSource']:
 					self.mainWindow.ui.numeroFieldComboBox.setCurrentIndex(int(configReader['CentroidsSource']['numeroIndex']))
 				if 'typeIndex' in configReader['CentroidsSource']:
@@ -66,13 +76,6 @@ class mics_geocode_config_reader:
 					self.mainWindow.ui.latitudeFieldComboBox.setCurrentIndex(int(configReader['CentroidsSource']['latIndex']))
 				if 'longIndex' in configReader['CentroidsSource']:
 					self.mainWindow.ui.longitudeFieldComboBox.setCurrentIndex(int(configReader['CentroidsSource']['longIndex']))
-				if 'numeroIndexLE' in configReader['CentroidsSource']:
-					self.mainWindow.ui.numeroFieldLineEdit.setText(configReader['CentroidsSource']['numeroIndexLE'])
-				if 'typeIndexLE' in configReader['CentroidsSource']:
-					self.mainWindow.ui.typeFieldLineEdit.setText(configReader['CentroidsSource']['typeIndexLE'])
-				if 'latIndexLE' in configReader['CentroidsSource']:
-					self.mainWindow.ui.latitudeFieldLineEdit.setText(configReader['CentroidsSource']['latIndexLE'])
-				if 'longIndexLE' in configReader['CentroidsSource']:
-					self.mainWindow.ui.longitudeFieldLineEdit.setText(configReader['CentroidsSource']['longIndexLE'])
 		except:
-			Logger.logInfo("A problem occured while loading the project from :  " + self.fileMGC)
+			Logger.logWarn("[ConfigReader] A problem occured while loading the project from :  " + self.fileMGC)
+

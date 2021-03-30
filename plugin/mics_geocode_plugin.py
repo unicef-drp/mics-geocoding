@@ -24,7 +24,6 @@
 import os.path
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from qgis.core import QgsMessageLog
 
 from .resources import *
 from .mics_geocode_plugin_main_window import MicsGeocodePluginMainWindow
@@ -51,7 +50,7 @@ class MicsGeocodePlugin:
         self.actions = []
         self.menu = 'MicsGeocodePlugin'
 
-        self.icon_path = ":/plugins/MicsGeocodePlugin/icon_nobg.png"
+        self.icon_path = ":/plugins/MicsGeocodePlugin/icon_bars.png"
 
     def add_action(
         self,

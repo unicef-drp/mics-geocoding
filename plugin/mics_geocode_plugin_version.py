@@ -1,1 +1,12 @@
-MICS_GEOCODE_PLUGIN_VERSION = "0.0.2"
+## ###########################################################################
+##
+# mics_geocode_config_version.py
+##
+# Author: Etienne Delclaux
+# Created: 17/03/2021 11:15:56 2016 (+0200)
+##
+# Description:
+##
+## ###########################################################################
+
+MICS_GEOCODE_PLUGIN_VERSION = "0.3"

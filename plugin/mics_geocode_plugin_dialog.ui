@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>624</width>
+    <width>499</width>
     <height>654</height>
    </rect>
   </property>
@@ -18,8 +18,8 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>604</width>
-     <height>581</height>
+     <width>481</width>
+     <height>571</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -52,7 +52,7 @@
          <rect>
           <x>10</x>
           <y>10</y>
-          <width>579</width>
+          <width>451</width>
           <height>31</height>
          </rect>
         </property>
@@ -65,7 +65,7 @@
          <rect>
           <x>10</x>
           <y>50</y>
-          <width>579</width>
+          <width>451</width>
           <height>41</height>
          </rect>
         </property>
@@ -110,7 +110,7 @@
          <rect>
           <x>10</x>
           <y>100</y>
-          <width>579</width>
+          <width>451</width>
           <height>241</height>
          </rect>
         </property>
@@ -137,7 +137,7 @@
           <rect>
            <x>0</x>
            <y>20</y>
-           <width>571</width>
+           <width>441</width>
            <height>211</height>
           </rect>
          </property>
@@ -185,135 +185,48 @@
            </layout>
           </item>
           <item>
-           <widget class="QStackedWidget" name="stackFields">
-            <property name="currentIndex">
-             <number>1</number>
-            </property>
-            <widget class="QWidget" name="pageAuto">
-             <widget class="QWidget" name="layoutWidget">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>551</width>
-                <height>121</height>
-               </rect>
+           <layout class="QFormLayout" name="formLayout_3">
+            <item row="0" column="0">
+             <widget class="QLabel" name="typeFieldLabel_2">
+              <property name="text">
+               <string>Type</string>
               </property>
-              <layout class="QFormLayout" name="formLayout">
-               <item row="0" column="0">
-                <widget class="QLabel" name="typeFieldLabel_3">
-                 <property name="text">
-                  <string>Type Field</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="typeFieldLineEdit">
-                 <property name="text">
-                  <string>Type</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="numeroFieldLabel">
-                 <property name="text">
-                  <string>Numero Field</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QLineEdit" name="numeroFieldLineEdit">
-                 <property name="text">
-                  <string>Numero</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="longitudeFieldLabel_3">
-                 <property name="text">
-                  <string>Longitude Field</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QLineEdit" name="longitudeFieldLineEdit">
-                 <property name="text">
-                  <string>Long</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="latitudeFieldLabel_3">
-                 <property name="text">
-                  <string>Latitude Field</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QLineEdit" name="latitudeFieldLineEdit">
-                 <property name="text">
-                  <string>Lat</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
              </widget>
-            </widget>
-            <widget class="QWidget" name="pageManual">
-             <widget class="QWidget" name="layoutWidget">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>551</width>
-                <height>141</height>
-               </rect>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="typeFieldComboBox"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="numeroFieldLabel_2">
+              <property name="text">
+               <string>Numero Field</string>
               </property>
-              <layout class="QFormLayout" name="formLayout_3">
-               <item row="0" column="0">
-                <widget class="QLabel" name="typeFieldLabel_2">
-                 <property name="text">
-                  <string>Type</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QComboBox" name="typeFieldComboBox"/>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="numeroFieldLabel_2">
-                 <property name="text">
-                  <string>Numero Field</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QComboBox" name="numeroFieldComboBox"/>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="longitudeFieldLabel_2">
-                 <property name="text">
-                  <string>Longitude Field</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1">
-                <widget class="QComboBox" name="longitudeFieldComboBox"/>
-               </item>
-               <item row="3" column="0">
-                <widget class="QLabel" name="latitudeFieldLabel_2">
-                 <property name="text">
-                  <string>Latitude Field</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1">
-                <widget class="QComboBox" name="latitudeFieldComboBox"/>
-               </item>
-              </layout>
              </widget>
-            </widget>
-           </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="numeroFieldComboBox"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="longitudeFieldLabel_2">
+              <property name="text">
+               <string>Longitude Field</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QComboBox" name="longitudeFieldComboBox"/>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="latitudeFieldLabel_2">
+              <property name="text">
+               <string>Latitude Field</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QComboBox" name="latitudeFieldComboBox"/>
+            </item>
+           </layout>
           </item>
           <item>
            <widget class="QPushButton" name="loadCentroidsButton">
@@ -330,7 +243,7 @@
          <rect>
           <x>10</x>
           <y>340</y>
-          <width>579</width>
+          <width>451</width>
           <height>191</height>
          </rect>
         </property>
@@ -354,7 +267,7 @@
           <rect>
            <x>0</x>
            <y>23</y>
-           <width>571</width>
+           <width>441</width>
            <height>161</height>
           </rect>
          </property>
@@ -489,7 +402,7 @@
     <rect>
      <x>10</x>
      <y>600</y>
-     <width>291</width>
+     <width>481</width>
      <height>51</height>
     </rect>
    </property>
@@ -503,7 +416,7 @@
     <item>
      <widget class="QPushButton" name="loadConfigButton">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -522,7 +435,7 @@
     <item>
      <widget class="QPushButton" name="saveConfigButton">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -547,7 +460,7 @@
     <item>
      <widget class="QPushButton" name="saveConfigAsButton">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -563,38 +476,35 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QLabel" name="labelLogo">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>177</width>
+        <height>35</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>35</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
    </layout>
-  </widget>
-  <widget class="QLabel" name="labelLogo">
-   <property name="geometry">
-    <rect>
-     <x>339</x>
-     <y>605</y>
-     <width>259</width>
-     <height>35</height>
-    </rect>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>259</width>
-     <height>35</height>
-    </size>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap>logo_nobg.png</pixmap>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
   </widget>
  </widget>
  <resources/>
