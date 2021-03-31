@@ -43,9 +43,19 @@ class mics_geocode_config_writer:
 				centroid_file = ""
 
 			try:
+				covinputs_file = os.path.relpath(self.mainWindow.ui.covinputsSourceFileLineEdit.text(), project_root_path)
+			except:
+				covinputs_file = ""
+
+			try:
 				output_dir = os.path.relpath(self.mainWindow.ui.outputDirLineEdit.text(), project_root_path)
 			except:
 				output_dir = ""
+
+			try:
+				images_dir = os.path.relpath(self.mainWindow.ui.imagesSourceFileLineEdit.text(), project_root_path)
+			except:
+				images_dir = ""
 
 			configWriter['program'] = {'name' : 'MicsGeocodePlugin', 'version' : '0.0.1'}
 			configWriter['state'] = {'isStep1' : (self.mainWindow.ui.tabWidget.currentIndex() == 0)}
@@ -61,12 +71,22 @@ class mics_geocode_config_writer:
 				'ruralTypes': self.mainWindow.ui.ruralValuesLineEdit.text(),
 				'urbanTypes': self.mainWindow.ui.urbanValuesLineEdit.text()
 			}
+
 			configWriter['CentroidsSource'] = {
 				'file': centroid_file,
 				'numeroIndex': str(self.mainWindow.ui.numeroFieldComboBox.currentIndex()),
 				'typeIndex': str(self.mainWindow.ui.typeFieldComboBox.currentIndex()),
 				'latIndex': str(self.mainWindow.ui.latitudeFieldComboBox.currentIndex()),
 				'longIndex': str(self.mainWindow.ui.longitudeFieldComboBox.currentIndex()),
+			}
+
+			configWriter['CovariatesInputs'] = {
+				'file': covinputs_file,
+				'filenameIndex': str(self.mainWindow.ui.filenameFieldComboBox.currentIndex()),
+				'fileformatIndex': str(self.mainWindow.ui.fileformatFieldComboBox.currentIndex()),
+				'sumstatIndex': str(self.mainWindow.ui.sumstatFieldComboBox.currentIndex()),
+				'columnnameIndex': str(self.mainWindow.ui.columnnameFieldComboBox.currentIndex()),
+				'imagesDir': images_dir
 			}
 
 			with open(self.fileMGC, 'w') as file:

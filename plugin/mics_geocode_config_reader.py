@@ -76,6 +76,27 @@ class mics_geocode_config_reader:
 					self.mainWindow.ui.latitudeFieldComboBox.setCurrentIndex(int(configReader['CentroidsSource']['latIndex']))
 				if 'longIndex' in configReader['CentroidsSource']:
 					self.mainWindow.ui.longitudeFieldComboBox.setCurrentIndex(int(configReader['CentroidsSource']['longIndex']))
+
+			if 'CovariatesInputs' in configReader:
+				if 'file' in configReader['CovariatesInputs']:
+					try:
+						# Construt absolute path path from relative path
+						self.mainWindow.ui.covinputsSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['file'])))
+					except:
+						self.mainWindow.ui.covinputsSourceFileLineEdit.clear()
+				if 'filenameIndex' in configReader['CovariatesInputs']:
+					self.mainWindow.ui.filenameFieldComboBox.setCurrentIndex(int(configReader['CovariatesInputs']['filenameIndex']))
+				if 'fileformatIndex' in configReader['CovariatesInputs']:
+					self.mainWindow.ui.fileformatFieldComboBox.setCurrentIndex(int(configReader['CovariatesInputs']['fileformatIndex']))
+				if 'sumstatIndex' in configReader['CovariatesInputs']:
+					self.mainWindow.ui.sumstatFieldComboBox.setCurrentIndex(int(configReader['CovariatesInputs']['sumstatIndex']))
+				if 'columnnameIndex' in configReader['CovariatesInputs']:
+					self.mainWindow.ui.columnnameFieldComboBox.setCurrentIndex(int(configReader['CovariatesInputs']['columnnameIndex']))
+				if 'imagesDir' in configReader['CovariatesInputs']:
+					try:
+						self.mainWindow.ui.imagesSourceFileLineEdit.setText( os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['imagesDir'])))
+					except:
+						self.mainWindow.ui.imagesSourceFileLineEdit.clear()
 		except:
 			Logger.logWarn("[ConfigReader] A problem occured while loading the project from :  " + self.fileMGC)
 

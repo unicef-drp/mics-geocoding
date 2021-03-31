@@ -13,6 +13,7 @@ import typing
 from . import CentroidsLoader as CentroidsLoader
 from . import CentroidsDisplacer as CentroidsDisplacer
 from . import Utils
+from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 
 ####################################################################
 # Class Step01Manager
@@ -44,6 +45,17 @@ class Step01Manager():
         self.centroidDisplacer.setCentroidsLayer(self.layers[Utils.LayersType.CENTROIDS])
         self.centroidDisplacer.displaceCentroids()
         self.isDisplaced = True
+
+####################################################################
+# accessors
+####################################################################
+
+    def clusterAnonymizedBuffers(self) -> typing.Tuple[QgsVectorLayer, str, str]:
+        layer = None
+        layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON))
+        if layers:
+            layer = layers[0]
+        return layer, 'cluster', Utils.LayersName.fileName(Utils.LayersType.BUFFERSANON)
 
 ####################################################################
 # accessors
@@ -90,3 +102,4 @@ class Step01Manager():
 
     def setUrbanTypes(self, types: typing.List[str]) -> typing.NoReturn:
         self.centroidDisplacer.urban_types = types
+

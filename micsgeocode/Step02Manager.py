@@ -11,11 +11,14 @@
 
 import os
 import re
-from qgis.core import QgsProject  # QGIS3
-from qgis.PyQt.QtCore import QVariant
+import typing
+
+from qgis.core import *  # QGIS3
+from qgis.PyQt.QtCore import *
 from pathlib import Path
 from datetime import datetime
 from operator import itemgetter
+
 
 import pandas as pd
 
@@ -41,52 +44,79 @@ from osgeo.gdalconst import *
 import numpy as np
 gdal.PushErrorHandler('CPLQuietErrorHandler')
 
-from . import CovariatesInputs as Inputs
-from . import Transforms as Transforms
+from .Transforms import Transforms
+from .Logger import Logger
+
 ####################################################################
 # Class Step02Manager
 ####################################################################
-
 class Step02Manager():
   """ Facade that handle step 2 of the algo.
       set inputs, call loader and displacef with proper arguments.
   """
+  OUTPUT_SUFFIX_BASENAME = "output_covariates.csv"
 
   def __init__(self):
-    self.clusterLayer = None
-    self.clusterFile = ""
+    # CSV input
+    self.input_csv = ""
+    self.input_csv_field_filename = 'FileName'
+    self.input_csv_field_fileformat = 'FileFormat'
+    self.input_csv_field_sumstat = 'SummaryStatistic'
+    self.input_csv_field_columnname = 'ColumnName'
 
-  # def setClusterLayer(self, file: str, layer: QgsVectorLayer) -> None:
-  #   self.clusterLayer = layer
-  #   self.clusterFile = file
+    self.images_directory = Path(self.input_csv).parent
 
-  def setCovariatesInputs(self, inputs: Inputs.CovariatesInputs) -> None:
-    self.inputs = inputs
+    self.__output_filename = ""
+    self.__output_directory = ""
+    self.__output_file = ""
 
-  def setOutputFile(self, file: str) -> None:
-    self.inputs = Inputs
+    self.__ref_layer = None
+    self.__ref_layer_cluster_no_field_name = 'cluster'
+    self.__ref_layer_shp = ""
 
 ####################################################################
-# Class Step02Manager
+# setters
 ####################################################################
 
-  def computeCovariates(self):
-    ######################################
-    # ref_lyr_name = 'mkd_cluster_buffers'
-    # ref_lyr = [layer for layer in QgsProject.instance().mapLayers().values() if layer.name() == ref_lyr_name][0]
-    # ref_shp = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\NorthMacedonia\shp\mkd_cluster_buffers.shp'
-    # cluster_no_field_name = 'cluster'
-    # basefolder = Path(input_csv).parent
-    # out_file_name = os.path.join(basefolder, "output_covariates.csv")
-    ######################################
+  def setBasename(self, basename: str) -> typing.NoReturn:
+    if basename:
+      self.__output_filename = basename + '_' + Step02Manager.OUTPUT_SUFFIX_BASENAME
+    else:
+      self.__output_filename = basename + '_' + Step02Manager.OUTPUT_SUFFIX_BASENAME
+    self.updateOutputFile()
+
+  def setOutputDirectory(self, directory: str) -> typing.NoReturn:
+    self.__output_directory = directory
+    self.updateOutputFile()
+
+  def updateOutputFile(self) -> typing.NoReturn:
+    self.__output_file = os.path.join(self.__output_directory, self.__output_filename)
+
+  def setReferenceLayer(self, layer: QgsVectorLayer, ref_layer_cluster_no_field_name: str, layer_file: str) -> typing.NoReturn:
+    self.__ref_layer = layer
+    self.__ref_layer_cluster_no_field_name = ref_layer_cluster_no_field_name
+    self.__ref_layer_shp = layer_file
+
+####################################################################
+# computation
+####################################################################
+
+  def computeCovariates(self) -> typing.NoReturn:
+
+    Logger.logInfo("[STEP02 MANAGER] input_file:  " + self.input_csv)
+    Logger.logInfo("[STEP02 MANAGER] input_csv_field_filename  :  " + self.input_csv_field_filename)
+    Logger.logInfo("[STEP02 MANAGER] input_csv_field_fileformat:  " + self.input_csv_field_fileformat)
+    Logger.logInfo("[STEP02 MANAGER] input_csv_field_sumstat   :  " + self.input_csv_field_sumstat)
+    Logger.logInfo("[STEP02 MANAGER] input_csv_field_columnname:  " + self.input_csv_field_columnname)
 
     # read input list of covariates
-    with open(self.inputs.input_csv, "r", encoding='utf-8-sig') as f:
+    with open(self.input_csv, "r", encoding='utf-8-sig') as f:
       c = 0
       inputs = []
+
       registry = QgsProject.instance()
 
-      clusters = [{'fid':ft.id(), 'cluster':ft['cluster']} for ft in self.clusterLayer.getFeatures()]  # TODO: ft.id() is different than ft.GetFID()? !!!!! make sure IDs match - fix required!!!
+      clusters = [{'fid':ft.id(), 'cluster':ft['cluster']} for ft in self.__ref_layer.getFeatures()]  # TODO: ft.id() is different than ft.GetFID()? !!!!! make sure IDs match - fix required!!!
       # Convert the dictionary into DataFrame
       summary_df = pd.DataFrame(clusters)
 
@@ -94,10 +124,10 @@ class Step02Manager():
       for i in f:
         if c == 0:
           line = re.split('\t', i.strip()) # TODO: use comma instead of tab?
-          input_file_id = line.index(self.inputs.input_field_filename)
-          input_fileformat_id = line.index(self.inputs.input_field_fileformat)
-          input_field_sumstat_id = line.index(self.inputs.input_field_sumstat)
-          input_field_columnname_id = line.index(self.inputs.input_field_columnname)
+          input_file_id = line.index(self.input_csv_field_filename)
+          input_fileformat_id = line.index(self.input_csv_field_fileformat)
+          input_field_sumstat_id = line.index(self.input_csv_field_sumstat)
+          input_field_columnname_id = line.index(self.input_csv_field_columnname)
         if c != 0:
           line = re.split('\t', i.strip())
           inputs.append({'file': line[input_file_id], 'file_format': line[input_fileformat_id], 'sum_stat': line[input_field_sumstat_id], 'column': line[input_field_columnname_id]})
@@ -107,14 +137,14 @@ class Step02Manager():
       #loop through all covariates
       for input_row in inputs:
         file_name = input_row['file']
-        file_path = os.path.join(self.inputs.basefolder, file_name)
+        file_path = os.path.join(self.images_directory, file_name)
         file_format = input_row['file_format']
         sum_stat = input_row['sum_stat']
         column_name = input_row['column']
-        print("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(c, file_name, file_format, sum_stat, column_name))
+        Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(c, file_name, file_format, sum_stat, column_name))
 
         if file_format == 'GeoTIFF':
-          stats = zonal_stats(self.clusterSHP,file_path,'cluster',-99999)
+          stats = self.zonal_stats(self.__ref_layer_shp,file_path,'cluster',-99999)
           results_df = pd.DataFrame(stats)[[sum_stat, 'cluster']]
           results_df.columns = [column_name, 'cluster']
           summary_df = pd.merge(summary_df, results_df[[column_name, 'cluster']], on='cluster', how='inner')
@@ -123,7 +153,7 @@ class Step02Manager():
           # search_gdf = gpd.read_file(file_path)
           if sum_stat == 'distance_to_nearest':
             # create layer for shortest distance
-            shortest_dist_lyr = QgsVectorLayer('LineString?crs='+Transforms.layer_proj, 'Shortest distance to {}'.format(file_name), 'memory')
+            shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(file_name), 'memory')
             shortest_dist_prov = shortest_dist_lyr.dataProvider()
             shortest_dist_prov.addAttributes(
               [QgsField("cluster", QVariant.String), QgsField("nearestfid", QVariant.String),
@@ -132,7 +162,7 @@ class Step02Manager():
 
             layer = QgsVectorLayer(file_path, file_name, "ogr")
             search_features = [feature for feature in layer.getFeatures()]
-            for cluster_ft in self.clusterLayer.getFeatures():
+            for cluster_ft in self.__ref_layer.getFeatures():
               cswc = min(
                 [(l.id(), l.geometry().closestSegmentWithContext(cluster_ft.geometry().centroid().asPoint())) for l in
                 search_features], key=itemgetter(1))
@@ -154,23 +184,24 @@ class Step02Manager():
             # Add the layer to the Layers panel
             registry.addMapLayer(shortest_dist_lyr)
 
-            search_fts = [{'cluster': ft['cluster'], column_name: ft['dist']} for ft in shortest_dist_lyr.getFeatures()]
+            search_fts = [{'cluster': ft['cluster'], column_name: ft['dist']} for ft in
+                    shortest_dist_lyr.getFeatures()]
             # Convert the dictionary into DataFrame
             search_shp_df = pd.DataFrame(search_fts)
             summary_df = pd.merge(summary_df, search_shp_df[[column_name, 'cluster']], on='cluster', how='inner')
         c = c + 1
 
-      summary_df.to_csv(self.inputs.out_file_name, sep=',', encoding='utf-8')
+      summary_df.to_csv(self.__output_file, sep=',', encoding='utf-8')
 
-      print("Output file saved to {}".format(self.inputs.out_file_name))
-      print("Successfully completed at {}".format(datetime.now()))
+    Logger.logInfo("Output file saved to {}".format(self.__output_file))
+    Logger.logInfo("Successfully completed at {}".format(datetime.now()))
 
-
-
-
-
-
+####################################################################
+# Utilitity method
+####################################################################
   def bbox_to_pixel_offsets(self, gt, bbox):
+    '''Compute bboc to pixel offsets
+    '''
     origin_x = gt[0]
     origin_y = gt[3]
     pixel_width = gt[1]
@@ -185,10 +216,12 @@ class Step02Manager():
     ysize = y2 - y1
     return x1, y1, xsize, ysize
 
-
   def zonal_stats(self, vector_path, raster_path, cluster_no_field, nodata_value=None, global_src_extent=False):
+    '''Compute zonal statistic
+    '''
     rds = gdal.Open(raster_path, GA_ReadOnly)
     assert rds
+
     rb = rds.GetRasterBand(1)
     rgt = rds.GetGeoTransform()
 
@@ -197,7 +230,12 @@ class Step02Manager():
       rb.SetNoDataValue(nodata_value)
 
     vds = ogr.Open(vector_path, GA_ReadOnly)  # TODO maybe open update if we want to write stats
-    assert vds
+    # assert vds
+    if not vds:
+      Logger.logInfo("[ZonalStat] vds is missing")
+      Logger.logInfo("[ZonalStat] vector_path path was: " + vector_path)
+
+
     vlyr = vds.GetLayer(0)
 
     # create an in-memory numpy array of the source raster data
@@ -207,7 +245,7 @@ class Step02Manager():
       # useful only when disk IO or raster scanning inefficiencies are your limiting factor
       # advantage: reads raster data in one pass
       # disadvantage: large vector extents may have big memory requirements
-      src_offset = bbox_to_pixel_offsets(rgt, vlyr.GetExtent())
+      src_offset = self.bbox_to_pixel_offsets(rgt, vlyr.GetExtent())
       src_array = rb.ReadAsArray(*src_offset)
 
       # calculate new geotransform of the layer subset
@@ -234,7 +272,7 @@ class Step02Manager():
         # fastest option when you have fast disks and well indexed raster (ie tiled Geotiff)
         # advantage: each feature uses the smallest raster chunk
         # disadvantage: lots of reads on the source raster
-        src_offset = bbox_to_pixel_offsets(rgt, feat.geometry().GetEnvelope())
+        src_offset = self.bbox_to_pixel_offsets(rgt, feat.geometry().GetEnvelope())
         src_array = rb.ReadAsArray(*src_offset)
 
         # calculate new geotransform of the feature subset
@@ -310,3 +348,4 @@ class Step02Manager():
     vds = None
     rds = None
     return stats
+

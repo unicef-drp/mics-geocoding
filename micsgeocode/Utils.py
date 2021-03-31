@@ -143,9 +143,13 @@ def getFieldsListAsStrArray(file: str) -> typing.List[str]:
         if layer:
             fieldList = [f.name() for f in layer.fields()]
     elif extension == "csv":
-        Logger.logInfo("[MANAGER] CSV type")
         with open(file, "r") as f:
             fieldList = f.readline().strip().split(',')
+    elif extension == "txt":
+        with open(file, "r") as f:
+            line = f.readline()
+            fieldList = line.strip().split('\t')
+
     return fieldList
 
 def layerCrossesTheMeridian(layer: QgsVectorLayer) -> bool:
