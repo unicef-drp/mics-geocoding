@@ -174,7 +174,7 @@ class Step02Manager():
 
               # get distance in meters - transform to Web Mercator
               line_merc = QgsGeometry(line)
-              line_merc.transform(Transforms.Transforms.tr)
+              line_merc.transform(Transforms.tr)
 
               feat.setAttributes([cluster_ft['cluster'], minDistLine, line_merc.length()])
               shortest_dist_prov.addFeatures([feat])
