@@ -101,6 +101,9 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         # Force tab to init at first tab. Frequent mistake when manipulating qtdesigner
         self.ui.tabWidget.setCurrentIndex(0)
 
+        # Buttons on/off
+        self.ui.displaceCentroidsButton.setEnabled(False)
+
         ## ####################################################################
         # Init signal slots connection
         ## ####################################################################
@@ -263,6 +266,8 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''Open the configuration passed as an argument
         '''
         self.fileMGC = fileMGC
+        self.ui.configFileLineEdit.setText(self.fileMGC)
+        self.ui.displaceCentroidsButton.setEnabled(False)
         reader = mics_geocode_config_reader(self.fileMGC, self)
         reader.readConfig()
         self.updateSaveStatus(False)
@@ -667,6 +672,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''
         # separator can be ';' or ',' or ' '. feel free to add other
         self.step01manager.loadCentroids()
+        self.ui.displaceCentroidsButton.setEnabled(True)
 
     def onDisplaceCentroidsButtonClicked(self) -> typing.NoReturn:
         '''Displace centroids
