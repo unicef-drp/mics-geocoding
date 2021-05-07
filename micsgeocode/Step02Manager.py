@@ -66,7 +66,7 @@ class Step02Manager():
 
     self.images_directory = Path(self.input_csv).parent
 
-    self.__output_filename = ""
+    self.__output_filename = "outputs-covariates.csv"
     self.__output_directory = ""
     self.__output_file = ""
 
