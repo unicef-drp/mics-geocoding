@@ -265,8 +265,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.fileMGC = fileMGC
         reader = mics_geocode_config_reader(self.fileMGC, self)
         reader.readConfig()
-        self.ui.loadCentroidsButton.click()
-        self.ui.displaceCentroidsButton.click()
         self.updateSaveStatus(False)
 
     def onSaveConfigButtonClicked(self) -> typing.NoReturn:
