@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\mics-geocode-unicef-plugin\plugin\mics_geocode_plugin_dialog.ui'
+# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\mics-geocode_original\plugin\mics_geocode_plugin_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -335,6 +335,7 @@ class Ui_MicsGeocodePluginDialog(object):
         self.horizontalLayout_2.addWidget(self.labelLogo)
         self.basenameLineEdit = QtWidgets.QLineEdit(MicsGeocodePluginDialog)
         self.basenameLineEdit.setGeometry(QtCore.QRect(20, 10, 451, 31))
+        self.basenameLineEdit.setText("")
         self.basenameLineEdit.setObjectName("basenameLineEdit")
         self.layoutWidget_2 = QtWidgets.QWidget(MicsGeocodePluginDialog)
         self.layoutWidget_2.setGeometry(QtCore.QRect(20, 40, 451, 41))
@@ -405,6 +406,6 @@ class Ui_MicsGeocodePluginDialog(object):
         self.loadConfigButton.setText(_translate("MicsGeocodePluginDialog", "Load"))
         self.saveConfigButton.setText(_translate("MicsGeocodePluginDialog", "Save"))
         self.saveConfigAsButton.setText(_translate("MicsGeocodePluginDialog", "Save as"))
-        self.basenameLineEdit.setText(_translate("MicsGeocodePluginDialog", "project_basename"))
+        self.basenameLineEdit.setPlaceholderText(_translate("MicsGeocodePluginDialog", "Project basename..."))
         self.label.setText(_translate("MicsGeocodePluginDialog", "Directory for outputs: "))
         self.outputDirToolButton.setText(_translate("MicsGeocodePluginDialog", "..."))

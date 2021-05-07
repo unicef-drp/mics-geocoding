@@ -711,7 +711,10 @@
     </rect>
    </property>
    <property name="text">
-    <string>project_basename</string>
+    <string/>
+   </property>
+   <property name="placeholderText">
+    <string>Project basename...</string>
    </property>
   </widget>
   <widget class="QWidget" name="layoutWidget_2">
