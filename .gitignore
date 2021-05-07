@@ -1,4 +1,6 @@
 .vscode
 
+.qt-for-python/*
+
 micsgeocodeplugin.zip
 *.autosave

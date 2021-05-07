@@ -263,6 +263,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''Open the configuration passed as an argument
         '''
         self.fileMGC = fileMGC
+        self.ui.configFileLineEdit.setText(self.fileMGC)
         reader = mics_geocode_config_reader(self.fileMGC, self)
         reader.readConfig()
         self.ui.loadCentroidsButton.click()
@@ -288,6 +289,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         file, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Save centroids file", path, "*.mgc")
         if file:
             self.fileMGC = file
+            self.ui.configFileLineEdit.setText(self.fileMGC)
             writer = mics_geocode_config_writer(self.fileMGC, self)
             writer.writeConfig()
             settings.setValue("last_file_directory", os.path.dirname(file))
