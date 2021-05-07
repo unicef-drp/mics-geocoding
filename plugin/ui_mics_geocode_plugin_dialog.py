@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\mics-geocode-unicef-plugin\plugin\mics_geocode_plugin_dialog.ui'
+# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\mics-geocode_original\plugin\mics_geocode_plugin_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -147,6 +147,7 @@ class Ui_MicsGeocodePluginDialog(object):
         self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.ruralValuesLabel)
         self.ruralValuesLineEdit = QtWidgets.QLineEdit(self.verticalLayoutWidget_4)
         self.ruralValuesLineEdit.setInputMask("")
+        self.ruralValuesLineEdit.setText("")
         self.ruralValuesLineEdit.setObjectName("ruralValuesLineEdit")
         self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.ruralValuesLineEdit)
         self.urbanValuesLabel = QtWidgets.QLabel(self.verticalLayoutWidget_4)
@@ -154,6 +155,7 @@ class Ui_MicsGeocodePluginDialog(object):
         self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.urbanValuesLabel)
         self.urbanValuesLineEdit = QtWidgets.QLineEdit(self.verticalLayoutWidget_4)
         self.urbanValuesLineEdit.setInputMask("")
+        self.urbanValuesLineEdit.setText("")
         self.urbanValuesLineEdit.setObjectName("urbanValuesLineEdit")
         self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.urbanValuesLineEdit)
         self.verticalLayout_4.addLayout(self.formLayout_2)
@@ -382,9 +384,7 @@ class Ui_MicsGeocodePluginDialog(object):
         self.referenceLayerLabel.setText(_translate("MicsGeocodePluginDialog", "Reference Layer"))
         self.referenceLayerToolButton.setText(_translate("MicsGeocodePluginDialog", "..."))
         self.ruralValuesLabel.setText(_translate("MicsGeocodePluginDialog", "Rural Values"))
-        self.ruralValuesLineEdit.setText(_translate("MicsGeocodePluginDialog", "R"))
         self.urbanValuesLabel.setText(_translate("MicsGeocodePluginDialog", "Urban Values"))
-        self.urbanValuesLineEdit.setText(_translate("MicsGeocodePluginDialog", "U"))
         self.displaceCentroidsButton.setText(_translate("MicsGeocodePluginDialog", "Displace Centroids"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step1), _translate("MicsGeocodePluginDialog", "Step 1"))
         self.groupBoxCentroid_2.setTitle(_translate("MicsGeocodePluginDialog", "Covariates inputs"))

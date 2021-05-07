@@ -296,7 +296,7 @@
                <string/>
               </property>
               <property name="text">
-               <string>R</string>
+               <string/>
               </property>
              </widget>
             </item>
@@ -313,7 +313,7 @@
                <string/>
               </property>
               <property name="text">
-               <string>U</string>
+               <string/>
               </property>
              </widget>
             </item>
