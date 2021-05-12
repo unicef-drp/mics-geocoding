@@ -196,7 +196,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             self.open(configFile)
 
         ## ####################################################################
-        # Load last config file if exists
+        # actually show the app
         ## ####################################################################
 
         # Show
@@ -215,7 +215,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.ui.saveConfigButton.setEnabled(self.needsSave)
 
     ## #############################################################
-    # Close events
+    # Close event
     ## #############################################################
 
     def closeEvent(self, event) -> typing.NoReturn:
@@ -247,6 +247,10 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         else:
             event.accept()
             self.close()
+
+    ## #############################################################
+    # Save Load config
+    ## #############################################################
 
     def onLoadConfigButtonClicked(self) -> typing.NoReturn:
         '''Pick and trigger the open configuration
@@ -323,7 +327,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             self.updateSaveStatus(True)
 
     # #############################################################
-    # Centroids Source
+    # Basename
     # #############################################################
 
     def onBasenameLineEditChanged(self) -> typing.NoReturn:
@@ -481,6 +485,10 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.step01manager.setReferenceLayerField(self.ui.referenceLayerFieldCombobox.currentText())
         self.updateSaveStatus(True)
 
+    # #############################################################
+    # Urban, Rural values
+    # #############################################################
+
     def onUrbanValuesLineEditChanged(self) -> typing.NoReturn:
         '''handle urban values field changed
         '''
@@ -604,7 +612,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             self.updateSaveStatus(True)
 
     # #############################################################
-    # Images directory
+    # Covref layer
     # #############################################################
 
     def onCovrefLayerToolButtonClicked(self) -> typing.NoReturn:
@@ -667,7 +675,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
     def onLoadCentroidsButtonCLicked(self) -> typing.NoReturn:
         '''Load centroids
         '''
-        # separator can be ';' or ',' or ' '. feel free to add other
         self.step01manager.loadCentroids()
 
     def onDisplaceCentroidsButtonClicked(self) -> typing.NoReturn:
