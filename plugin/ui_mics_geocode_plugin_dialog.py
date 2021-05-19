@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\mics-geocode-unicef-plugin\plugin\mics_geocode_plugin_dialog.ui'
+# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\mics-geocode_original\plugin\mics_geocode_plugin_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MicsGeocodePluginDialog(object):
     def setupUi(self, MicsGeocodePluginDialog):
         MicsGeocodePluginDialog.setObjectName("MicsGeocodePluginDialog")
-        MicsGeocodePluginDialog.resize(499, 628)
+        MicsGeocodePluginDialog.resize(499, 657)
         self.verticalLayoutWidget = QtWidgets.QWidget(MicsGeocodePluginDialog)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 83, 481, 481))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
@@ -287,7 +287,7 @@ class Ui_MicsGeocodePluginDialog(object):
         self.tabWidget.addTab(self.tab_step2, "")
         self.verticalLayout.addWidget(self.tabWidget)
         self.layoutWidget = QtWidgets.QWidget(MicsGeocodePluginDialog)
-        self.layoutWidget.setGeometry(QtCore.QRect(10, 570, 486, 51))
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 600, 486, 51))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout_2.setSizeConstraint(QtWidgets.QLayout.SetMaximumSize)
@@ -362,6 +362,20 @@ class Ui_MicsGeocodePluginDialog(object):
         self.outputDirToolButton = QtWidgets.QToolButton(self.layoutWidget_2)
         self.outputDirToolButton.setObjectName("outputDirToolButton")
         self.horizontalLayout_3.addWidget(self.outputDirToolButton)
+        self.formLayoutWidget = QtWidgets.QWidget(MicsGeocodePluginDialog)
+        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 570, 481, 22))
+        self.formLayoutWidget.setObjectName("formLayoutWidget")
+        self.formLayout = QtWidgets.QFormLayout(self.formLayoutWidget)
+        self.formLayout.setContentsMargins(0, 0, 0, 0)
+        self.formLayout.setObjectName("formLayout")
+        self.configFileLabel = QtWidgets.QLabel(self.formLayoutWidget)
+        self.configFileLabel.setObjectName("configFileLabel")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.configFileLabel)
+        self.configFileLineEdit = QtWidgets.QLineEdit(self.formLayoutWidget)
+        self.configFileLineEdit.setEnabled(True)
+        self.configFileLineEdit.setReadOnly(True)
+        self.configFileLineEdit.setObjectName("configFileLineEdit")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.configFileLineEdit)
 
         self.retranslateUi(MicsGeocodePluginDialog)
         self.tabWidget.setCurrentIndex(0)
@@ -408,3 +422,4 @@ class Ui_MicsGeocodePluginDialog(object):
         self.basenameLineEdit.setText(_translate("MicsGeocodePluginDialog", "project_basename"))
         self.label.setText(_translate("MicsGeocodePluginDialog", "Directory for outputs: "))
         self.outputDirToolButton.setText(_translate("MicsGeocodePluginDialog", "..."))
+        self.configFileLabel.setText(_translate("MicsGeocodePluginDialog", "    In-use Config File"))
