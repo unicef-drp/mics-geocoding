@@ -28,9 +28,11 @@ from .micsgeocode.Logger import Logger
 
 from .micsgeocode import Utils
 
+
 class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
     '''The actual window that is displayed in the qgis interface
     '''
+
     def __init__(self, parent, version):
         """Interface initialisation : display interface and define events"""
         self.parent = parent
@@ -100,6 +102,9 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
 
         # Force tab to init at first tab. Frequent mistake when manipulating qtdesigner
         self.ui.tabWidget.setCurrentIndex(0)
+
+        # Buttons on/off
+        self.ui.displaceCentroidsButton.setEnabled(False)
 
         ## ####################################################################
         # Init signal slots connection
@@ -196,7 +201,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             self.open(configFile)
 
         ## ####################################################################
-        # Load last config file if exists
+        # actually show the app
         ## ####################################################################
 
         # Show
@@ -215,7 +220,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.ui.saveConfigButton.setEnabled(self.needsSave)
 
     ## #############################################################
-    # Close events
+    # Close event
     ## #############################################################
 
     def closeEvent(self, event) -> typing.NoReturn:
@@ -248,6 +253,10 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             event.accept()
             self.close()
 
+    ## #############################################################
+    # Save Load config
+    ## #############################################################
+
     def onLoadConfigButtonClicked(self) -> typing.NoReturn:
         '''Pick and trigger the open configuration
         '''
@@ -263,10 +272,10 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''Open the configuration passed as an argument
         '''
         self.fileMGC = fileMGC
+        self.ui.configFileLineEdit.setText(self.fileMGC)
+        self.ui.displaceCentroidsButton.setEnabled(False)
         reader = mics_geocode_config_reader(self.fileMGC, self)
         reader.readConfig()
-        self.ui.loadCentroidsButton.click()
-        self.ui.displaceCentroidsButton.click()
         self.updateSaveStatus(False)
 
     def onSaveConfigButtonClicked(self) -> typing.NoReturn:
@@ -288,6 +297,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         file, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Save centroids file", path, "*.mgc")
         if file:
             self.fileMGC = file
+            self.ui.configFileLineEdit.setText(self.fileMGC)
             writer = mics_geocode_config_writer(self.fileMGC, self)
             writer.writeConfig()
             settings.setValue("last_file_directory", os.path.dirname(file))
@@ -323,7 +333,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             self.updateSaveStatus(True)
 
     # #############################################################
-    # Centroids Source
+    # Basename
     # #############################################################
 
     def onBasenameLineEditChanged(self) -> typing.NoReturn:
@@ -360,7 +370,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         if file:
             self.centroidsFile = file
             self.ui.centroidsSourceFileLineEdit.setText(os.path.normpath(self.centroidsFile))
-            settings.setValue("last_file_directory",os.path.dirname(self.centroidsFile))
+            settings.setValue("last_file_directory", os.path.dirname(self.centroidsFile))
 
     def onCentroidsSourceFileChanged(self) -> typing.NoReturn:
         '''Handle new centroid file
@@ -481,11 +491,15 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.step01manager.setReferenceLayerField(self.ui.referenceLayerFieldCombobox.currentText())
         self.updateSaveStatus(True)
 
+    # #############################################################
+    # Urban, Rural values
+    # #############################################################
+
     def onUrbanValuesLineEditChanged(self) -> typing.NoReturn:
         '''handle urban values field changed
         '''
         # separator can be ';' or ',' or ' '. feel free to add other
-        list = re.split(';|,| ',self.ui.urbanValuesLineEdit.text())
+        list = re.split(';|,| ', self.ui.urbanValuesLineEdit.text())
         self.step01manager.setUrbanTypes([x for x in list if x])
         self.updateSaveStatus(True)
 
@@ -493,7 +507,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''handle rural values field changed
         '''
         # separator can be ';' or ',' or ' '. feel free to add other
-        list = re.split(';|,| ',self.ui.ruralValuesLineEdit.text())
+        list = re.split(';|,| ', self.ui.ruralValuesLineEdit.text())
         self.step01manager.setRuralTypes([x for x in list if x])
         self.updateSaveStatus(True)
 
@@ -509,7 +523,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open covinputs file", dir, "*.txt")
         if file:
             self.ui.covinputsSourceFileLineEdit.setText(os.path.normpath(file))
-            settings.setValue("last_file_directory",os.path.dirname(file))
+            settings.setValue("last_file_directory", os.path.dirname(file))
 
     def onCovinputsSourceFileChanged(self) -> typing.NoReturn:
         '''Handle new covinput file
@@ -535,14 +549,14 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
                 break
 
         candidates = ["fileformat", "FileFormat", "Fileformat", "FILEFORMAT",
-                        "format", "Format", "FORMAT"]
+                      "format", "Format", "FORMAT"]
         for item in candidates:
             if item in fields:
                 self.ui.fileformatFieldComboBox.setCurrentIndex(fields.index(item))
                 break
 
         candidates = ["sumstat", "SumStat", "Sumstat", "SUMSTAT",
-                        "summarystatistic", "SummaryStatistic", "Summarystatistic", "SUMMARYSTATISTIC"]
+                      "summarystatistic", "SummaryStatistic", "Summarystatistic", "SUMMARYSTATISTIC"]
         for item in candidates:
             if item in fields:
                 self.ui.sumstatFieldComboBox.setCurrentIndex(fields.index(item))
@@ -604,7 +618,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             self.updateSaveStatus(True)
 
     # #############################################################
-    # Images directory
+    # Covref layer
     # #############################################################
 
     def onCovrefLayerToolButtonClicked(self) -> typing.NoReturn:
@@ -667,8 +681,8 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
     def onLoadCentroidsButtonCLicked(self) -> typing.NoReturn:
         '''Load centroids
         '''
-        # separator can be ';' or ',' or ' '. feel free to add other
         self.step01manager.loadCentroids()
+        self.ui.displaceCentroidsButton.setEnabled(True)
 
     def onDisplaceCentroidsButtonClicked(self) -> typing.NoReturn:
         '''Displace centroids
@@ -682,6 +696,3 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''ComputeCovariates computeCovariatesButton
         '''
         self.step02manager.computeCovariates()
-
-
-
