@@ -60,17 +60,29 @@ class CentroidsDisplacer():
         self.centroidLayer = None
         self.cluster_no_field = ""
         self.cluster_type_field = ""
+        self.__rural_displaced_points_count = 0
+        self.__radius10000_indexes = []
 
     def displaceCentroids(self) -> typing.NoReturn:
         """ Facade method that handle all the centroids displacement.
         """
         Logger.logInfo("[CentroidsDisplacer] Centroids displacement starts at {}".format(datetime.now()))
 
+        self.__rural_displaced_points_count = 0
+        self.__radius10000_indexes = []
+
         self.clearLayers()
 
         self.__createOutputsMemoryLayer()
 
         try:
+            # Comput rural indexes for 10000 radius
+            count_rural = sum(cluster_centroid_ft[1] in self.rural_types for cluster_centroid_ft in self.centroidLayer.getFeatures())
+            floor = count_rural // 100
+            modulo = count_rural % 100
+            self.__radius10000_indexes = [i * 100 + random.randint(0, 100) for i in range(0, floor)]
+            self.__radius10000_indexes.append(floor * 100 + random.randint(0, modulo))
+
             # Displace points
             for cluster_centroid_ft in self.centroidLayer.getFeatures():
                 self.__displaceCentroid(cluster_centroid_ft)
@@ -158,11 +170,11 @@ class CentroidsDisplacer():
         if cluster_type in self.urban_types:
             max_displace_distance = 2000
         elif cluster_type in self.rural_types:
-            self.__rural_displaced_points += 1  # TODO remove this one
-            if random.randint(1, 101) == 1:  # Generate one int between 1 and 100, and test if it's equal to a specific value. equivalent to 1 % of chances.
+            if self.__rural_displaced_points_count in self.__radius10000_indexes:  # Generate one int between 1 and 100, and test if it's equal to a specific value. equivalent to 1 % of chances.
                 max_displace_distance = 10000
             else:
                 max_displace_distance = 5000
+            self.__rural_displaced_points_count += 1
         else:
             max_displace_distance = 5000
 
