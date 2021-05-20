@@ -94,8 +94,8 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.step02manager = step02.Step02Manager()
 
         # Hold the basename values. Made to avoid too many 'editingFinished' signal issue
-        self.basename = "basename"
-        self.ui.basenameLineEdit.setText(self.basename)
+        self.basename = ""
+        self.ui.basenameLineEdit.clear()
 
         # Init output directory with tmpPath
         self.ui.outputDirLineEdit.setText(QtCore.QDir.tempPath())
