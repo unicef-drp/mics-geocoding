@@ -723,7 +723,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>project_basename</string>
+    <string/>
    </property>
   </widget>
   <widget class="QWidget" name="layoutWidget_2">
@@ -781,6 +781,12 @@
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>10</number>
+    </property>
     <item row="0" column="0">
      <widget class="QLabel" name="configFileLabel">
       <property name="text">
