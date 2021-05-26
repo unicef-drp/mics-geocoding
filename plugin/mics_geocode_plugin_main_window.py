@@ -107,6 +107,21 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.ui.displaceCentroidsButton.setEnabled(False)
 
         ## ####################################################################
+        # Load last config file if exists
+        # It is laoded before the signal / slot conenections -> do not trigger anything
+        ## ####################################################################
+
+        self.fileMGC = ""
+        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        configFile = settings.value("last_config_file", "")
+        if configFile != "" and os.path.exists(configFile):
+            self.open(configFile)
+
+        self.updateCentroidCombobox()
+        self.updateReferenceLayerCombobox()
+        self.updateCovinputsComboBoxes()
+
+        ## ####################################################################
         # Init signal slots connection
         ## ####################################################################
 
@@ -189,16 +204,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.ui.covrefLayerToolButton.setToolTip("Browse for reference layer on the disk")
         self.ui.covrefLayerLineEdit.setToolTip("Reference layer on the disk")
         self.ui.covrefLayerFieldCombobox.setToolTip("Choose the field corresponding to cluster type")
-
-        ## ####################################################################
-        # Load last config file if exists
-        ## ####################################################################
-
-        self.fileMGC = ""
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
-        configFile = settings.value("last_config_file", "")
-        if configFile != "" and os.path.exists(configFile):
-            self.open(configFile)
 
         ## ####################################################################
         # actually show the app
@@ -378,7 +383,10 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''
         # Update manager
         self.step01manager.setCentroidFile(self.ui.centroidsSourceFileLineEdit.text())
+        self.updateCentroidCombobox()
+        self.updateSaveStatus(True)
 
+    def updateCentroidCombobox(self):
         # Retrieve fieldlist and populate comboboxes
         fields = Utils.getFieldsListAsStrArray(self.ui.centroidsSourceFileLineEdit.text())
 
@@ -429,8 +437,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             self.ui.longitudeFieldComboBox.setEnabled(False)
             self.ui.latitudeFieldComboBox.setEnabled(False)
 
-        self.updateSaveStatus(True)
-
     def onLongitudeFieldChanged(self) -> typing.NoReturn:
         '''Update longitude field
         '''
@@ -474,7 +480,10 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''
         self.step01manager.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
         self.ui.referenceLayerFieldCombobox.clear()
+        self.updateReferenceLayerCombobox()
+        self.updateSaveStatus(True)
 
+    def updateReferenceLayerCombobox(self):
         # retrieve field and update combobox
         fields = Utils.getFieldsListAsStrArray(self.ui.referenceLayerLineEdit.text())
         if fields:
@@ -483,8 +492,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             self.ui.referenceLayerFieldCombobox.setCurrentIndex(0)
         else:
             self.ui.referenceLayerFieldCombobox.setEnabled(False)
-
-        self.updateSaveStatus(True)
 
     def onReferenceLayerFieldComboboxTextChanged(self) -> typing.NoReturn:
         '''handle reference field changed
@@ -530,6 +537,10 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''Handle new covinput file
         '''
         self.step02manager.input_csv = self.ui.covinputsSourceFileLineEdit.text()
+        self.updateCovinputsComboBoxes()
+        self.updateSaveStatus(True)
+
+    def updateCovinputsComboBoxes(self):
         # Retrieve fieldlist and populate comboboxes
         fields = Utils.getFieldsListAsStrArray(self.ui.covinputsSourceFileLineEdit.text())
 
@@ -568,8 +579,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
             if item in fields:
                 self.ui.columnnameFieldComboBox.setCurrentIndex(fields.index(item))
                 break
-
-        self.updateSaveStatus(True)
 
     def onFilenameFieldChanged(self) -> typing.NoReturn:
         '''Update Filename field
