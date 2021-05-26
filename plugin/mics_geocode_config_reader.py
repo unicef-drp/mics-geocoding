@@ -35,11 +35,6 @@ class mics_geocode_config_reader:
             configReader = configparser.ConfigParser()
             configReader.read(self.fileMGC)
 
-            if configReader['state']['isStep1'] == "True":
-                self.mainWindow.ui.tabWidget.setCurrentIndex(0)
-            else:
-                self.mainWindow.ui.tabWidget.setCurrentIndex(1)
-
             if 'global' in configReader:
                 if 'basename' in configReader['global']:
                     self.mainWindow.ui.basenameLineEdit.setText(configReader['global']['basename'])

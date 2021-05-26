@@ -60,7 +60,6 @@ class mics_geocode_config_writer:
                 images_dir = ""
 
             configWriter['program'] = {'name': 'MicsGeocodePlugin', 'version': '0.0.1'}
-            configWriter['state'] = {'isStep1': (self.mainWindow.ui.tabWidget.currentIndex() == 0)}
 
             configWriter['global'] = {
                 'basename': self.mainWindow.ui.basenameLineEdit.text(),
