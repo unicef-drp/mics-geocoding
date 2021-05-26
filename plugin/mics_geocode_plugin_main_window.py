@@ -209,7 +209,8 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
 
         # force saving of the config if one has been loaded.
         # potential update of the config file are applied
-        self.onSaveConfigButtonClicked()
+        if self.fileMGC:
+            self.onSaveConfigButtonClicked()
 
     ## #############################################################
     # update save status
@@ -294,7 +295,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''
         settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
         path = settings.value("last_file_directory", QtCore.QDir.homePath())
-        file, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Save centroids file", path, "*.mgc")
+        file, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Save project configuration file", path, "*.mgc")
         if file:
             self.fileMGC = file
             self.ui.configFileLineEdit.setText(self.fileMGC)
