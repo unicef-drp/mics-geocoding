@@ -19,6 +19,7 @@ from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 # Class Step01Manager
 ####################################################################
 
+
 class Step01Manager():
     """ Facade that handle step 1 of the algo.
         set inputs, call loader and displacef with proper arguments.
@@ -102,4 +103,3 @@ class Step01Manager():
 
     def setUrbanTypes(self, types: typing.List[str]) -> typing.NoReturn:
         self.centroidDisplacer.urban_types = types
-

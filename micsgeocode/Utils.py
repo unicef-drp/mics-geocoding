@@ -19,6 +19,7 @@ import typing
 from enum import Enum
 from .Logger import Logger
 
+
 class LayersType(str, Enum):
     CENTROIDS = "CENTROIDS"
     POLYGONS = "POLYGONS"
@@ -30,6 +31,7 @@ class LayersType(str, Enum):
     LINKS = "LINKS"
     DISPLACED = "DISPLACED"
     DISPLACEDANON = "DISPLACEDANON"
+
 
 class LayersName():
     basename = ""
@@ -48,7 +50,7 @@ class LayersName():
     }
 
     @staticmethod
-    def layerName(t: LayersType) -> str :
+    def layerName(t: LayersType) -> str:
         """ generates layer name for UI
         """
         if LayersName.basename:
@@ -56,12 +58,13 @@ class LayersName():
         return LayersName.layerNames[t]
 
     @staticmethod
-    def fileName(t: LayersType) -> str :
+    def fileName(t: LayersType) -> str:
         """ generates layer name for file
         """
         if LayersName.basename:
             return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + LayersName.layerNames[t] + ".shp"
         return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.layerNames[t] + ".shp"
+
 
 def removeLayerIfExistsByName(layerName: str) -> typing.NoReturn:
     """ Remove existing layer with the same name. Avoid duplication when run multiple times.
@@ -70,12 +73,14 @@ def removeLayerIfExistsByName(layerName: str) -> typing.NoReturn:
     if layers:
         QgsProject.instance().removeMapLayer(layers[0])
 
+
 def removeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
     """ Remove existing layer with the same name. Avoid duplication when run multiple times.
     """
     layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
     if layers:
         QgsProject.instance().removeMapLayer(layers[0])
+
 
 def putLayerOnTopIfExists(layerType: LayersType) -> typing.NoReturn:
     """ Put layer on top if it exists
@@ -85,6 +90,7 @@ def putLayerOnTopIfExists(layerType: LayersType) -> typing.NoReturn:
         lyr = QgsProject.instance().takeMapLayer(layers[0])
         if lyr:
             QgsProject.instance().addMapLayer(lyr)
+
 
 def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typing.List[QgsField]) -> QgsVectorLayer:
     """ Create layer method, given a type, a name and some attributes
@@ -98,6 +104,7 @@ def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typ
     layer.updateFields()
 
     return layer
+
 
 def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
     """ Write hte layer on disk, if it exists in the project instance
@@ -113,6 +120,7 @@ def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
             LayersName.fileName(layerType),
             QgsCoordinateTransformContext(),
             options)
+
 
 def getval(ft: QgsFeature, field: QgsField) -> str:
     """ get value as string from feature / field combo
@@ -151,6 +159,7 @@ def getFieldsListAsStrArray(file: str) -> typing.List[str]:
             fieldList = line.strip().split('\t')
 
     return fieldList
+
 
 def layerCrossesTheMeridian(layer: QgsVectorLayer) -> bool:
     """ add a convenient method that checks if a layer crosses the antimeridian

@@ -19,9 +19,11 @@ import qgis.utils
 
 from . import Utils
 
+
 class ReferenceLayer():
     """ Facade that handle ReferenceLayerManagement.
     """
+
     def __init__(self):
         self.layer = None
         self.__layerName = ""

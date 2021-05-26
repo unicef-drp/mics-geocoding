@@ -285,7 +285,7 @@ class Ui_MicsGeocodePluginDialog(object):
         self.verticalLayout_5.addWidget(self.computeCovariatesButton)
         self.label_2 = QtWidgets.QLabel(self.tab_step2)
         self.label_2.setGeometry(QtCore.QRect(10, 350, 451, 91))
-        self.label_2.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.label_2.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
         self.label_2.setWordWrap(True)
         self.label_2.setObjectName("label_2")
         self.tabWidget.addTab(self.tab_step2, "")

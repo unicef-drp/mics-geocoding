@@ -9,6 +9,11 @@
 ##
 ## ###########################################################################
 
+from .Logger import Logger
+from .Transforms import Transforms
+import numpy as np
+from osgeo.gdalconst import *
+from osgeo import gdal, ogr
 import os
 import re
 import typing
@@ -40,313 +45,307 @@ Options:
   -h --help     Show this screen.
   --version     Show version.
 """
-from osgeo import gdal, ogr
-from osgeo.gdalconst import *
-import numpy as np
 gdal.PushErrorHandler('CPLQuietErrorHandler')
 
-from .Transforms import Transforms
-from .Logger import Logger
 
 ####################################################################
 # Class Step02Manager
 ####################################################################
+
 class Step02Manager():
-  """ Facade that handle step 2 of the algo.
-      set inputs, call loader and displacef with proper arguments.
-  """
-  OUTPUT_SUFFIX_BASENAME = "output_covariates.csv"
+    """ Facade that handle step 2 of the algo.
+        set inputs, call loader and displacef with proper arguments.
+    """
+    OUTPUT_SUFFIX_BASENAME = "output_covariates.csv"
 
-  def __init__(self):
-    # CSV input
-    self.input_csv = ""
-    self.input_csv_field_filename = 'FileName'
-    self.input_csv_field_fileformat = 'FileFormat'
-    self.input_csv_field_sumstat = 'SummaryStatistic'
-    self.input_csv_field_columnname = 'ColumnName'
+    def __init__(self):
+        # CSV input
+        self.input_csv = ""
+        self.input_csv_field_filename = 'FileName'
+        self.input_csv_field_fileformat = 'FileFormat'
+        self.input_csv_field_sumstat = 'SummaryStatistic'
+        self.input_csv_field_columnname = 'ColumnName'
 
-    self.images_directory = Path(self.input_csv).parent
+        self.images_directory = Path(self.input_csv).parent
 
-    self.__output_filename = ""
-    self.__output_directory = ""
-    self.__output_file = ""
+        self.__output_filename = ""
+        self.__output_directory = ""
+        self.__output_file = ""
 
-    self.__ref_layer = None
-    self.__ref_layer_cluster_no_field_name = 'cluster'
-    self.__ref_layer_shp = ""
+        self.__ref_layer = None
+        self.__ref_layer_cluster_no_field_name = 'cluster'
+        self.__ref_layer_shp = ""
 
 ####################################################################
 # setters
 ####################################################################
 
-  def setBasename(self, basename: str) -> typing.NoReturn:
-    if basename:
-      self.__output_filename = basename + '_' + Step02Manager.OUTPUT_SUFFIX_BASENAME
-    else:
-      self.__output_filename = basename + '_' + Step02Manager.OUTPUT_SUFFIX_BASENAME
-    self.updateOutputFile()
+    def setBasename(self, basename: str) -> typing.NoReturn:
+        if basename:
+            self.__output_filename = basename + '_' + Step02Manager.OUTPUT_SUFFIX_BASENAME
+        else:
+            self.__output_filename = basename + '_' + Step02Manager.OUTPUT_SUFFIX_BASENAME
+        self.updateOutputFile()
 
-  def setOutputDirectory(self, directory: str) -> typing.NoReturn:
-    self.__output_directory = directory
-    self.updateOutputFile()
+    def setOutputDirectory(self, directory: str) -> typing.NoReturn:
+        self.__output_directory = directory
+        self.updateOutputFile()
 
-  def updateOutputFile(self) -> typing.NoReturn:
-    self.__output_file = os.path.join(self.__output_directory, self.__output_filename)
+    def updateOutputFile(self) -> typing.NoReturn:
+        self.__output_file = os.path.join(self.__output_directory, self.__output_filename)
 
-  def setReferenceLayer(self, layer: QgsVectorLayer, ref_layer_cluster_no_field_name: str, layer_file: str) -> typing.NoReturn:
-    self.__ref_layer = layer
-    self.__ref_layer_cluster_no_field_name = ref_layer_cluster_no_field_name
-    self.__ref_layer_shp = layer_file
+    def setReferenceLayer(self, layer: QgsVectorLayer, ref_layer_cluster_no_field_name: str, layer_file: str) -> typing.NoReturn:
+        self.__ref_layer = layer
+        self.__ref_layer_cluster_no_field_name = ref_layer_cluster_no_field_name
+        self.__ref_layer_shp = layer_file
 
 ####################################################################
 # computation
 ####################################################################
 
-  def computeCovariates(self) -> typing.NoReturn:
+    def computeCovariates(self) -> typing.NoReturn:
 
-    Logger.logInfo("[STEP02 MANAGER] input_file:  " + self.input_csv)
-    Logger.logInfo("[STEP02 MANAGER] input_csv_field_filename  :  " + self.input_csv_field_filename)
-    Logger.logInfo("[STEP02 MANAGER] input_csv_field_fileformat:  " + self.input_csv_field_fileformat)
-    Logger.logInfo("[STEP02 MANAGER] input_csv_field_sumstat   :  " + self.input_csv_field_sumstat)
-    Logger.logInfo("[STEP02 MANAGER] input_csv_field_columnname:  " + self.input_csv_field_columnname)
+        Logger.logInfo("[STEP02 MANAGER] input_file:  " + self.input_csv)
+        Logger.logInfo("[STEP02 MANAGER] input_csv_field_filename  :  " + self.input_csv_field_filename)
+        Logger.logInfo("[STEP02 MANAGER] input_csv_field_fileformat:  " + self.input_csv_field_fileformat)
+        Logger.logInfo("[STEP02 MANAGER] input_csv_field_sumstat   :  " + self.input_csv_field_sumstat)
+        Logger.logInfo("[STEP02 MANAGER] input_csv_field_columnname:  " + self.input_csv_field_columnname)
 
-    # read input list of covariates
-    with open(self.input_csv, "r", encoding='utf-8-sig') as f:
-      c = 0
-      inputs = []
+        # read input list of covariates
+        with open(self.input_csv, "r", encoding='utf-8-sig') as f:
+            c = 0
+            inputs = []
 
-      registry = QgsProject.instance()
+            registry = QgsProject.instance()
 
-      clusters = [{'fid':ft.id(), 'cluster':ft['cluster']} for ft in self.__ref_layer.getFeatures()]  # TODO: ft.id() is different than ft.GetFID()? !!!!! make sure IDs match - fix required!!!
-      # Convert the dictionary into DataFrame
-      summary_df = pd.DataFrame(clusters)
-
-      # read all input covariates
-      for i in f:
-        if c == 0:
-          line = re.split('\t', i.strip()) # TODO: use comma instead of tab?
-          input_file_id = line.index(self.input_csv_field_filename)
-          input_fileformat_id = line.index(self.input_csv_field_fileformat)
-          input_field_sumstat_id = line.index(self.input_csv_field_sumstat)
-          input_field_columnname_id = line.index(self.input_csv_field_columnname)
-        if c != 0:
-          line = re.split('\t', i.strip())
-          inputs.append({'file': line[input_file_id], 'file_format': line[input_fileformat_id], 'sum_stat': line[input_field_sumstat_id], 'column': line[input_field_columnname_id]})
-        c = c + 1
-      c = 1
-
-      #loop through all covariates
-      for input_row in inputs:
-        file_name = input_row['file']
-        file_path = os.path.join(self.images_directory, file_name)
-        file_format = input_row['file_format']
-        sum_stat = input_row['sum_stat']
-        column_name = input_row['column']
-        Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(c, file_name, file_format, sum_stat, column_name))
-
-        if file_format == 'GeoTIFF':
-          stats = self.zonal_stats(self.__ref_layer_shp,file_path,'cluster',-99999)
-          results_df = pd.DataFrame(stats)[[sum_stat, 'cluster']]
-          results_df.columns = [column_name, 'cluster']
-          summary_df = pd.merge(summary_df, results_df[[column_name, 'cluster']], on='cluster', how='inner')
-
-        if file_format == 'Shapefile':
-          # search_gdf = gpd.read_file(file_path)
-          if sum_stat == 'distance_to_nearest':
-            # create layer for shortest distance
-            shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(file_name), 'memory')
-            shortest_dist_prov = shortest_dist_lyr.dataProvider()
-            shortest_dist_prov.addAttributes(
-              [QgsField("cluster", QVariant.String), QgsField("nearestfid", QVariant.String),
-              QgsField("dist", QVariant.Double)])
-            shortest_dist_lyr.updateFields()
-
-            layer = QgsVectorLayer(file_path, file_name, "ogr")
-            search_features = [feature for feature in layer.getFeatures()]
-            for cluster_ft in self.__ref_layer.getFeatures():
-              cswc = min(
-                [(l.id(), l.geometry().closestSegmentWithContext(cluster_ft.geometry().centroid().asPoint())) for l in
-                search_features], key=itemgetter(1))
-              minDistPoint = cswc[1][1]  # nearest point on line
-              minDistLine = cswc[0]  # line id of nearest point
-              feat = QgsFeature()
-              line = QgsGeometry.fromPolyline([QgsPoint(cluster_ft.geometry().centroid().asPoint()), QgsPoint(minDistPoint[0], minDistPoint[1])])  # creating line between point and nearest point on segment
-              feat.setGeometry(line)
-
-              # get distance in meters - transform to Web Mercator
-              line_merc = QgsGeometry(line)
-              line_merc.transform(Transforms.tr)
-
-              feat.setAttributes([cluster_ft['cluster'], minDistLine, line_merc.length()])
-              shortest_dist_prov.addFeatures([feat])
-
-            # Update extent of the layer
-            shortest_dist_lyr.updateExtents()
-            # Add the layer to the Layers panel
-            registry.addMapLayer(shortest_dist_lyr)
-
-            search_fts = [{'cluster': ft['cluster'], column_name: ft['dist']} for ft in
-                    shortest_dist_lyr.getFeatures()]
+            clusters = [{'fid': ft.id(), 'cluster': ft['cluster']} for ft in self.__ref_layer.getFeatures()]  # TODO: ft.id() is different than ft.GetFID()? !!!!! make sure IDs match - fix required!!!
             # Convert the dictionary into DataFrame
-            search_shp_df = pd.DataFrame(search_fts)
-            summary_df = pd.merge(summary_df, search_shp_df[[column_name, 'cluster']], on='cluster', how='inner')
-        c = c + 1
+            summary_df = pd.DataFrame(clusters)
 
-      summary_df.to_csv(self.__output_file, sep=',', encoding='utf-8')
+            # read all input covariates
+            for i in f:
+                if c == 0:
+                    line = re.split('\t', i.strip())  # TODO: use comma instead of tab?
+                    input_file_id = line.index(self.input_csv_field_filename)
+                    input_fileformat_id = line.index(self.input_csv_field_fileformat)
+                    input_field_sumstat_id = line.index(self.input_csv_field_sumstat)
+                    input_field_columnname_id = line.index(self.input_csv_field_columnname)
+                if c != 0:
+                    line = re.split('\t', i.strip())
+                    inputs.append({'file': line[input_file_id], 'file_format': line[input_fileformat_id], 'sum_stat': line[input_field_sumstat_id], 'column': line[input_field_columnname_id]})
+                c = c + 1
+            c = 1
 
-    Logger.logInfo("Output file saved to {}".format(self.__output_file))
-    Logger.logInfo("Successfully completed at {}".format(datetime.now()))
+            # loop through all covariates
+            for input_row in inputs:
+                file_name = input_row['file']
+                file_path = os.path.join(self.images_directory, file_name)
+                file_format = input_row['file_format']
+                sum_stat = input_row['sum_stat']
+                column_name = input_row['column']
+                Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(c, file_name, file_format, sum_stat, column_name))
+
+                if file_format == 'GeoTIFF':
+                    stats = self.zonal_stats(self.__ref_layer_shp, file_path, 'cluster', -99999)
+                    results_df = pd.DataFrame(stats)[[sum_stat, 'cluster']]
+                    results_df.columns = [column_name, 'cluster']
+                    summary_df = pd.merge(summary_df, results_df[[column_name, 'cluster']], on='cluster', how='inner')
+
+                if file_format == 'Shapefile':
+                    # search_gdf = gpd.read_file(file_path)
+                    if sum_stat == 'distance_to_nearest':
+                        # create layer for shortest distance
+                        shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(file_name), 'memory')
+                        shortest_dist_prov = shortest_dist_lyr.dataProvider()
+                        shortest_dist_prov.addAttributes(
+                            [QgsField("cluster", QVariant.String), QgsField("nearestfid", QVariant.String),
+                             QgsField("dist", QVariant.Double)])
+                        shortest_dist_lyr.updateFields()
+
+                        layer = QgsVectorLayer(file_path, file_name, "ogr")
+                        search_features = [feature for feature in layer.getFeatures()]
+                        for cluster_ft in self.__ref_layer.getFeatures():
+                            cswc = min(
+                                [(l.id(), l.geometry().closestSegmentWithContext(cluster_ft.geometry().centroid().asPoint())) for l in
+                                 search_features], key=itemgetter(1))
+                            minDistPoint = cswc[1][1]  # nearest point on line
+                            minDistLine = cswc[0]  # line id of nearest point
+                            feat = QgsFeature()
+                            line = QgsGeometry.fromPolyline([QgsPoint(cluster_ft.geometry().centroid().asPoint()), QgsPoint(
+                                minDistPoint[0], minDistPoint[1])])  # creating line between point and nearest point on segment
+                            feat.setGeometry(line)
+
+                            # get distance in meters - transform to Web Mercator
+                            line_merc = QgsGeometry(line)
+                            line_merc.transform(Transforms.tr)
+
+                            feat.setAttributes([cluster_ft['cluster'], minDistLine, line_merc.length()])
+                            shortest_dist_prov.addFeatures([feat])
+
+                        # Update extent of the layer
+                        shortest_dist_lyr.updateExtents()
+                        # Add the layer to the Layers panel
+                        registry.addMapLayer(shortest_dist_lyr)
+
+                        search_fts = [{'cluster': ft['cluster'], column_name: ft['dist']} for ft in
+                                      shortest_dist_lyr.getFeatures()]
+                        # Convert the dictionary into DataFrame
+                        search_shp_df = pd.DataFrame(search_fts)
+                        summary_df = pd.merge(summary_df, search_shp_df[[column_name, 'cluster']], on='cluster', how='inner')
+                c = c + 1
+
+            summary_df.to_csv(self.__output_file, sep=',', encoding='utf-8')
+
+        Logger.logInfo("Output file saved to {}".format(self.__output_file))
+        Logger.logInfo("Successfully completed at {}".format(datetime.now()))
 
 ####################################################################
 # Utilitity method
 ####################################################################
-  def bbox_to_pixel_offsets(self, gt, bbox):
-    '''Compute bboc to pixel offsets
-    '''
-    origin_x = gt[0]
-    origin_y = gt[3]
-    pixel_width = gt[1]
-    pixel_height = gt[5]
-    x1 = int((bbox[0] - origin_x) / pixel_width)
-    x2 = int((bbox[1] - origin_x) / pixel_width) + 1
+    def bbox_to_pixel_offsets(self, gt, bbox):
+        '''Compute bboc to pixel offsets
+        '''
+        origin_x = gt[0]
+        origin_y = gt[3]
+        pixel_width = gt[1]
+        pixel_height = gt[5]
+        x1 = int((bbox[0] - origin_x) / pixel_width)
+        x2 = int((bbox[1] - origin_x) / pixel_width) + 1
 
-    y1 = int((bbox[3] - origin_y) / pixel_height)
-    y2 = int((bbox[2] - origin_y) / pixel_height) + 1
+        y1 = int((bbox[3] - origin_y) / pixel_height)
+        y2 = int((bbox[2] - origin_y) / pixel_height) + 1
 
-    xsize = x2 - x1
-    ysize = y2 - y1
-    return x1, y1, xsize, ysize
+        xsize = x2 - x1
+        ysize = y2 - y1
+        return x1, y1, xsize, ysize
 
-  def zonal_stats(self, vector_path, raster_path, cluster_no_field, nodata_value=None, global_src_extent=False):
-    '''Compute zonal statistic
-    '''
-    rds = gdal.Open(raster_path, GA_ReadOnly)
-    assert rds
+    def zonal_stats(self, vector_path, raster_path, cluster_no_field, nodata_value=None, global_src_extent=False):
+        '''Compute zonal statistic
+        '''
+        rds = gdal.Open(raster_path, GA_ReadOnly)
+        assert rds
 
-    rb = rds.GetRasterBand(1)
-    rgt = rds.GetGeoTransform()
+        rb = rds.GetRasterBand(1)
+        rgt = rds.GetGeoTransform()
 
-    if nodata_value:
-      nodata_value = float(nodata_value)
-      rb.SetNoDataValue(nodata_value)
+        if nodata_value:
+            nodata_value = float(nodata_value)
+            rb.SetNoDataValue(nodata_value)
 
-    vds = ogr.Open(vector_path, GA_ReadOnly)  # TODO maybe open update if we want to write stats
-    # assert vds
-    if not vds:
-      Logger.logInfo("[ZonalStat] vds is missing")
-      Logger.logInfo("[ZonalStat] vector_path path was: " + vector_path)
+        vds = ogr.Open(vector_path, GA_ReadOnly)  # TODO maybe open update if we want to write stats
+        # assert vds
+        if not vds:
+            Logger.logInfo("[ZonalStat] vds is missing")
+            Logger.logInfo("[ZonalStat] vector_path path was: " + vector_path)
 
+        vlyr = vds.GetLayer(0)
 
-    vlyr = vds.GetLayer(0)
+        # create an in-memory numpy array of the source raster data
+        # covering the whole extent of the vector layer
+        if global_src_extent:
+            # use global source extent
+            # useful only when disk IO or raster scanning inefficiencies are your limiting factor
+            # advantage: reads raster data in one pass
+            # disadvantage: large vector extents may have big memory requirements
+            src_offset = self.bbox_to_pixel_offsets(rgt, vlyr.GetExtent())
+            src_array = rb.ReadAsArray(*src_offset)
 
-    # create an in-memory numpy array of the source raster data
-    # covering the whole extent of the vector layer
-    if global_src_extent:
-      # use global source extent
-      # useful only when disk IO or raster scanning inefficiencies are your limiting factor
-      # advantage: reads raster data in one pass
-      # disadvantage: large vector extents may have big memory requirements
-      src_offset = self.bbox_to_pixel_offsets(rgt, vlyr.GetExtent())
-      src_array = rb.ReadAsArray(*src_offset)
+            # calculate new geotransform of the layer subset
+            new_gt = (
+                (rgt[0] + (src_offset[0] * rgt[1])),
+                rgt[1],
+                0.0,
+                (rgt[3] + (src_offset[1] * rgt[5])),
+                0.0,
+                rgt[5]
+            )
 
-      # calculate new geotransform of the layer subset
-      new_gt = (
-        (rgt[0] + (src_offset[0] * rgt[1])),
-        rgt[1],
-        0.0,
-        (rgt[3] + (src_offset[1] * rgt[5])),
-        0.0,
-        rgt[5]
-      )
+        mem_drv = ogr.GetDriverByName('Memory')
+        driver = gdal.GetDriverByName('MEM')
 
-    mem_drv = ogr.GetDriverByName('Memory')
-    driver = gdal.GetDriverByName('MEM')
+        # Loop through vectors
+        stats = []
+        feat = vlyr.GetNextFeature()
+        while feat is not None:
 
-    # Loop through vectors
-    stats = []
-    feat = vlyr.GetNextFeature()
-    while feat is not None:
+            if not global_src_extent:
+                # use local source extent
+                # fastest option when you have fast disks and well indexed raster (ie tiled Geotiff)
+                # advantage: each feature uses the smallest raster chunk
+                # disadvantage: lots of reads on the source raster
+                src_offset = self.bbox_to_pixel_offsets(rgt, feat.geometry().GetEnvelope())
+                src_array = rb.ReadAsArray(*src_offset)
 
+                # calculate new geotransform of the feature subset
+                new_gt = (
+                    (rgt[0] + (src_offset[0] * rgt[1])),
+                    rgt[1],
+                    0.0,
+                    (rgt[3] + (src_offset[1] * rgt[5])),
+                    0.0,
+                    rgt[5]
+                )
 
-      if not global_src_extent:
-        # use local source extent
-        # fastest option when you have fast disks and well indexed raster (ie tiled Geotiff)
-        # advantage: each feature uses the smallest raster chunk
-        # disadvantage: lots of reads on the source raster
-        src_offset = self.bbox_to_pixel_offsets(rgt, feat.geometry().GetEnvelope())
-        src_array = rb.ReadAsArray(*src_offset)
+            # Create a temporary vector layer in memory
+            mem_ds = mem_drv.CreateDataSource('out')
+            mem_layer = mem_ds.CreateLayer('poly', None, ogr.wkbPolygon)
+            mem_layer.CreateFeature(feat.Clone())
 
-        # calculate new geotransform of the feature subset
-        new_gt = (
-          (rgt[0] + (src_offset[0] * rgt[1])),
-          rgt[1],
-          0.0,
-          (rgt[3] + (src_offset[1] * rgt[5])),
-          0.0,
-          rgt[5]
-        )
+            # Rasterize it
+            rvds = driver.Create('', src_offset[2], src_offset[3], 1, gdal.GDT_Byte)
+            rvds.SetGeoTransform(new_gt)
+            gdal.RasterizeLayer(rvds, [1], mem_layer, burn_values=[1])
+            rv_array = rvds.ReadAsArray()
 
-      # Create a temporary vector layer in memory
-      mem_ds = mem_drv.CreateDataSource('out')
-      mem_layer = mem_ds.CreateLayer('poly', None, ogr.wkbPolygon)
-      mem_layer.CreateFeature(feat.Clone())
+            # Mask the source data array with our current feature
+            # we take the logical_not to flip 0<->1 to get the correct mask effect
+            # we also mask out nodata values explictly
+            masked = np.ma.MaskedArray(
+                src_array,
+                mask=np.logical_or(
+                    src_array == nodata_value,
+                    np.logical_not(rv_array)
+                )
+            )
 
-      # Rasterize it
-      rvds = driver.Create('', src_offset[2], src_offset[3], 1, gdal.GDT_Byte)
-      rvds.SetGeoTransform(new_gt)
-      gdal.RasterizeLayer(rvds, [1], mem_layer, burn_values=[1])
-      rv_array = rvds.ReadAsArray()
+            feature_stats = {
+                'min': float(masked.min()),
+                'mean': float(masked.mean()),
+                'max': float(masked.max()),
+                'std': float(masked.std()),
+                'sum': float(masked.sum()),
+                'count': int(masked.count()),
+                'cluster': feat[cluster_no_field],
+                'fid': int(feat.GetFID())}
 
-      # Mask the source data array with our current feature
-      # we take the logical_not to flip 0<->1 to get the correct mask effect
-      # we also mask out nodata values explictly
-      masked = np.ma.MaskedArray(
-        src_array,
-        mask=np.logical_or(
-          src_array == nodata_value,
-          np.logical_not(rv_array)
-        )
-      )
+            # get the actual pixel value for all stats if mask is returning null (e.g. pixel size is too large)
+            if not masked.min():
+                geom = feat.geometry()
+                mx, my = geom.Centroid().GetX(), geom.Centroid().GetY()  # coord in map units
 
-      feature_stats = {
-        'min': float(masked.min()),
-        'mean': float(masked.mean()),
-        'max': float(masked.max()),
-        'std': float(masked.std()),
-        'sum': float(masked.sum()),
-        'count': int(masked.count()),
-        'cluster': feat[cluster_no_field],
-        'fid': int(feat.GetFID())}
+                # Convert from map to pixel coordinates.
+                # Only works for geotransforms with no rotation.
+                px = int((mx - rgt[0]) / rgt[1])  # x pixel
+                py = int((my - rgt[3]) / rgt[5])  # y pixel
 
-      # get the actual pixel value for all stats if mask is returning null (e.g. pixel size is too large)
-      if not masked.min():
-        geom = feat.geometry()
-        mx, my = geom.Centroid().GetX(), geom.Centroid().GetY()  # coord in map units
+                intval = rb.ReadAsArray(px, py, 1, 1)
 
-        # Convert from map to pixel coordinates.
-        # Only works for geotransforms with no rotation.
-        px = int((mx - rgt[0]) / rgt[1])  # x pixel
-        py = int((my - rgt[3]) / rgt[5])  # y pixel
+                feature_stats = {
+                    'min': float(intval),
+                    'mean': float(intval),
+                    'max': float(intval),
+                    'std': float(intval),
+                    'sum': float(intval),
+                    'count': int(intval),
+                    'cluster': feat[cluster_no_field],
+                    'fid': int(feat.GetFID())}
 
-        intval = rb.ReadAsArray(px, py, 1, 1)
+            stats.append(feature_stats)
 
-        feature_stats = {
-          'min': float(intval),
-          'mean': float(intval),
-          'max': float(intval),
-          'std': float(intval),
-          'sum': float(intval),
-          'count': int(intval),
-          'cluster': feat[cluster_no_field],
-          'fid': int(feat.GetFID())}
+            rvds = None
+            mem_ds = None
+            feat = vlyr.GetNextFeature()
 
-      stats.append(feature_stats)
-
-      rvds = None
-      mem_ds = None
-      feat = vlyr.GetNextFeature()
-
-    vds = None
-    rds = None
-    return stats
-
+        vds = None
+        rds = None
+        return stats

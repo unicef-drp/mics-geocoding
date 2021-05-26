@@ -18,7 +18,7 @@ class Ui_MicsGeocodePluginDialog(object):
         self.button_box = QtWidgets.QDialogButtonBox(MicsGeocodePluginDialog)
         self.button_box.setGeometry(QtCore.QRect(30, 240, 341, 32))
         self.button_box.setOrientation(QtCore.Qt.Horizontal)
-        self.button_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
+        self.button_box.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
         self.button_box.setObjectName("button_box")
         self.runStep1Button = QtWidgets.QPushButton(MicsGeocodePluginDialog)
         self.runStep1Button.setGeometry(QtCore.QRect(90, 100, 93, 28))

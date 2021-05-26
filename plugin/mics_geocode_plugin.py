@@ -29,6 +29,7 @@ from .resources import *
 from .mics_geocode_plugin_main_window import MicsGeocodePluginMainWindow
 from .mics_geocode_plugin_version import MICS_GEOCODE_PLUGIN_VERSION
 
+
 class MicsGeocodePlugin:
     """QGIS Plugin Implementation."""
     mainWindow = None
@@ -53,15 +54,15 @@ class MicsGeocodePlugin:
         self.icon_path = ":/plugins/MicsGeocodePlugin/icon_bars.png"
 
     def add_action(
-        self,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
+            self,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None):
         """Add a toolbar icon to the toolbar.
 
         :param icon_path: Path to the icon for this action. Can be a resource
