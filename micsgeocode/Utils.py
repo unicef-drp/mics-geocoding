@@ -37,7 +37,7 @@ class LayersName():
     layerNames = {
         LayersType.CENTROIDS: "cluster_centroids",
         LayersType.POLYGONS: "cluster_polygons",
-        LayersType.GPS: "GPS_cluster_points",
+        LayersType.GPS: "cluster_points",
         LayersType.MULTIPLT: "cluster_multi-points",
         LayersType.CONVEXHULL: "cluster_convex_hulls",
         LayersType.BUFFERS: "cluster_buffers",
