@@ -121,7 +121,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.ui.ruralValuesLineEdit.textChanged.connect(self.onRuralValuesLineEditChanged)
         self.ui.urbanValuesLineEdit.textChanged.connect(self.onUrbanValuesLineEditChanged)
 
-        self.ui.centroidsSourceFileToolButton.clicked.connect(self.onCentroidsSourceFileToolButtonClicked)
+        self.ui.centroidsSourceFileToolButton.D.connect(self.onCentroidsSourceFileToolButtonClicked)
         self.ui.centroidsSourceFileLineEdit.textChanged.connect(self.onCentroidsSourceFileChanged)
         self.ui.loadCentroidsButton.clicked.connect(self.onLoadCentroidsButtonCLicked)
 
@@ -129,6 +129,12 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.ui.latitudeFieldComboBox.currentTextChanged.connect(self.onLatitudeFieldChanged)
         self.ui.numeroFieldComboBox.currentTextChanged.connect(self.onNumeroFieldChanged)
         self.ui.typeFieldComboBox.currentTextChanged.connect(self.onTypeFieldChanged)
+
+        self.ui.loadCentroidsFromStep01.clicked.connect(self.loadCentroidsFromStep01Clicked)
+        self.ui.centroidsLayerToolButton.clicked.connect(self.onCentroidsLayerToolButtonClicked)
+        self.ui.centroidsLayerLineEdit.textChanged.connect(self.onCentroidsLayerChanged)
+        self.ui.centroidsLayerNumeroFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerNumeroFieldChanged)
+        self.ui.centroidsLayerTypeFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerTypeFieldChanged)
 
         self.ui.displaceCentroidsButton.clicked.connect(self.onDisplaceCentroidsButtonClicked)
 
@@ -175,6 +181,11 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.ui.latitudeFieldComboBox.setToolTip("Choose the field corresponding to latitude")
         self.ui.numeroFieldComboBox.setToolTip("Choose the field corresponding to cluster numero")
         self.ui.typeFieldComboBox.setToolTip("Choose the field corresponding to cluster type")
+
+        self.ui.centroidsLayerToolButton.setToolTip("Browse for the centroids layer on the disk")
+        self.ui.centroidsLayerLineEdit.setToolTip("Browse for the centroids layer on the disk")
+        self.ui.centroidsLayerNumeroFieldComboBox.setToolTip("Choose the field corresponding to cluster numero")
+        self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field corresponding to cluster type")
 
         self.ui.covinputsSourceFileToolButton.setToolTip("Browse for the covariates inputs file on the disk")
         self.ui.covinputsSourceFileLineEdit.setToolTip("Covariates inputs file on the disk")
@@ -441,6 +452,45 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''Update type field
         '''
         self.loader.cluster_type_field = self.ui.typeFieldComboBox.currentText()
+        self.updateSaveStatus(True)
+
+    # #############################################################
+    # Centroids Layer
+    # #############################################################
+
+    def loadCentroidsFromStep01Clicked(self) -> typing.NoReturn:
+        '''Browse for centroid file
+        '''
+
+    def onCentroidsLayerToolButtonClicked(self) -> typing.NoReturn:
+        '''Browse for centroid file
+        '''
+        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        dir = settings.value("last_file_directory", QtCore.QDir.homePath())
+        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open centroids layer file", dir, "(*.shp)")
+        if file:
+            self.centroidsLayerFile = file
+            self.ui.centroidsLayerLineEdit.setText(os.path.normpath(self.centroidsLayerFile))
+            settings.setValue("last_file_directory", os.path.dirname(self.centroidsLayerFile))
+
+    def onCentroidsLayerChanged(self) -> typing.NoReturn:
+        '''Handle new centroid file
+        '''
+        # Update manager
+        # Use te file , not the Qgis Layer
+        self.displacer. = self.ui.centroidsLayerLineEdit.text()
+        self.updateSaveStatus(True)
+
+    def onCentroidsLayerNumeroFieldChanged(self) -> typing.NoReturn:
+        '''Update numero field
+        '''
+        self.loader.cluster_no_field = self.ui.centroidsLayerNumeroFieldComboBox.currentText()
+        self.updateSaveStatus(True)
+
+    def onCentroidsLayerTypeFieldChanged(self) -> typing.NoReturn:
+        '''Update type field
+        '''
+        self.loader.cluster_type_field = self.ui.centroidsLayerTypeFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     # #############################################################
