@@ -21,12 +21,15 @@ from .ui_mics_geocode_plugin_dialog import Ui_MicsGeocodePluginDialog
 from .mics_geocode_config_writer import mics_geocode_config_writer
 from .mics_geocode_config_reader import mics_geocode_config_reader
 
-from .micsgeocode import Step01Manager as step01
 from .micsgeocode import Step02Manager as step02
+from .micsgeocode import CentroidsLoader as Loader
+from .micsgeocode import CentroidsDisplacer as Displacer
 
 from .micsgeocode.Logger import Logger
 
 from .micsgeocode import Utils
+
+from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 
 
 class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
@@ -90,8 +93,9 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.needsSave = False
 
         # Initiate Managers
-        self.step01manager = step01.Step01Manager()
         self.step02manager = step02.Step02Manager()
+        self.loader = Loader.CentroidsLoader()
+        self.displacer = Displacer.CentroidsDisplacer()
 
         # Hold the basename values. Made to avoid too many 'editingFinished' signal issue
         self.basename = ""
@@ -102,9 +106,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
 
         # Force tab to init at first tab. Frequent mistake when manipulating qtdesigner
         self.ui.tabWidget.setCurrentIndex(0)
-
-        # Buttons on/off
-        self.ui.displaceCentroidsButton.setEnabled(False)
 
         ## ####################################################################
         # Load last config file if exists
@@ -279,7 +280,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''
         self.fileMGC = fileMGC
         self.ui.configFileLineEdit.setText(self.fileMGC)
-        self.ui.displaceCentroidsButton.setEnabled(False)
         reader = mics_geocode_config_reader(self.fileMGC, self)
         reader.readConfig()
         self.updateSaveStatus(False)
@@ -334,7 +334,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.ui.groupBoxDisplacer.setEnabled(dir.exists())
 
         if dir.exists():
-            self.step01manager.setOutputsDirectory(self.ui.outputDirLineEdit.text())
+            Utils.LayersName.outputDirectory = self.ui.outputDirLineEdit.text()
             self.step02manager.setOutputDirectory(self.ui.outputDirLineEdit.text())
             self.updateSaveStatus(True)
 
@@ -352,7 +352,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
 
             # The validator should prevent the text to be invalid. But hey, let's check it anyway
             if self.ui.basenameLineEdit.hasAcceptableInput():
-                self.step01manager.setBasename(self.ui.basenameLineEdit.text())
+                Utils.LayersName.basename = self.ui.basenameLineEdit.text()
                 self.step02manager.setBasename(self.ui.basenameLineEdit.text())
                 self.updateSaveStatus(True)
             else:
@@ -382,7 +382,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''Handle new centroid file
         '''
         # Update manager
-        self.step01manager.setCentroidFile(self.ui.centroidsSourceFileLineEdit.text())
+        self.loader.input_file = self.ui.centroidsSourceFileLineEdit.text()
         self.updateCentroidCombobox()
         self.updateSaveStatus(True)
 
@@ -440,25 +440,25 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
     def onLongitudeFieldChanged(self) -> typing.NoReturn:
         '''Update longitude field
         '''
-        self.step01manager.setLongField(self.ui.longitudeFieldComboBox.currentText())
+        self.loader.lon_field = self.ui.longitudeFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onLatitudeFieldChanged(self) -> typing.NoReturn:
         '''Update latitude field
         '''
-        self.step01manager.setLatField(self.ui.latitudeFieldComboBox.currentText())
+        self.loader.lat_field = self.ui.latitudeFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onNumeroFieldChanged(self) -> typing.NoReturn:
         '''Update numero field
         '''
-        self.step01manager.setClusterNoField(self.ui.numeroFieldComboBox.currentText())
+        self.loader.cluster_no_field = self.ui.numeroFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onTypeFieldChanged(self) -> typing.NoReturn:
         '''Update type field
         '''
-        self.step01manager.setClusterTypeField(self.ui.typeFieldComboBox.currentText())
+        self.loader.cluster_type_field = self.ui.typeFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     # #############################################################
@@ -478,7 +478,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
     def onReferenceLayerFileChanged(self) -> typing.NoReturn:
         '''handle reference layer changed
         '''
-        self.step01manager.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
+        self.displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
         self.ui.referenceLayerFieldCombobox.clear()
         self.updateReferenceLayerCombobox()
         self.updateSaveStatus(True)
@@ -496,7 +496,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
     def onReferenceLayerFieldComboboxTextChanged(self) -> typing.NoReturn:
         '''handle reference field changed
         '''
-        self.step01manager.setReferenceLayerField(self.ui.referenceLayerFieldCombobox.currentText())
+        self.displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
         self.updateSaveStatus(True)
 
     # #############################################################
@@ -508,7 +508,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''
         # separator can be ';' or ',' or ' '. feel free to add other
         list = re.split(';|,| ', self.ui.urbanValuesLineEdit.text())
-        self.step01manager.setUrbanTypes([x for x in list if x])
+        self.displacer.urban_types = [x for x in list if x]
         self.updateSaveStatus(True)
 
     def onRuralValuesLineEditChanged(self) -> typing.NoReturn:
@@ -516,7 +516,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''
         # separator can be ';' or ',' or ' '. feel free to add other
         list = re.split(';|,| ', self.ui.ruralValuesLineEdit.text())
-        self.step01manager.setRuralTypes([x for x in list if x])
+        self.displacer.rural_types = [x for x in list if x]
         self.updateSaveStatus(True)
 
     # #############################################################
@@ -673,7 +673,13 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
     def onLoadCovrefFromStep01Clicked(self) -> typing.NoReturn:
         '''handle reference layer changed
         '''
-        layer, field, file = self.step01manager.clusterAnonymizedBuffers()
+        field = 'cluster'
+        file = Utils.LayersName.fileName(Utils.LayersType.BUFFERSANON)
+        Logger.logInfo("@" + file + "@")
+        layer = None
+        layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON))
+        if layers:
+            layer = layers[0]
         self.ui.covrefLayerLineEdit.setText(file)
         index = self.ui.covrefLayerFieldCombobox.findText(field)
         if index > -1:
@@ -691,16 +697,20 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
     def onLoadCentroidsButtonCLicked(self) -> typing.NoReturn:
         '''Load centroids
         '''
-        self.step01manager.loadCentroids()
-        self.ui.displaceCentroidsButton.setEnabled(True)
+        # self.onBasenameLineEditChanged()
+        # self.onOutputDirLineEditChanged()
+        self.onCentroidsSourceFileChanged()
+        self.onLongitudeFieldChanged()
+        self.onLatitudeFieldChanged()
+        self.onNumeroFieldChanged()
+        self.onTypeFieldChanged()
+        self.loader.loadCentroids()
 
     def onDisplaceCentroidsButtonClicked(self) -> typing.NoReturn:
         '''Displace centroids
         '''
         # Force reference layer to be up to date. Displacer might have been reseted since last ref update
-        self.step01manager.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
-        self.step01manager.displaceCentroids()
-        self.onLoadCovrefFromStep01Clicked()
+        self.displacer.displaceCentroids()
 
     def onComputeCovariatesButtonClicked(self) -> typing.NoReturn:
         '''ComputeCovariates computeCovariatesButton

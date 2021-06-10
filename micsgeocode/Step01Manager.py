@@ -51,17 +51,6 @@ class Step01Manager():
 # accessors
 ####################################################################
 
-    def clusterAnonymizedBuffers(self) -> typing.Tuple[QgsVectorLayer, str, str]:
-        layer = None
-        layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON))
-        if layers:
-            layer = layers[0]
-        return layer, 'cluster', Utils.LayersName.fileName(Utils.LayersType.BUFFERSANON)
-
-####################################################################
-# accessors
-####################################################################
-
     def setBasename(self, basename: str) -> typing.NoReturn:
         self.centroidLoader.clearLayers()
         self.centroidDisplacer.clearLayers()
