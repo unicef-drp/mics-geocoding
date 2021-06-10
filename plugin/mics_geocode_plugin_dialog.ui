@@ -45,7 +45,7 @@
         <bool>false</bool>
        </property>
        <attribute name="title">
-        <string>Step 1</string>
+        <string>Step 1 - Load</string>
        </attribute>
        <widget class="QGroupBox" name="groupBoxCentroid">
         <property name="geometry">
@@ -186,11 +186,16 @@
          </layout>
         </widget>
        </widget>
+      </widget>
+      <widget class="QWidget" name="tab_step2">
+       <attribute name="title">
+        <string>Step 2 - Displace</string>
+       </attribute>
        <widget class="QGroupBox" name="groupBoxDisplacer">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>250</y>
+          <y>10</y>
           <width>451</width>
           <height>191</height>
          </rect>
@@ -342,9 +347,9 @@
         </widget>
        </widget>
       </widget>
-      <widget class="QWidget" name="tab_step2">
+      <widget class="QWidget" name="tab_step3">
        <attribute name="title">
-        <string>Step 2</string>
+        <string>Step 3 - Extract</string>
        </attribute>
        <widget class="QGroupBox" name="groupBoxCentroid_2">
         <property name="geometry">
