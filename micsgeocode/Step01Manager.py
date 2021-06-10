@@ -83,7 +83,7 @@ class Step01Manager():
         self.centroidDisplacer.cluster_type_field = field
 
     def setLatField(self, field: str) -> typing.NoReturn:
-        self.centroidLoader.lat_field = 'Lat'
+        self.centroidLoader.lat_field = field
 
     def setLongField(self, field: str) -> typing.NoReturn:
         self.centroidLoader.lon_field = field
