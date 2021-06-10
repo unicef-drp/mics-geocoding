@@ -108,21 +108,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.ui.tabWidget.setCurrentIndex(0)
 
         ## ####################################################################
-        # Load last config file if exists
-        # It is laoded before the signal / slot conenections -> do not trigger anything
-        ## ####################################################################
-
-        self.fileMGC = ""
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
-        configFile = settings.value("last_config_file", "")
-        if configFile != "" and os.path.exists(configFile):
-            self.open(configFile)
-
-        self.updateCentroidCombobox()
-        self.updateReferenceLayerCombobox()
-        self.updateCovinputsComboBoxes()
-
-        ## ####################################################################
         # Init signal slots connection
         ## ####################################################################
 
@@ -213,11 +198,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         # Show
         self.show()
 
-        # force saving of the config if one has been loaded.
-        # potential update of the config file are applied
-        if self.fileMGC:
-            self.onSaveConfigButtonClicked()
-
     ## #############################################################
     # update save status
     ## #############################################################
@@ -273,7 +253,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         if file:
             self.open(file)
             settings.setValue("last_file_directory", os.path.dirname(file))
-            settings.setValue("last_config_file", file)
 
     def open(self, fileMGC: str) -> typing.NoReturn:
         '''Open the configuration passed as an argument
@@ -704,12 +683,14 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.onLatitudeFieldChanged()
         self.onNumeroFieldChanged()
         self.onTypeFieldChanged()
-        self.loader.loadCentroids()
+        self.layerCentroidsLoaded = self.loader.loadCentroids()
 
     def onDisplaceCentroidsButtonClicked(self) -> typing.NoReturn:
         '''Displace centroids
         '''
         # Force reference layer to be up to date. Displacer might have been reseted since last ref update
+        self.loader.putLayersOnTop()
+        self.displacer.setCentroidsLayer(self.layerCentroidsLoaded)
         self.displacer.displaceCentroids()
 
     def onComputeCovariatesButtonClicked(self) -> typing.NoReturn:
