@@ -96,4 +96,4 @@ class mics_geocode_config_reader:
                     except:
                         self.mainWindow.ui.imagesSourceFileLineEdit.clear()
         except:
-            Logger.logWarn("[ConfigReader] A problem occured while loading the project from :  " + self.fileMGC)
+            Logger.logWarning("[ConfigReader] A problem occured while loading the project from :  " + self.fileMGC)

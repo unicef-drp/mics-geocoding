@@ -93,4 +93,4 @@ class mics_geocode_config_writer:
             with open(self.fileMGC, 'w') as file:
                 configWriter.write(file)
         except:
-            Logger.logWarn("[ConfigWriter] A problem occured while saving the project to :  " + self.fileMGC)
+            Logger.logWarning("[ConfigWriter] A problem occured while saving the project to :  " + self.fileMGC)
