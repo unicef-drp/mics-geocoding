@@ -261,6 +261,9 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         self.ui.configFileLineEdit.setText(self.fileMGC)
         reader = mics_geocode_config_reader(self.fileMGC, self)
         reader.readConfig()
+        self.onBasenameLineEditChanged()
+        self.onOutputDirLineEditChanged()
+
         self.updateSaveStatus(False)
 
     def onSaveConfigButtonClicked(self) -> typing.NoReturn:
@@ -676,8 +679,6 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
     def onLoadCentroidsButtonCLicked(self) -> typing.NoReturn:
         '''Load centroids
         '''
-        # self.onBasenameLineEditChanged()
-        # self.onOutputDirLineEditChanged()
         self.onCentroidsSourceFileChanged()
         self.onLongitudeFieldChanged()
         self.onLatitudeFieldChanged()
