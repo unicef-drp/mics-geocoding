@@ -30,8 +30,6 @@ class MicsGeocodePluginMainWindowTab1Handler():
 
     def __init__(self, ui):
         """Interface initialisation : display interface and define events"""
-        Logger.logInfo("Building the object")
-
         self.ui = ui
         self.needsSave = False
 
