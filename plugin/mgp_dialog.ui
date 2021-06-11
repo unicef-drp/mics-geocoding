@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MicsGeocodePluginDialog</class>
- <widget class="QDialog" name="MicsGeocodePluginDialog">
+ <class>MGPDialog</class>
+ <widget class="QDialog" name="MGPDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MicsGeocodePlugin</string>
+   <string>Mics Geocode Plugin</string>
   </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">

@@ -1,6 +1,6 @@
 ## ###########################################################################
 ##
-# mics_geocode_config_reader.py
+# mgp_config_reader.py
 ##
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
@@ -19,7 +19,7 @@ from PyQt5.QtGui import *
 from .micsgeocode.Logger import Logger
 
 
-class mics_geocode_config_reader:
+class mgp_config_reader:
     '''Handle the reading of a config file
     '''
 

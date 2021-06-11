@@ -1,6 +1,6 @@
 ## ###########################################################################
 ##
-# mics_geocode_plugin_main_widow.py
+# mgp_main_widow.py
 ##
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
@@ -17,12 +17,12 @@ from pathlib import Path
 import re
 import typing
 
-from .ui_mics_geocode_plugin_dialog import Ui_MicsGeocodePluginDialog
-from .mics_geocode_config_writer import mics_geocode_config_writer
-from .mics_geocode_config_reader import mics_geocode_config_reader
-from .mics_geocode_plugin_main_window_tab1handlery import MicsGeocodePluginMainWindowTab1Handler
-from .mics_geocode_plugin_main_window_tab2handlery import MicsGeocodePluginMainWindowTab2Handler
-from .mics_geocode_plugin_main_window_tab3handlery import MicsGeocodePluginMainWindowTab3Handler
+from .ui_mgp_dialog import Ui_MGPDialog
+from .mgp_config_writer import mgp_config_writer
+from .mgp_config_reader import mgp_config_reader
+from .mgp_main_window_tab1handlery import MGPMainWindowTab1Handler
+from .mgp_main_window_tab2handlery import MGPMainWindowTab2Handler
+from .mgp_main_window_tab3handlery import MGPMainWindowTab3Handler
 
 from .micsgeocode.Logger import Logger
 
@@ -31,7 +31,7 @@ from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 
 
-class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
+class MGPMainWindow(QtWidgets.QWidget):
     '''The actual window that is displayed in the qgis interface
     '''
 
@@ -49,7 +49,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, None)
 
         # Setup ui based on the qtdesigner form
-        self.ui = Ui_MicsGeocodePluginDialog()
+        self.ui = Ui_MGPDialog()
         self.ui.setupUi(self)
 
         # Initiate ui properties
@@ -74,7 +74,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         # Label size: 177 x 35
         # Could be more flexible, with an horizontal spacer or halignment settings.
         # But this level of complexity was not needed at that the time.
-        pixmap = QtGui.QPixmap(":/plugins/MicsGeocodePlugin/logo_wo-unicef.png")
+        pixmap = QtGui.QPixmap(":/plugins/MGP/logo_wo-unicef.png")
         self.ui.labelLogo.setPixmap(pixmap)
 
         # Add a validator to basename
@@ -103,9 +103,9 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         # Force tab to init at first tab. Frequent mistake when manipulating qtdesigner
         self.ui.tabWidget.setCurrentIndex(0)
 
-        self.loadCentroidsHandler = MicsGeocodePluginMainWindowTab1Handler(self.ui)
-        self.displaceCentroidsHandler = MicsGeocodePluginMainWindowTab2Handler(self.ui)
-        self.covariatesHandler = MicsGeocodePluginMainWindowTab3Handler(self.ui)
+        self.loadCentroidsHandler = MGPMainWindowTab1Handler(self.ui)
+        self.displaceCentroidsHandler = MGPMainWindowTab2Handler(self.ui)
+        self.covariatesHandler = MGPMainWindowTab3Handler(self.ui)
 
         ## ####################################################################
         # Init signal slots connection
@@ -195,7 +195,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         '''
         self.fileMGC = fileMGC
         self.ui.configFileLineEdit.setText(self.fileMGC)
-        reader = mics_geocode_config_reader(self.fileMGC, self)
+        reader = mgp_config_reader(self.fileMGC, self)
         reader.readConfig()
         self.onBasenameLineEditChanged()
         self.onOutputDirLineEditChanged()
@@ -209,7 +209,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         if not self.fileMGC:
             self.onSaveConfigAsButtonClicked()
         else:
-            writer = mics_geocode_config_writer(self.fileMGC, self)
+            writer = mgp_config_writer(self.fileMGC, self)
             writer.writeConfig()
             self.updateSaveStatus(False)
 
@@ -222,7 +222,7 @@ class MicsGeocodePluginMainWindow(QtWidgets.QWidget):
         if file:
             self.fileMGC = file
             self.ui.configFileLineEdit.setText(self.fileMGC)
-            writer = mics_geocode_config_writer(self.fileMGC, self)
+            writer = mgp_config_writer(self.fileMGC, self)
             writer.writeConfig()
             settings.setValue("last_file_directory", os.path.dirname(file))
             settings.setValue("last_config_file", file)

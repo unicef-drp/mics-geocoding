@@ -325,7 +325,7 @@ class Ui_MGPDialog(object):
         self.verticalLayout_5.addWidget(self.computeCovariatesButton)
         self.label_2 = QtWidgets.QLabel(self.tab_step3)
         self.label_2.setGeometry(QtCore.QRect(10, 350, 451, 91))
-        self.label_2.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self.label_2.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.label_2.setWordWrap(True)
         self.label_2.setObjectName("label_2")
         self.tabWidget.addTab(self.tab_step3, "")
@@ -439,7 +439,7 @@ class Ui_MGPDialog(object):
 
     def retranslateUi(self, MGPDialog):
         _translate = QtCore.QCoreApplication.translate
-        MGPDialog.setWindowTitle(_translate("MGPDialog", "MGP"))
+        MGPDialog.setWindowTitle(_translate("MGPDialog", "Mics Geocode Plugin"))
         self.groupBoxCentroid.setTitle(_translate("MGPDialog", "Cluster Source"))
         self.centroidsSourceFileLabel.setText(_translate("MGPDialog", "Cluster Source File"))
         self.centroidsSourceFileToolButton.setText(_translate("MGPDialog", "..."))
@@ -474,8 +474,7 @@ class Ui_MGPDialog(object):
         self.covrefLayerToolButton.setText(_translate("MGPDialog", "..."))
         self.loadCovrefFromStep01.setText(_translate("MGPDialog", "Load reference from Step 2"))
         self.computeCovariatesButton.setText(_translate("MGPDialog", "Compute covariates"))
-        self.label_2.setText(_translate(
-            "MGPDialog", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."))
+        self.label_2.setText(_translate("MGPDialog", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step3), _translate("MGPDialog", "Step 3 - Extract"))
         self.loadConfigButton.setText(_translate("MGPDialog", "Load"))
         self.saveConfigButton.setText(_translate("MGPDialog", "Save"))

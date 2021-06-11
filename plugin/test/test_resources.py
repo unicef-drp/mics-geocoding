@@ -17,8 +17,7 @@ import unittest
 from qgis.PyQt.QtGui import QIcon
 
 
-
-class MicsGeocodePluginDialogTest(unittest.TestCase):
+class MGPDialogTest(unittest.TestCase):
     """Test rerources work."""
 
     def setUp(self):
@@ -31,14 +30,12 @@ class MicsGeocodePluginDialogTest(unittest.TestCase):
 
     def test_icon_png(self):
         """Test we can click OK."""
-        path = ':/plugins/MicsGeocodePlugin/icon.png'
+        path = ':/plugins/MGP/icon.png'
         icon = QIcon(path)
         self.assertFalse(icon.isNull())
 
+
 if __name__ == "__main__":
-    suite = unittest.makeSuite(MicsGeocodePluginResourcesTest)
+    suite = unittest.makeSuite(MGPResourcesTest)
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
-
-
-

@@ -16,18 +16,18 @@ import unittest
 
 from qgis.PyQt.QtGui import QDialogButtonBox, QDialog
 
-from MicsGeocodePlugin_dialog import MicsGeocodePluginDialog
+from MGP_dialog import MGPDialog
 
 from utilities import get_qgis_app
 QGIS_APP = get_qgis_app()
 
 
-class MicsGeocodePluginDialogTest(unittest.TestCase):
+class MGPDialogTest(unittest.TestCase):
     """Test dialog works."""
 
     def setUp(self):
         """Runs before each test."""
-        self.dialog = MicsGeocodePluginDialog(None)
+        self.dialog = MGPDialog(None)
 
     def tearDown(self):
         """Runs after each test."""
@@ -48,8 +48,8 @@ class MicsGeocodePluginDialogTest(unittest.TestCase):
         result = self.dialog.result()
         self.assertEqual(result, QDialog.Rejected)
 
+
 if __name__ == "__main__":
-    suite = unittest.makeSuite(MicsGeocodePluginDialogTest)
+    suite = unittest.makeSuite(MGPDialogTest)
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
-

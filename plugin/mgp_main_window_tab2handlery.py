@@ -1,6 +1,6 @@
 ## ###########################################################################
 ##
-# mics_geocode_plugin_main_widow.py
+# mgp_main_widow.py
 ##
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
@@ -17,14 +17,14 @@ from pathlib import Path
 import re
 import typing
 
-from .ui_mics_geocode_plugin_dialog import Ui_MicsGeocodePluginDialog
+from .ui_mgp_dialog import Ui_MGPDialog
 from .micsgeocode import CentroidsDisplacer as Displacer
 from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 
 
-class MicsGeocodePluginMainWindowTab2Handler():
+class MGPMainWindowTab2Handler():
     '''The actual window that is displayed in the qgis interface
     '''
 

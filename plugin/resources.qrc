@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/MicsGeocodePlugin" >
+    <qresource prefix="/plugins/MGP" >
         <file>icon_gis.png</file>
         <file>icon_bars.png</file>
         <file>logo_w-unicef.png</file>

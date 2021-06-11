@@ -7,6 +7,8 @@ This document is **NOT** a comitment to anything. It is **NOT** an official tech
 Author: Jan Burdziej, Unicef
 Support in dev: Etienne Delclaux, CartONG
 
+> In this project, MGP is used as an acornym for Mics Geocode Plugin
+
 ## Project structure description
 
 ```
@@ -56,16 +58,16 @@ Here’s the directory structure the plugin:
 ├───logo_w-unicef.png
 ├───logo_wo-unicef.png
 ├───metadata.txt
-├───mics_geocode_config_reader.py
-├───mics_geocode_config_writer.py
-├───mics_geocode_plugin.py
-├───mics_geocode_plugin_dialog.py
-├───mics_geocode_plugin_dialog.ui
-├───mics_geocode_plugin_main_window.py
-├───mics_geocode_plugin_version.py
+├───mgp_config_reader.py
+├───mgp_config_writer.py
+├───mgp.py
+├───mgp_dialog.py
+├───mgp_dialog.ui
+├───mgp_main_window.py
+├───mgp_version.py
 ├───resources.py
 ├───resources.qrc
-├───ui_mics_geocode_plugin_dialog.py
+├───ui_mgp_dialog.py
 ├───WIN_build.bat
 ├───__init__.py
 └───test
@@ -77,10 +79,10 @@ Here’s the directory structure the plugin:
 - `metadata.txt` Contains general info, version, name and some other metadata used by plugins website and plugin infrastructure
 - `resources.qrc` The .xml document created by Qt Designer. Contains relative paths to resources of the forms.
 - `resources.py` The translation of the .qrc file described above to Python.
-- `mics_geocode_plugin_dialog.ui` The GUI created by Qt Designer
-- `ui_mics_geocode_plugin_dialog.py` The translation of the form.ui described above to Python
-- `mics_geocode_plugin.py` The main working code of the plugin. Contains all the information about the actions of the plugin and the main code.
-- `mics_geocode_xxx.py` those are the code base behind the plugin. If some modifications needs to be developped on the plugin, those are the files to focus on
+- `mgp_dialog.ui` The GUI created by Qt Designer
+- `ui_mgp_dialog.py` The translation of the form.ui described above to Python
+- `mgp.py` The main working code of the plugin. Contains all the information about the actions of the plugin and the main code.
+- `mgp_xxx.py` those are the code base behind the plugin. If some modifications needs to be developped on the plugin, those are the files to focus on
 - `WIN_build.bat`: This helper scripts do the transciprtion from ui to py file, and qrc to py.
   **It needs to be executed only when modifications have been applied to the qrc or the ui file**
 
@@ -90,10 +92,10 @@ Here’s the directory structure the plugin:
 pip install pyqt5-tools
 ```
 
-- `mics_geocode_plugin_version.py` contains the version number of the plugin (also written in metadata.txt)
-- `mics_geocode_config_reader.py` read a config file (basic ini file) and initialize the plugin with it
-- `mics_geocode_config_writer.py` write a config file (basic ini file) based on the plugin interface
-- `mics_geocode_plugin_main_window.py` This is the part that handles all the complexity of the plugin interface. The signal/slot connection, etc.
+- `mgp_version.py` contains the version number of the plugin (also written in metadata.txt)
+- `mgp_config_reader.py` read a config file (basic ini file) and initialize the plugin with it
+- `mgp_config_writer.py` write a config file (basic ini file) based on the plugin interface
+- `mgp_main_window.py` This is the part that handles all the complexity of the plugin interface. The signal/slot connection, etc.
   This documentation can't be a complete introduction to Qt interface programmation.
   Basically, this file helps maanging user inputs, testing values, and starts the processes.
   In order to the run the processes, it triggeres the Step01Manager and Step02Manager contains in the **micsgeocode folder**
