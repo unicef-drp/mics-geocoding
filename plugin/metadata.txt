@@ -6,7 +6,7 @@
 name=MGP
 qgisMinimumVersion=3.0
 description=MGP
-version=0.5
+version=0.6
 author=e
 email=e
 
