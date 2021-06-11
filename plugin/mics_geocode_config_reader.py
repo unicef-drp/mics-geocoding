@@ -38,7 +38,6 @@ class mics_geocode_config_reader:
             if 'global' in configReader:
                 if 'basename' in configReader['global']:
                     self.mainWindow.ui.basenameLineEdit.setText(configReader['global']['basename'])
-                    self.mainWindow.onBasenameLineEditChanged()
 
                 if 'outputDir' in configReader['global']:
                     try:
