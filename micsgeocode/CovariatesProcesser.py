@@ -109,7 +109,8 @@ class CovariatesProcesser():
 
             registry = QgsProject.instance()
 
-            clusters = [{'fid': ft.id(), 'cluster': ft['cluster']} for ft in self.__ref_layer.getFeatures()]  # TODO: ft.id() is different than ft.GetFID()? !!!!! make sure IDs match - fix required!!!
+            clusters = [{'fid': ft.id(), self.__ref_layer_cluster_no_field_name: ft[self.__ref_layer_cluster_no_field_name]} for ft in self.__ref_layer.getFeatures()
+                        ]  # TODO: ft.id() is different than ft.GetFID()? !!!!! make sure IDs match - fix required!!!
             # Convert the dictionary into DataFrame
             summary_df = pd.DataFrame(clusters)
 
@@ -137,10 +138,10 @@ class CovariatesProcesser():
                 Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(c, file_name, file_format, sum_stat, column_name))
 
                 if file_format == 'GeoTIFF':
-                    stats = self.zonal_stats(self.__ref_layer_shp, file_path, 'cluster', -99999)
-                    results_df = pd.DataFrame(stats)[[sum_stat, 'cluster']]
-                    results_df.columns = [column_name, 'cluster']
-                    summary_df = pd.merge(summary_df, results_df[[column_name, 'cluster']], on='cluster', how='inner')
+                    stats = self.zonal_stats(self.__ref_layer_shp, file_path, self.__ref_layer_cluster_no_field_name, -99999)
+                    results_df = pd.DataFrame(stats)[[sum_stat, self.__ref_layer_cluster_no_field_name]]
+                    results_df.columns = [column_name, self.__ref_layer_cluster_no_field_name]
+                    summary_df = pd.merge(summary_df, results_df[[column_name, self.__ref_layer_cluster_no_field_name]], on=self.__ref_layer_cluster_no_field_name, how='inner')
 
                 if file_format == 'Shapefile':
                     # search_gdf = gpd.read_file(file_path)
@@ -170,7 +171,7 @@ class CovariatesProcesser():
                             line_merc = QgsGeometry(line)
                             line_merc.transform(Transforms.tr)
 
-                            feat.setAttributes([cluster_ft['cluster'], minDistLine, line_merc.length()])
+                            feat.setAttributes([cluster_ft[self.__ref_layer_cluster_no_field_name], minDistLine, line_merc.length()])
                             shortest_dist_prov.addFeatures([feat])
 
                         # Update extent of the layer
@@ -178,11 +179,11 @@ class CovariatesProcesser():
                         # Add the layer to the Layers panel
                         registry.addMapLayer(shortest_dist_lyr)
 
-                        search_fts = [{'cluster': ft['cluster'], column_name: ft['dist']} for ft in
+                        search_fts = [{self.__ref_layer_cluster_no_field_name: ft[self.__ref_layer_cluster_no_field_name], column_name: ft['dist']} for ft in
                                       shortest_dist_lyr.getFeatures()]
                         # Convert the dictionary into DataFrame
                         search_shp_df = pd.DataFrame(search_fts)
-                        summary_df = pd.merge(summary_df, search_shp_df[[column_name, 'cluster']], on='cluster', how='inner')
+                        summary_df = pd.merge(summary_df, search_shp_df[[column_name, self.__ref_layer_cluster_no_field_name]], on=self.__ref_layer_cluster_no_field_name, how='inner')
                 c = c + 1
 
             summary_df.to_csv(output_file, sep=',', encoding='utf-8')
