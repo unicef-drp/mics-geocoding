@@ -20,9 +20,9 @@ import typing
 from .ui_mgp_dialog import Ui_MGPDialog
 from .mgp_config_writer import mgp_config_writer
 from .mgp_config_reader import mgp_config_reader
-from .mgp_main_window_tab1handlery import MGPMainWindowTab1Handler
-from .mgp_main_window_tab2handlery import MGPMainWindowTab2Handler
-from .mgp_main_window_tab3handlery import MGPMainWindowTab3Handler
+from .mgp_main_window_tab1handler import MGPMainWindowTab1Handler
+from .mgp_main_window_tab2handler import MGPMainWindowTab2Handler
+from .mgp_main_window_tab3handler import MGPMainWindowTab3Handler
 
 from .micsgeocode.Logger import Logger
 
