@@ -1,6 +1,6 @@
 ## ###########################################################################
 ##
-# mics_geocode_config_reader.py
+# mgp_config_reader.py
 ##
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
@@ -20,7 +20,7 @@ from .micsgeocode.Logger import Logger
 import configparser
 
 
-class mics_geocode_config_writer:
+class mgp_config_writer:
     '''Handle the writing of a config file
     '''
 
@@ -59,8 +59,7 @@ class mics_geocode_config_writer:
             except:
                 images_dir = ""
 
-            configWriter['program'] = {'name': 'MicsGeocodePlugin', 'version': '0.0.1'}
-            configWriter['state'] = {'isStep1': (self.mainWindow.ui.tabWidget.currentIndex() == 0)}
+            configWriter['program'] = {'name': 'MGP', 'version': '0.0.1'}
 
             configWriter['global'] = {
                 'basename': self.mainWindow.ui.basenameLineEdit.text(),
@@ -94,4 +93,4 @@ class mics_geocode_config_writer:
             with open(self.fileMGC, 'w') as file:
                 configWriter.write(file)
         except:
-            Logger.logWarn("[ConfigWriter] A problem occured while saving the project to :  " + self.fileMGC)
+            Logger.logWarning("[ConfigWriter] A problem occured while saving the project to :  " + self.fileMGC)

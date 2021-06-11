@@ -1,6 +1,6 @@
 ## ###########################################################################
 ##
-# mics_geocode_config_reader.py
+# mgp_config_reader.py
 ##
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
@@ -19,7 +19,7 @@ from PyQt5.QtGui import *
 from .micsgeocode.Logger import Logger
 
 
-class mics_geocode_config_reader:
+class mgp_config_reader:
     '''Handle the reading of a config file
     '''
 
@@ -35,15 +35,9 @@ class mics_geocode_config_reader:
             configReader = configparser.ConfigParser()
             configReader.read(self.fileMGC)
 
-            if configReader['state']['isStep1'] == "True":
-                self.mainWindow.ui.tabWidget.setCurrentIndex(0)
-            else:
-                self.mainWindow.ui.tabWidget.setCurrentIndex(1)
-
             if 'global' in configReader:
                 if 'basename' in configReader['global']:
                     self.mainWindow.ui.basenameLineEdit.setText(configReader['global']['basename'])
-                    self.mainWindow.onBasenameLineEditChanged()
 
                 if 'outputDir' in configReader['global']:
                     try:
@@ -101,4 +95,4 @@ class mics_geocode_config_reader:
                     except:
                         self.mainWindow.ui.imagesSourceFileLineEdit.clear()
         except:
-            Logger.logWarn("[ConfigReader] A problem occured while loading the project from :  " + self.fileMGC)
+            Logger.logWarning("[ConfigReader] A problem occured while loading the project from :  " + self.fileMGC)

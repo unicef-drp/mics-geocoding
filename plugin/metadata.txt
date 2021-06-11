@@ -3,9 +3,9 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=MicsGeocodePlugin
+name=MGP
 qgisMinimumVersion=3.0
-description=MicsGeocodePlugin
+description=MGP
 version=0.5
 author=e
 email=e

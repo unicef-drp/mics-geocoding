@@ -1,6 +1,6 @@
 ## ###########################################################################
 ##
-# Step02Manager.py
+# CovariatesProcesser.py
 ##
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
@@ -11,6 +11,8 @@
 
 from .Logger import Logger
 from .Transforms import Transforms
+from . import Utils
+
 import numpy as np
 from osgeo.gdalconst import *
 from osgeo import gdal, ogr
@@ -49,10 +51,10 @@ gdal.PushErrorHandler('CPLQuietErrorHandler')
 
 
 ####################################################################
-# Class Step02Manager
+# Class CovariatesProcesser
 ####################################################################
 
-class Step02Manager():
+class CovariatesProcesser():
     """ Facade that handle step 2 of the algo.
         set inputs, call loader and displacef with proper arguments.
     """
@@ -68,10 +70,6 @@ class Step02Manager():
 
         self.images_directory = Path(self.input_csv).parent
 
-        self.__output_filename = ""
-        self.__output_directory = ""
-        self.__output_file = ""
-
         self.__ref_layer = None
         self.__ref_layer_cluster_no_field_name = 'cluster'
         self.__ref_layer_shp = ""
@@ -79,20 +77,6 @@ class Step02Manager():
 ####################################################################
 # setters
 ####################################################################
-
-    def setBasename(self, basename: str) -> typing.NoReturn:
-        if basename:
-            self.__output_filename = basename + '_' + Step02Manager.OUTPUT_SUFFIX_BASENAME
-        else:
-            self.__output_filename = basename + '_' + Step02Manager.OUTPUT_SUFFIX_BASENAME
-        self.updateOutputFile()
-
-    def setOutputDirectory(self, directory: str) -> typing.NoReturn:
-        self.__output_directory = directory
-        self.updateOutputFile()
-
-    def updateOutputFile(self) -> typing.NoReturn:
-        self.__output_file = os.path.join(self.__output_directory, self.__output_filename)
 
     def setReferenceLayer(self, layer: QgsVectorLayer, ref_layer_cluster_no_field_name: str, layer_file: str) -> typing.NoReturn:
         self.__ref_layer = layer
@@ -104,6 +88,13 @@ class Step02Manager():
 ####################################################################
 
     def computeCovariates(self) -> typing.NoReturn:
+
+        # Generate output name
+        output_filename = CovariatesProcesser.OUTPUT_SUFFIX_BASENAME
+        if Utils.LayersName.basename:
+            output_filename = Utils.LayersName.basename + '_' + CovariatesProcesser.OUTPUT_SUFFIX_BASENAME
+
+        output_file = os.path.join(Utils.LayersName.outputDirectory, output_filename)
 
         Logger.logInfo("[STEP02 MANAGER] input_file:  " + self.input_csv)
         Logger.logInfo("[STEP02 MANAGER] input_csv_field_filename  :  " + self.input_csv_field_filename)
@@ -194,9 +185,9 @@ class Step02Manager():
                         summary_df = pd.merge(summary_df, search_shp_df[[column_name, 'cluster']], on='cluster', how='inner')
                 c = c + 1
 
-            summary_df.to_csv(self.__output_file, sep=',', encoding='utf-8')
+            summary_df.to_csv(output_file, sep=',', encoding='utf-8')
 
-        Logger.logInfo("Output file saved to {}".format(self.__output_file))
+        Logger.logInfo("Output file saved to {}".format(output_file))
         Logger.logInfo("Successfully completed at {}".format(datetime.now()))
 
 ####################################################################

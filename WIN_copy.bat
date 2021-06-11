@@ -51,12 +51,15 @@ set PLUGIN_DIRECTORIES=test
 set PLUGIN_FILES=__init__.py
 set PLUGIN_FILES=%PLUGIN_FILES%;icon.png
 set PLUGIN_FILES=%PLUGIN_FILES%;metadata.txt
-set PLUGIN_FILES=%PLUGIN_FILES%;mics_geocode_plugin.py
-set PLUGIN_FILES=%PLUGIN_FILES%;ui_mics_geocode_plugin_dialog.py
-set PLUGIN_FILES=%PLUGIN_FILES%;mics_geocode_plugin_main_window.py
-set PLUGIN_FILES=%PLUGIN_FILES%;mics_geocode_config_reader.py
-set PLUGIN_FILES=%PLUGIN_FILES%;mics_geocode_config_writer.py
-set PLUGIN_FILES=%PLUGIN_FILES%;mics_geocode_plugin_version.py
+set PLUGIN_FILES=%PLUGIN_FILES%;mgp_plugin.py
+set PLUGIN_FILES=%PLUGIN_FILES%;ui_mgp_dialog.py
+set PLUGIN_FILES=%PLUGIN_FILES%;mgp_main_window.py
+set PLUGIN_FILES=%PLUGIN_FILES%;mgp_main_window_tab1handler.py
+set PLUGIN_FILES=%PLUGIN_FILES%;mgp_main_window_tab2handler.py
+set PLUGIN_FILES=%PLUGIN_FILES%;mgp_main_window_tab3handler.py
+set PLUGIN_FILES=%PLUGIN_FILES%;mgp_config_reader.py
+set PLUGIN_FILES=%PLUGIN_FILES%;mgp_config_writer.py
+set PLUGIN_FILES=%PLUGIN_FILES%;mgp_version.py
 set PLUGIN_FILES=%PLUGIN_FILES%;resources.py
 
 FOR %%F IN (%PLUGIN_FILES%) DO (

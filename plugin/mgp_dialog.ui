@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MicsGeocodePluginDialog</class>
- <widget class="QDialog" name="MicsGeocodePluginDialog">
+ <class>MGPDialog</class>
+ <widget class="QDialog" name="MGPDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MicsGeocodePlugin</string>
+   <string>Mics Geocode Plugin</string>
   </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
@@ -38,14 +38,14 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_step1">
        <property name="autoFillBackground">
         <bool>false</bool>
        </property>
        <attribute name="title">
-        <string>Step 1</string>
+        <string>Step 1 - Load</string>
        </attribute>
        <widget class="QGroupBox" name="groupBoxCentroid">
         <property name="geometry">
@@ -186,13 +186,18 @@
          </layout>
         </widget>
        </widget>
+      </widget>
+      <widget class="QWidget" name="tab_step2">
+       <attribute name="title">
+        <string>Step 2 - Displace</string>
+       </attribute>
        <widget class="QGroupBox" name="groupBoxDisplacer">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>250</y>
+          <y>10</y>
           <width>451</width>
-          <height>191</height>
+          <height>331</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -216,7 +221,7 @@
            <x>0</x>
            <y>23</y>
            <width>441</width>
-           <height>161</height>
+           <height>295</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -232,6 +237,73 @@
           <property name="bottomMargin">
            <number>10</number>
           </property>
+          <item>
+           <widget class="QPushButton" name="loadCentroidsFromStep01">
+            <property name="text">
+             <string>Load centroids from Step 1</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayoutRL_3">
+            <property name="sizeConstraint">
+             <enum>QLayout::SetNoConstraint</enum>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="centroidsLayerLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Centroids</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="centroidsLayerLineEdit"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="centroidsLayerToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QFormLayout" name="formLayout_5">
+            <item row="0" column="0">
+             <widget class="QLabel" name="centroidsLayerTypeFieldLabel">
+              <property name="text">
+               <string>Type Field</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="centroidsLayerTypeFieldComboBox"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="centroidsLayerNumeroFieldLabel">
+              <property name="text">
+               <string>Numero Field</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="centroidsLayerNumeroFieldComboBox"/>
+            </item>
+           </layout>
+          </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayoutRL">
             <property name="sizeConstraint">
@@ -342,9 +414,9 @@
         </widget>
        </widget>
       </widget>
-      <widget class="QWidget" name="tab_step2">
+      <widget class="QWidget" name="tab_step3">
        <attribute name="title">
-        <string>Step 2</string>
+        <string>Step 3 - Extract</string>
        </attribute>
        <widget class="QGroupBox" name="groupBoxCentroid_2">
         <property name="geometry">
@@ -560,7 +632,7 @@
           <item>
            <widget class="QPushButton" name="loadCovrefFromStep01">
             <property name="text">
-             <string>Load reference from Step01</string>
+             <string>Load reference from Step 2</string>
             </property>
            </widget>
           </item>
@@ -569,7 +641,7 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>0</height>
+              <height>30</height>
              </size>
             </property>
             <property name="text">
