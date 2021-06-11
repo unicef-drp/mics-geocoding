@@ -36,12 +36,6 @@ class MGPMainWindowTab2Handler():
         self.needsSave = False
 
         ## ####################################################################
-        # Init various members - might be overriden with config
-        ## ####################################################################
-
-        self.displacer = Displacer.CentroidsDisplacer()
-
-        ## ####################################################################
         # Init signal slots connection
         ## ####################################################################
 
@@ -85,13 +79,24 @@ class MGPMainWindowTab2Handler():
         self.needsSave = needsSave
         self.ui.saveConfigButton.setEnabled(self.needsSave)
 
-     # #############################################################
+    # #############################################################
     # Centroids Layer
     # #############################################################
 
     def loadCentroidsFromStep01Clicked(self) -> typing.NoReturn:
         '''Browse for centroid file
         '''
+        # Utils.self.layers[Utils.LayersType.CENTROIDS]
+        file = Utils.LayersName.fileName(Utils.LayersType.CENTROIDS)
+        layer = None
+        layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.CENTROIDS))
+        if layers:
+            layer = layers[0]
+        self.ui.centroidsLayerLineEdit.setText(file)
+
+    # #############################################################
+    # Centroids Layer
+    # #############################################################
 
     def onCentroidsLayerToolButtonClicked(self) -> typing.NoReturn:
         '''Browse for centroid file
@@ -100,28 +105,45 @@ class MGPMainWindowTab2Handler():
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open centroids layer file", dir, "(*.shp)")
         if file:
-            self.centroidsLayerFile = file
-            self.ui.centroidsLayerLineEdit.setText(os.path.normpath(self.centroidsLayerFile))
-            settings.setValue("last_file_directory", os.path.dirname(self.centroidsLayerFile))
+            self.ui.centroidsLayerLineEdit.setText(os.path.normpath(file))
+            settings.setValue("last_file_directory", os.path.dirname(file))
 
     def onCentroidsLayerChanged(self) -> typing.NoReturn:
         '''Handle new centroid file
         '''
         # Update manager
         # Use te file , not the Qgis Layer
-        self.displacer.centroidLayer = self.ui.centroidsLayerLineEdit.text()
+        # Retrieve fieldlist and populate comboboxes
+        fields = Utils.getFieldsListAsStrArray(self.ui.centroidsLayerLineEdit.text())
+        self.ui.centroidsLayerTypeFieldComboBox.clear()
+        self.ui.centroidsLayerNumeroFieldComboBox.clear()
+
+        # init type combobox and look for a default value
+        self.ui.centroidsLayerTypeFieldComboBox.addItems(fields)
+        candidates = ["Type", "type", "TYPE"]
+        for item in candidates:
+            if item in fields:
+                self.ui.centroidsLayerTypeFieldComboBox.setCurrentIndex(fields.index(item))
+                break
+
+        # init cluster combobox and look for a default value
+        self.ui.centroidsLayerNumeroFieldComboBox.addItems(fields)
+        candidates = ["clusterno", "ClusterNo", "CLUSTERNO"]
+        for item in candidates:
+            if item in fields:
+                self.ui.centroidsLayerNumeroFieldComboBox.setCurrentIndex(fields.index(item))
+                break
+
         self.updateSaveStatus(True)
 
     def onCentroidsLayerNumeroFieldChanged(self) -> typing.NoReturn:
         '''Update numero field
         '''
-        # self.loader.cluster_no_field = self.ui.centroidsLayerNumeroFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onCentroidsLayerTypeFieldChanged(self) -> typing.NoReturn:
         '''Update type field
         '''
-        # self.loader.cluster_type_field = self.ui.centroidsLayerTypeFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     # #############################################################
@@ -133,7 +155,7 @@ class MGPMainWindowTab2Handler():
         '''
         settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
-        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open reference layer", dir, "*.shp")
+        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, " Open reference layer", dir, "*.shp")
         if file:
             self.ui.referenceLayerLineEdit.setText(os.path.normpath(file))
             settings.setValue("last_file_directory", os.path.dirname(file))
@@ -141,7 +163,6 @@ class MGPMainWindowTab2Handler():
     def onReferenceLayerFileChanged(self) -> typing.NoReturn:
         '''handle reference layer changed
         '''
-        self.displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
         self.ui.referenceLayerFieldCombobox.clear()
         self.updateReferenceLayerCombobox()
         self.updateSaveStatus(True)
@@ -159,7 +180,6 @@ class MGPMainWindowTab2Handler():
     def onReferenceLayerFieldComboboxTextChanged(self) -> typing.NoReturn:
         '''handle reference field changed
         '''
-        self.displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
         self.updateSaveStatus(True)
 
     # #############################################################
@@ -169,17 +189,11 @@ class MGPMainWindowTab2Handler():
     def onUrbanValuesLineEditChanged(self) -> typing.NoReturn:
         '''handle urban values field changed
         '''
-        # separator can be ';' or ',' or ' '. feel free to add other
-        list = re.split(';|,| ', self.ui.urbanValuesLineEdit.text())
-        self.displacer.urban_types = [x for x in list if x]
         self.updateSaveStatus(True)
 
     def onRuralValuesLineEditChanged(self) -> typing.NoReturn:
         '''handle rural values field changed
         '''
-        # separator can be ';' or ',' or ' '. feel free to add other
-        list = re.split(';|,| ', self.ui.ruralValuesLineEdit.text())
-        self.displacer.rural_types = [x for x in list if x]
         self.updateSaveStatus(True)
 
     ## #############################################################
@@ -189,7 +203,20 @@ class MGPMainWindowTab2Handler():
     def onDisplaceCentroidsButtonClicked(self) -> typing.NoReturn:
         '''Displace centroids
         '''
-        # Force reference layer to be up to date. Displacer might have been reseted since last ref update
-        # self.loader.putLayersOnTop()
-        self.displacer.setCentroidsLayer(self.layerCentroidsLoaded)
-        self.displacer.displaceCentroids()
+        displacer = Displacer.CentroidsDisplacer()
+
+        # Centroid Layer
+        centroidsLayerName = Utils.LayersName.layerName(Utils.LayersType.CENTROIDS)
+        Utils.removeLayerIfExistsByName(centroidsLayerName)
+
+        displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
+
+        displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
+
+        displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
+
+        # separator can be ';' or ',' or ' '. feel free to add other
+        displacer.rural_types = [x for x in re.split(';|,| ', self.ui.ruralValuesLineEdit.text()) if x]
+        displacer.urban_types = [x for x in re.split(';|,| ', self.ui.urbanValuesLineEdit.text()) if x]
+
+        displacer.displaceCentroids()
