@@ -14,6 +14,8 @@ import os
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from pathlib import Path
+from datetime import datetime
+
 import re
 import typing
 
@@ -76,7 +78,6 @@ class MGPMainWindowTab1Handler():
     def onCentroidsSourceFileToolButtonClicked(self) -> typing.NoReturn:
         '''Browse for centroid file
         '''
-        Logger.logInfo("Browsing")
         settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open centroids file", dir, "(*.csv *.shp)")
@@ -170,14 +171,38 @@ class MGPMainWindowTab1Handler():
     def onLoadCentroidsButtonCLicked(self) -> typing.NoReturn:
         '''Load centroids
         '''
+        if not self.ui.centroidsSourceFileLineEdit.text():
+            Logger.logWarning("[CentroidsLoader] A valid centroid source file must be provided")
+            return
+        else:
+            if self.ui.longitudeFieldComboBox.isEnabled() and not self.ui.longitudeFieldComboBox.currentText():
+                Logger.logWarning("[CentroidsLoader] A valid longitude field must be provided")
+                return
 
-        loader = Loader.CentroidsLoader()
+            if self.ui.latitudeFieldComboBox.isEnabled() and not self.ui.latitudeFieldComboBox.currentText():
+                Logger.logWarning("[CentroidsLoader] A valid latitude field must be provided")
+                return
 
-        loader.input_file = self.ui.centroidsSourceFileLineEdit.text()
+            if self.ui.numeroFieldComboBox.isEnabled() and not self.ui.numeroFieldComboBox.currentText():
+                Logger.logWarning("[CentroidsLoader] A valid numero field must be provided")
+                return
 
-        loader.lon_field = self.ui.longitudeFieldComboBox.currentText()
-        loader.lat_field = self.ui.latitudeFieldComboBox.currentText()
-        loader.cluster_no_field = self.ui.numeroFieldComboBox.currentText()
-        loader.cluster_type_field = self.ui.typeFieldComboBox.currentText()
+            if self.ui.typeFieldComboBox.isEnabled() and not self.ui.typeFieldComboBox.currentText():
+                Logger.logWarning("[CentroidsLoader] A valid latitude field must be provided")
+                return
+            Logger.logWarning("[CentroidsLoader] A problem occured while loading centroids")
 
-        loader.loadCentroids()
+        try:
+            loader = Loader.CentroidsLoader()
+
+            loader.input_file = self.ui.centroidsSourceFileLineEdit.text()
+
+            loader.lon_field = self.ui.longitudeFieldComboBox.currentText()
+            loader.lat_field = self.ui.latitudeFieldComboBox.currentText()
+            loader.cluster_no_field = self.ui.numeroFieldComboBox.currentText()
+            loader.cluster_type_field = self.ui.typeFieldComboBox.currentText()
+
+            loader.loadCentroids()
+            Logger.logSuccess("[CentroidsLoader] Centroids succcessfully loaded at {}".format(datetime.now()))
+        except:
+            Logger.logWarning("[CentroidsLoader] A problem occured while loading centroids")

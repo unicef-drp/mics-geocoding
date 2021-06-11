@@ -14,6 +14,8 @@ import os
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from pathlib import Path
+from datetime import datetime
+
 import re
 import typing
 
@@ -203,22 +205,43 @@ class MGPMainWindowTab2Handler():
     def onDisplaceCentroidsButtonClicked(self) -> typing.NoReturn:
         '''Displace centroids
         '''
-        displacer = Displacer.CentroidsDisplacer()
+        if not self.ui.centroidsLayerLineEdit.text():
+            Logger.logWarning("[CentroidsDisplacer] A valid centroid source file must be provided")
+            return
 
-        # Centroid Layer
-        centroidsLayerName = Utils.LayersName.layerName(Utils.LayersType.CENTROIDS)
-        Utils.removeLayerIfExistsByName(centroidsLayerName)
-        displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
-        QgsProject.instance().addMapLayer(displacer.centroidLayer)
+        if not self.ui.referenceLayerLineEdit.text():
+            Logger.logWarning("[CentroidsDisplacer] A valid reference source file must be provided")
+            return
+        else:
+            if not self.ui.ruralValuesLineEdit.text():
+                Logger.logWarning("[CentroidsDisplacer] Rural value(s) must be provided")
+                return
 
-        displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
+            if not self.ui.urbanValuesLineEdit.text():
+                Logger.logWarning("[CentroidsDisplacer] Rural value(s) must be provided")
+                return
 
-        displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
+        try:
+            displacer = Displacer.CentroidsDisplacer()
 
-        # separator can be ';' or ',' or ' '. feel free to add other
-        displacer.rural_types = [x for x in re.split(';|,| ', self.ui.ruralValuesLineEdit.text()) if x]
-        displacer.urban_types = [x for x in re.split(';|,| ', self.ui.urbanValuesLineEdit.text()) if x]
+            # Centroid Layer
+            centroidsLayerName = Utils.LayersName.layerName(Utils.LayersType.CENTROIDS)
+            Utils.removeLayerIfExistsByName(centroidsLayerName)
+            displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
+            QgsProject.instance().addMapLayer(displacer.centroidLayer)
 
-        displacer.displaceCentroids()
+            displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
 
-        Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)
+            displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
+
+            # separator can be ';' or ',' or ' '. feel free to add other
+            displacer.rural_types = [x for x in re.split(';|,| ', self.ui.ruralValuesLineEdit.text()) if x]
+            displacer.urban_types = [x for x in re.split(';|,| ', self.ui.urbanValuesLineEdit.text()) if x]
+
+            displacer.displaceCentroids()
+
+            Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)
+
+            Logger.logSuccess("[CentroidsDisplacer] Centroids succcessfully displaced at {}".format(datetime.now()))
+        except:
+            Logger.logWarning("[CentroidsDisplacer] A problem occured while displacing centroids")

@@ -9,11 +9,12 @@
 ##
 ## ###########################################################################
 
-
 import os
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from pathlib import Path
+from datetime import datetime
+
 import re
 import typing
 
@@ -247,24 +248,61 @@ class MGPMainWindowTab3Handler():
     def onComputeCovariatesButtonClicked(self) -> typing.NoReturn:
         '''ComputeCovariates computeCovariatesButton
         '''
-        covariatesProcesser = CovariatesProcesser.CovariatesProcesser()
+        if not self.ui.covinputsSourceFileLineEdit.text():
+            Logger.logWarning("[CovariatesProcesser] A valid covinputs source file must be provided")
+            return
+        else:
+            if self.ui.columnnameFieldComboBox.isEnabled() and not self.ui.columnnameFieldComboBox.currentText():
+                Logger.logWarning("[CovariatesProcesser] A valid columname field must be provided")
+                return
 
-        covariatesProcesser.input_csv = self.ui.covinputsSourceFileLineEdit.text()
-        covariatesProcesser.input_csv_field_columnname = self.ui.columnnameFieldComboBox.currentText()
-        covariatesProcesser.input_csv_field_sumstat = self.ui.sumstatFieldComboBox.currentText()
-        covariatesProcesser.input_csv_field_filename = self.ui.filenameFieldComboBox.currentText()
-        covariatesProcesser.input_csv_field_fileformat = self.ui.fileformatFieldComboBox.currentText()
+            if self.ui.sumstatFieldComboBox.isEnabled() and not self.ui.sumstatFieldComboBox.currentText():
+                Logger.logWarning("[CovariatesProcesser] A valid sumstat field must be provided")
+                return
 
-        covariatesProcesser.images_directory = self.ui.imagesSourceFileLineEdit.text()
+            if self.ui.filenameFieldComboBox.isEnabled() and not self.ui.filenameFieldComboBox.currentText():
+                Logger.logWarning("[CovariatesProcesser] A valid filename field must be provided")
+                return
 
-        bufferAnonLayerName = Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON)
-        Utils.removeLayerIfExistsByName(bufferAnonLayerName)
-        bufferAnonLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), bufferAnonLayerName)
-        QgsProject.instance().addMapLayer(bufferAnonLayer)
+            if self.ui.fileformatFieldComboBox.isEnabled() and not self.ui.fileformatFieldComboBox.currentText():
+                Logger.logWarning("[CovariatesProcesser] A valid file format field must be provided")
+                return
 
-        covariatesProcesser.setReferenceLayer(
-            bufferAnonLayer,
-            self.ui.covrefLayerFieldCombobox.currentText(),
-            self.ui.covrefLayerLineEdit.text())
+        if not self.ui.imagesSourceFileLineEdit.text():
+            Logger.logWarning("[CovariatesProcesser] A valid image directory must be provided")
+            return
+        # TODO: check if images exists in the directory.
 
-        covariatesProcesser.computeCovariates()
+        if not self.ui.covrefLayerLineEdit.text():
+            Logger.logWarning("[CovariatesProcesser] A reference source file must be provided")
+            return
+        else:
+            if self.ui.covrefLayerFieldCombobox.isEnabled() and not self.ui.covrefLayerFieldCombobox.currentText():
+                Logger.logWarning("[CovariatesProcesser] A valid covreflayer field must be provided")
+                return
+
+        try:
+            covariatesProcesser = CovariatesProcesser.CovariatesProcesser()
+
+            covariatesProcesser.input_csv = self.ui.covinputsSourceFileLineEdit.text()
+            covariatesProcesser.input_csv_field_columnname = self.ui.columnnameFieldComboBox.currentText()
+            covariatesProcesser.input_csv_field_sumstat = self.ui.sumstatFieldComboBox.currentText()
+            covariatesProcesser.input_csv_field_filename = self.ui.filenameFieldComboBox.currentText()
+            covariatesProcesser.input_csv_field_fileformat = self.ui.fileformatFieldComboBox.currentText()
+
+            covariatesProcesser.images_directory = self.ui.imagesSourceFileLineEdit.text()
+
+            bufferAnonLayerName = Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON)
+            Utils.removeLayerIfExistsByName(bufferAnonLayerName)
+            bufferAnonLayer = QgsVectorLayer(self.ui.covrefLayerLineEdit.text(), bufferAnonLayerName)
+            QgsProject.instance().addMapLayer(bufferAnonLayer)
+
+            covariatesProcesser.setReferenceLayer(
+                bufferAnonLayer,
+                self.ui.covrefLayerFieldCombobox.currentText(),
+                self.ui.covrefLayerLineEdit.text())
+
+            covariatesProcesser.computeCovariates()
+            Logger.logSuccess("[CovariatesProcesser] Covariates succcessfully processed at {}".format(datetime.now()))
+        except:
+            Logger.logWarning("[CovariatesProcesser] A problem occured while processing covariates")
