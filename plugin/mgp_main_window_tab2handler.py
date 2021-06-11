@@ -210,6 +210,7 @@ class MGPMainWindowTab2Handler():
         Utils.removeLayerIfExistsByName(centroidsLayerName)
 
         displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
+        QgsProject.instance().addMapLayer(displacer.centroidLayer)
 
         displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
 
@@ -220,3 +221,5 @@ class MGPMainWindowTab2Handler():
         displacer.urban_types = [x for x in re.split(';|,| ', self.ui.urbanValuesLineEdit.text()) if x]
 
         displacer.displaceCentroids()
+
+        Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)
