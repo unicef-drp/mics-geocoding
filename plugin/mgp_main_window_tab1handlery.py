@@ -182,8 +182,10 @@ class MGPMainWindowTab1Handler():
         '''Load centroids
         '''
         self.onCentroidsSourceFileChanged()
+
         self.onLongitudeFieldChanged()
         self.onLatitudeFieldChanged()
         self.onNumeroFieldChanged()
         self.onTypeFieldChanged()
+
         self.layerCentroidsLoaded = self.loader.loadCentroids()
