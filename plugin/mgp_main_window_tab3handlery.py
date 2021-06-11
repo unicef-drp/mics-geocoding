@@ -21,7 +21,7 @@ from .ui_mgp_dialog import Ui_MGPDialog
 from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
-from .micsgeocode import Step02Manager as step02
+from .micsgeocode import CovariatesProcesser as CovariatesProcesser
 
 
 class MGPMainWindowTab3Handler():
@@ -39,7 +39,7 @@ class MGPMainWindowTab3Handler():
         # Init various members - might be overriden with config
         ## ####################################################################
 
-        self.step02manager = step02.Step02Manager()
+        self.covariatesProcesser = CovariatesProcesser.CovariatesProcesser()
 
         ## ####################################################################
         # Init signal slots connection
@@ -108,7 +108,7 @@ class MGPMainWindowTab3Handler():
     def onCovinputsSourceFileChanged(self) -> typing.NoReturn:
         '''Handle new covinput file
         '''
-        self.step02manager.input_csv = self.ui.covinputsSourceFileLineEdit.text()
+        self.covariatesProcesser.input_csv = self.ui.covinputsSourceFileLineEdit.text()
         self.updateCovinputsComboBoxes()
         self.updateSaveStatus(True)
 
@@ -155,25 +155,25 @@ class MGPMainWindowTab3Handler():
     def onFilenameFieldChanged(self) -> typing.NoReturn:
         '''Update Filename field
         '''
-        self.step02manager.input_csv_field_filename = self.ui.filenameFieldComboBox.currentText()
+        self.covariatesProcesser.input_csv_field_filename = self.ui.filenameFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onFileformatFieldChanged(self) -> typing.NoReturn:
         '''Update File Format field
         '''
-        self.step02manager.input_csv_field_fileformat = self.ui.fileformatFieldComboBox.currentText()
+        self.covariatesProcesser.input_csv_field_fileformat = self.ui.fileformatFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onSumstatFieldChanged(self) -> typing.NoReturn:
         '''Update Summary statistic field
         '''
-        self.step02manager.input_csv_field_sumstat = self.ui.sumstatFieldComboBox.currentText()
+        self.covariatesProcesser.input_csv_field_sumstat = self.ui.sumstatFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onColumnnameFieldChanged(self) -> typing.NoReturn:
         '''Update Column name field
         '''
-        self.step02manager.input_csv_field_columnname = self.ui.columnnameFieldComboBox.currentText()
+        self.covariatesProcesser.input_csv_field_columnname = self.ui.columnnameFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     # #############################################################
@@ -196,7 +196,7 @@ class MGPMainWindowTab3Handler():
         dir = QtCore.QDir(self.ui.imagesSourceFileLineEdit.text())
 
         if dir.exists():
-            self.step02manager.images_directory = self.ui.imagesSourceFileLineEdit.text()
+            self.covariatesProcesser.images_directory = self.ui.imagesSourceFileLineEdit.text()
             self.updateSaveStatus(True)
 
     # #############################################################
@@ -235,7 +235,7 @@ class MGPMainWindowTab3Handler():
     def onCovrefLayerFieldComboboxTextChanged(self) -> typing.NoReturn:
         '''handle reference layer changed
         '''
-        self.step02manager.setReferenceLayer(
+        self.covariatesProcesser.setReferenceLayer(
             None,
             self.ui.covrefLayerFieldCombobox.currentText(),
             self.ui.covrefLayerLineEdit.text())
@@ -257,7 +257,7 @@ class MGPMainWindowTab3Handler():
         if index > -1:
             self.ui.covrefLayerFieldCombobox.setCurrentIndex(index)
 
-        self.step02manager.setReferenceLayer(
+        self.covariatesProcesser.setReferenceLayer(
             layer,
             field,
             file)
@@ -265,4 +265,4 @@ class MGPMainWindowTab3Handler():
     def onComputeCovariatesButtonClicked(self) -> typing.NoReturn:
         '''ComputeCovariates computeCovariatesButton
         '''
-        self.step02manager.computeCovariates()
+        self.covariatesProcesser.computeCovariates()

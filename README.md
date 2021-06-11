@@ -98,7 +98,7 @@ pip install pyqt5-tools
 - `mgp_main_window.py` This is the part that handles all the complexity of the plugin interface. The signal/slot connection, etc.
   This documentation can't be a complete introduction to Qt interface programmation.
   Basically, this file helps maanging user inputs, testing values, and starts the processes.
-  In order to the run the processes, it triggeres the Step01Manager and Step02Manager contains in the **micsgeocode folder**
+  In order to the run the processes, it triggeres the Step01Manager and CovariatesProcesser contains in the **micsgeocode folder**
 
 ### MicsGeoCode
 
@@ -107,9 +107,8 @@ pip install pyqt5-tools
 - `Transforms.py` helper class that contains only crs variables. This helps centralize every crs related var in one place.
 - `Utils.py` this class manage some generic qgis layer processes, such as names, create/remove, write
 - `ReferenceLayer.py` Facade that handle management of reference layer
-- `Step01Manager.py` Bridge class between the plugin and the algorithms class (loader and displacer)
 - `CentroidsLoader.py` The **Centroids Loading** part: init, and process
 - `CentroidsDisplacer.py` The **Centroids Displacment** part: init, and process
-- `Step02Manager.py` Step02 algorithm
+- `CovariatesProcesser.py` Step02 algorithm
 
 The code is documented, more precise informations would be found inside the files.

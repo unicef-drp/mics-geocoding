@@ -1,6 +1,6 @@
 ## ###########################################################################
 ##
-# Step02Manager.py
+# CovariatesProcesser.py
 ##
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
@@ -49,10 +49,10 @@ gdal.PushErrorHandler('CPLQuietErrorHandler')
 
 
 ####################################################################
-# Class Step02Manager
+# Class CovariatesProcesser
 ####################################################################
 
-class Step02Manager():
+class CovariatesProcesser():
     """ Facade that handle step 2 of the algo.
         set inputs, call loader and displacef with proper arguments.
     """
@@ -82,9 +82,9 @@ class Step02Manager():
 
     def setBasename(self, basename: str) -> typing.NoReturn:
         if basename:
-            self.__output_filename = basename + '_' + Step02Manager.OUTPUT_SUFFIX_BASENAME
+            self.__output_filename = basename + '_' + CovariatesProcesser.OUTPUT_SUFFIX_BASENAME
         else:
-            self.__output_filename = basename + '_' + Step02Manager.OUTPUT_SUFFIX_BASENAME
+            self.__output_filename = basename + '_' + CovariatesProcesser.OUTPUT_SUFFIX_BASENAME
         self.updateOutputFile()
 
     def setOutputDirectory(self, directory: str) -> typing.NoReturn:

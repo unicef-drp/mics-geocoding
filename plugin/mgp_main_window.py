@@ -253,7 +253,7 @@ class MGPMainWindow(QtWidgets.QWidget):
 
         if dir.exists():
             Utils.LayersName.outputDirectory = self.ui.outputDirLineEdit.text()
-            # self.step02manager.setOutputDirectory(self.ui.outputDirLineEdit.text())
+            # self.covariatesProcesser.setOutputDirectory(self.ui.outputDirLineEdit.text())
             self.updateSaveStatus(True)
 
     # #############################################################
@@ -271,7 +271,7 @@ class MGPMainWindow(QtWidgets.QWidget):
             # The validator should prevent the text to be invalid. But hey, let's check it anyway
             if self.ui.basenameLineEdit.hasAcceptableInput():
                 Utils.LayersName.basename = self.ui.basenameLineEdit.text()
-                # self.step02manager.setBasename(self.ui.basenameLineEdit.text())
+                # self.covariatesProcesser.setBasename(self.ui.basenameLineEdit.text())
                 self.updateSaveStatus(True)
             else:
                 msgBox = QtWidgets.QMessageBox()
