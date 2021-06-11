@@ -34,12 +34,6 @@ class MGPMainWindowTab1Handler():
         self.needsSave = False
 
         ## ####################################################################
-        # Init various members - might be overriden with config
-        ## ####################################################################
-
-        self.loader = Loader.CentroidsLoader()
-
-        ## ####################################################################
         # Init signal slots connection
         ## ####################################################################
 
@@ -95,7 +89,6 @@ class MGPMainWindowTab1Handler():
         '''Handle new centroid file
         '''
         # Update manager
-        self.loader.input_file = self.ui.centroidsSourceFileLineEdit.text()
         self.updateCentroidCombobox()
         self.updateSaveStatus(True)
 
@@ -153,25 +146,21 @@ class MGPMainWindowTab1Handler():
     def onLongitudeFieldChanged(self) -> typing.NoReturn:
         '''Update longitude field
         '''
-        self.loader.lon_field = self.ui.longitudeFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onLatitudeFieldChanged(self) -> typing.NoReturn:
         '''Update latitude field
         '''
-        self.loader.lat_field = self.ui.latitudeFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onNumeroFieldChanged(self) -> typing.NoReturn:
         '''Update numero field
         '''
-        self.loader.cluster_no_field = self.ui.numeroFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onTypeFieldChanged(self) -> typing.NoReturn:
         '''Update type field
         '''
-        self.loader.cluster_type_field = self.ui.typeFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     ## #############################################################
@@ -181,11 +170,14 @@ class MGPMainWindowTab1Handler():
     def onLoadCentroidsButtonCLicked(self) -> typing.NoReturn:
         '''Load centroids
         '''
-        self.onCentroidsSourceFileChanged()
 
-        self.onLongitudeFieldChanged()
-        self.onLatitudeFieldChanged()
-        self.onNumeroFieldChanged()
-        self.onTypeFieldChanged()
+        loader = Loader.CentroidsLoader()
 
-        self.layerCentroidsLoaded = self.loader.loadCentroids()
+        loader.input_file = self.ui.centroidsSourceFileLineEdit.text()
+
+        loader.lon_field = self.ui.longitudeFieldComboBox.currentText()
+        loader.lat_field = self.ui.latitudeFieldComboBox.currentText()
+        loader.cluster_no_field = self.ui.numeroFieldComboBox.currentText()
+        loader.cluster_type_field = self.ui.typeFieldComboBox.currentText()
+
+        loader.loadCentroids()
