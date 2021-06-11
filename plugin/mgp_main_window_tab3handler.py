@@ -247,7 +247,6 @@ class MGPMainWindowTab3Handler():
         '''
         field = 'cluster'
         file = Utils.LayersName.fileName(Utils.LayersType.BUFFERSANON)
-        Logger.logInfo("@" + file + "@")
         layer = None
         layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON))
         if layers:
