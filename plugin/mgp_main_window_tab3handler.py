@@ -36,12 +36,6 @@ class MGPMainWindowTab3Handler():
         self.needsSave = False
 
         ## ####################################################################
-        # Init various members - might be overriden with config
-        ## ####################################################################
-
-        self.covariatesProcesser = CovariatesProcesser.CovariatesProcesser()
-
-        ## ####################################################################
         # Init signal slots connection
         ## ####################################################################
 
@@ -60,7 +54,7 @@ class MGPMainWindowTab3Handler():
         self.ui.covrefLayerLineEdit.textChanged.connect(self.onCovrefLayerFileChanged)
         self.ui.covrefLayerFieldCombobox.currentTextChanged.connect(self.onCovrefLayerFieldComboboxTextChanged)
 
-        self.ui.loadCovrefFromStep01.clicked.connect(self.onLoadCovrefFromStep01Clicked)
+        self.ui.loadCovrefFromStep01.clicked.connect(self.onLoadCovrefFromStep02Clicked)
 
         self.ui.computeCovariatesButton.clicked.connect(self.onComputeCovariatesButtonClicked)
 
@@ -91,6 +85,20 @@ class MGPMainWindowTab3Handler():
         self.needsSave = needsSave
         self.ui.saveConfigButton.setEnabled(self.needsSave)
 
+    ## #############################################################
+    # Load covref from step2
+    ## #############################################################
+
+    def onLoadCovrefFromStep02Clicked(self) -> typing.NoReturn:
+        '''handle reference layer changed
+        '''
+        file = Utils.LayersName.fileName(Utils.LayersType.BUFFERSANON)
+        layer = None
+        layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON))
+        if layers:
+            layer = layers[0]
+        self.ui.covrefLayerLineEdit.setText(file)
+
     # #############################################################
     # Covinputs Source
     # #############################################################
@@ -108,7 +116,6 @@ class MGPMainWindowTab3Handler():
     def onCovinputsSourceFileChanged(self) -> typing.NoReturn:
         '''Handle new covinput file
         '''
-        self.covariatesProcesser.input_csv = self.ui.covinputsSourceFileLineEdit.text()
         self.updateCovinputsComboBoxes()
         self.updateSaveStatus(True)
 
@@ -155,25 +162,21 @@ class MGPMainWindowTab3Handler():
     def onFilenameFieldChanged(self) -> typing.NoReturn:
         '''Update Filename field
         '''
-        self.covariatesProcesser.input_csv_field_filename = self.ui.filenameFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onFileformatFieldChanged(self) -> typing.NoReturn:
         '''Update File Format field
         '''
-        self.covariatesProcesser.input_csv_field_fileformat = self.ui.fileformatFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onSumstatFieldChanged(self) -> typing.NoReturn:
         '''Update Summary statistic field
         '''
-        self.covariatesProcesser.input_csv_field_sumstat = self.ui.sumstatFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     def onColumnnameFieldChanged(self) -> typing.NoReturn:
         '''Update Column name field
         '''
-        self.covariatesProcesser.input_csv_field_columnname = self.ui.columnnameFieldComboBox.currentText()
         self.updateSaveStatus(True)
 
     # #############################################################
@@ -196,7 +199,6 @@ class MGPMainWindowTab3Handler():
         dir = QtCore.QDir(self.ui.imagesSourceFileLineEdit.text())
 
         if dir.exists():
-            self.covariatesProcesser.images_directory = self.ui.imagesSourceFileLineEdit.text()
             self.updateSaveStatus(True)
 
     # #############################################################
@@ -217,6 +219,7 @@ class MGPMainWindowTab3Handler():
         '''handle reference layer changed
         '''
         fields = Utils.getFieldsListAsStrArray(self.ui.covrefLayerLineEdit.text())
+        self.ui.covrefLayerFieldCombobox.clear()
         if fields:
             self.ui.covrefLayerFieldCombobox.addItems(fields)
             self.ui.covrefLayerFieldCombobox.setEnabled(True)
@@ -235,33 +238,33 @@ class MGPMainWindowTab3Handler():
     def onCovrefLayerFieldComboboxTextChanged(self) -> typing.NoReturn:
         '''handle reference layer changed
         '''
-        self.covariatesProcesser.setReferenceLayer(
-            None,
-            self.ui.covrefLayerFieldCombobox.currentText(),
-            self.ui.covrefLayerLineEdit.text())
-
         self.updateSaveStatus(True)
 
-    def onLoadCovrefFromStep01Clicked(self) -> typing.NoReturn:
-        '''handle reference layer changed
-        '''
-        field = 'cluster'
-        file = Utils.LayersName.fileName(Utils.LayersType.BUFFERSANON)
-        layer = None
-        layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON))
-        if layers:
-            layer = layers[0]
-        self.ui.covrefLayerLineEdit.setText(file)
-        index = self.ui.covrefLayerFieldCombobox.findText(field)
-        if index > -1:
-            self.ui.covrefLayerFieldCombobox.setCurrentIndex(index)
-
-        self.covariatesProcesser.setReferenceLayer(
-            layer,
-            field,
-            file)
+    ## #############################################################
+    # Main action
+    ## #############################################################
 
     def onComputeCovariatesButtonClicked(self) -> typing.NoReturn:
         '''ComputeCovariates computeCovariatesButton
         '''
-        self.covariatesProcesser.computeCovariates()
+        covariatesProcesser = CovariatesProcesser.CovariatesProcesser()
+
+        covariatesProcesser.input_csv = self.ui.covinputsSourceFileLineEdit.text()
+        covariatesProcesser.input_csv_field_columnname = self.ui.columnnameFieldComboBox.currentText()
+        covariatesProcesser.input_csv_field_sumstat = self.ui.sumstatFieldComboBox.currentText()
+        covariatesProcesser.input_csv_field_filename = self.ui.filenameFieldComboBox.currentText()
+        covariatesProcesser.input_csv_field_fileformat = self.ui.fileformatFieldComboBox.currentText()
+
+        covariatesProcesser.images_directory = self.ui.imagesSourceFileLineEdit.text()
+
+        bufferAnonLayerName = Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON)
+        Utils.removeLayerIfExistsByName(bufferAnonLayerName)
+        bufferAnonLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), bufferAnonLayerName)
+        QgsProject.instance().addMapLayer(bufferAnonLayer)
+
+        covariatesProcesser.setReferenceLayer(
+            bufferAnonLayer,
+            self.ui.covrefLayerFieldCombobox.currentText(),
+            self.ui.covrefLayerLineEdit.text())
+
+        covariatesProcesser.computeCovariates()

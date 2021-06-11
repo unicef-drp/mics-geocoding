@@ -80,7 +80,7 @@ class MGPMainWindowTab2Handler():
         self.ui.saveConfigButton.setEnabled(self.needsSave)
 
     # #############################################################
-    # Centroids Layer
+    # Load centroids from step01
     # #############################################################
 
     def loadCentroidsFromStep01Clicked(self) -> typing.NoReturn:
@@ -197,7 +197,7 @@ class MGPMainWindowTab2Handler():
         self.updateSaveStatus(True)
 
     ## #############################################################
-    # Main actions
+    # Main action
     ## #############################################################
 
     def onDisplaceCentroidsButtonClicked(self) -> typing.NoReturn:
@@ -208,7 +208,6 @@ class MGPMainWindowTab2Handler():
         # Centroid Layer
         centroidsLayerName = Utils.LayersName.layerName(Utils.LayersType.CENTROIDS)
         Utils.removeLayerIfExistsByName(centroidsLayerName)
-
         displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
         QgsProject.instance().addMapLayer(displacer.centroidLayer)
 
