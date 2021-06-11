@@ -81,7 +81,7 @@ class CentroidsDisplacer():
             count_rural = sum(cluster_centroid_ft[1] in self.rural_types for cluster_centroid_ft in self.centroidLayer.getFeatures())
             if count_rural > 0:
                 count_radius10000 = max(int(round(count_rural // 100)), 1)
-                self.__radius10000_indexes = random.sample(range(0, count_rural - 1), count_radius10000)
+                self.__radius10000_indexes = random.sample(range(0, count_rural), count_radius10000)
 
             # Displace points
             for cluster_centroid_ft in self.centroidLayer.getFeatures():
