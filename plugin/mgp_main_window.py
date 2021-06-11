@@ -253,7 +253,6 @@ class MGPMainWindow(QtWidgets.QWidget):
 
         if dir.exists():
             Utils.LayersName.outputDirectory = self.ui.outputDirLineEdit.text()
-            # self.covariatesProcesser.setOutputDirectory(self.ui.outputDirLineEdit.text())
             self.updateSaveStatus(True)
 
     # #############################################################
