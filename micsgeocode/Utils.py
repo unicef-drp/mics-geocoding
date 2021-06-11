@@ -65,6 +65,14 @@ class LayersName():
             return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + LayersName.layerNames[t] + ".shp"
         return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.layerNames[t] + ".shp"
 
+    @staticmethod
+    def customfileName(base: str) -> str:
+        """ generates layer name for file
+        """
+        if LayersName.basename:
+            return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + base + ".shp"
+        return LayersName.outputDirectory + QtCore.QDir.separator() + base + ".shp"
+
 
 def removeLayerIfExistsByName(layerName: str) -> typing.NoReturn:
     """ Remove existing layer with the same name. Avoid duplication when run multiple times.
@@ -99,11 +107,24 @@ def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typ
 
     # error = QgsVectorFileWriter.writeAsVectorFormatV2(layer, "testdata/my_new_shapefile", transform_context, save_options)
     layer = QgsVectorLayer(layerType, LayersName.layerName(layerCategorie), 'memory')
+    layer.setCustomProperty("skipMemoryLayersCheck", 1)
     provider = layer.dataProvider()
     provider.addAttributes(layerAttributes)
     layer.updateFields()
 
     return layer
+
+
+def reloadLayerFromDiskToAvoidMemoryFlag(layerType: LayersType) -> typing.NoReturn:
+    """ Close the layer, if it exists. Then reopen it, from the file. To avoid the weird 'memory' flag
+    """
+    filename = LayersName.fileName(layerType)
+    layerName = LayersName.layerName(layerType)
+
+    removeLayerIfExists(layerType)
+
+    layer = QgsVectorLayer(filename, layerName)
+    QgsProject.instance().addMapLayer(layer)
 
 
 def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
@@ -120,6 +141,7 @@ def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
             LayersName.fileName(layerType),
             QgsCoordinateTransformContext(),
             options)
+        reloadLayerFromDiskToAvoidMemoryFlag(layerType)
 
 
 def getval(ft: QgsFeature, field: QgsField) -> str:

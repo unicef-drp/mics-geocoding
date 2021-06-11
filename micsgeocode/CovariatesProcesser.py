@@ -20,6 +20,8 @@ import os
 import re
 import typing
 
+
+from PyQt5 import QtCore
 from qgis.core import *  # QGIS3
 from qgis.PyQt.QtCore import *
 from pathlib import Path
@@ -184,9 +186,26 @@ class CovariatesProcesser():
                         # Convert the dictionary into DataFrame
                         search_shp_df = pd.DataFrame(search_fts)
                         summary_df = pd.merge(summary_df, search_shp_df[[column_name, self.__ref_layer_cluster_no_field_name]], on=self.__ref_layer_cluster_no_field_name, how='inner')
+
                 c = c + 1
 
             summary_df.to_csv(output_file, sep=',', encoding='utf-8')
+
+            # Rewrite the layer on disk -> no memory flag
+            layerName = 'Shortest distance to {}'.format(file_name)
+            layers = QgsProject.instance().mapLayersByName(layerName)
+            if layers:
+                filename = Utils.LayersName.customfileName(layerName)
+                options = QgsVectorFileWriter.SaveVectorOptions()
+                options.driverName = "ESRI Shapefile"
+                writer = QgsVectorFileWriter.writeAsVectorFormatV2(
+                    layers[0],
+                    filename,
+                    QgsCoordinateTransformContext(),
+                    options)
+                Utils.removeLayerIfExistsByName(layerName)
+                layer = QgsVectorLayer(filename, layerName)
+                QgsProject.instance().addMapLayer(layer)
 
         Logger.logInfo("Output file saved to {}".format(output_file))
         Logger.logInfo("Successfully completed at {}".format(datetime.now()))
