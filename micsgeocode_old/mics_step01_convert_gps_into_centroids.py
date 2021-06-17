@@ -3,70 +3,111 @@ from qgis.core import QgsProject #QGIS3
 from qgis.PyQt.QtCore import QVariant
 from datetime import datetime
 from pathlib import Path
+from qgis.core import (
+  QgsGeometry,
+  QgsPoint,
+  QgsPointXY,
+  QgsWkbTypes,
+  QgsProject,
+  QgsFeatureRequest,
+  QgsVectorLayer,
+  QgsDistanceArea,
+  QgsUnitTypes,
+)
+
+######################################
+# CONFIG FOR SAMPLE 01
+######################################
+input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2021\MICS\Sample data\Sample01\sample01_cluster_centroids.shp'
+cluster_no_field = 'ClusterNo'
+cluster_type_field = 'Type'
+lat_field = 'Lat'  # column name with latitude (WGS84) coordinate (must be double, not string)
+lon_field = 'Lon'  # column name with longitude (WGS84) coordinate (must be double, not string)
+
+urban_types = ['U']  # values form the cluster type column that belong to urban type
+rural_types = ['R']  # values form the cluster type column that belong to rural type
+
+ref_lyr_name = 'ago_admin2'  # name of the QGIS layer with admin boundaries
+ref_id_field = 'GID_2'  # column name with a unique ID (e.g. pcode) for admin unit
+
+######################################
+# CONFIG FOR SAMPLE 02
+######################################
+input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2021\MICS\Sample data\Sample02\sample02_cluster_polygons.shp'
+cluster_no_field = 'ClusterNo'
+cluster_type_field = 'Type'
+lat_field = 'Lat'  # column name with latitude (WGS84) coordinate (must be double, not string)
+lon_field = 'Lon'  # column name with longitude (WGS84) coordinate (must be double, not string)
+
+urban_types = ['U']  # values form the cluster type column that belong to urban type
+rural_types = ['R']  # values form the cluster type column that belong to rural type
+
+ref_lyr_name = 'ago_admin2'  # name of the QGIS layer with admin boundaries
+ref_id_field = 'GID_2'  # column name with a unique ID (e.g. pcode) for admin unit
 
 
 ######################################
-# CONFIG FOR MKD
-# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\NorthMacedonia\MICS6_MKD National_Georef.csv'
-# cluster_no_field = 'NGRAP'  # column name with cluster number
-# cluster_type_field = 'NMIL'  # column name with cluster type
-lat_field = 'LAT'  # column name with latitude (WGS84) coordinate (must be double, not string)
-lon_field = 'LONG'  # column name with longitude (WGS84) coordinate (must be double, not string)
+# CONFIG FOR SAMPLE 03
+######################################
+input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2021\MICS\Sample data\Sample03\sample03_cluster_centroids_table.csv'
+cluster_no_field = 'ClusterNo'
+cluster_type_field = 'Type'
+lat_field = 'Lat'  # column name with latitude (WGS84) coordinate (must be double, not string)
+lon_field = 'Lon'  # column name with longitude (WGS84) coordinate (must be double, not string)
 
-# CONFIG FOR CIV - SHP input
-input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\MICS5_GPS_CIV.csv'
-cluster_no_field = 'NGRAP'
-cluster_type_field = 'NMIL'
+urban_types = ['U']  # values form the cluster type column that belong to urban type
+rural_types = ['R']  # values form the cluster type column that belong to rural type
 
-urban_types = ['1']  # values form the cluster type column that belong to urban type
-rural_types = ['2']  # values form the cluster type column that belong to rural type
+ref_lyr_name = 'ago_admin2'  # name of the QGIS layer with admin boundaries
+ref_id_field = 'GID_2'  # column name with a unique ID (e.g. pcode) for admin unit
 
-ref_lyr_name = 'civ_admbnda_adm2_cntig_20160527'  # name of the QGIS layer with admin boundaries
-ref_id_field = 'admin2Pcod'  # column name with a unique ID (e.g. pcode) for admin unit
 
 ######################################
+# CONFIG FOR SAMPLE 04
+######################################
+input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2021\MICS\Sample data\Sample04\sample04_cluster_coordinates_pt.shp'
+cluster_no_field = 'ClusterNo'
+cluster_type_field = 'Type'
+lat_field = 'Lat'  # column name with latitude (WGS84) coordinate (must be double, not string)
+lon_field = 'Lon'  # column name with longitude (WGS84) coordinate (must be double, not string)
+
+urban_types = ['U']  # values form the cluster type column that belong to urban type
+rural_types = ['R']  # values form the cluster type column that belong to rural type
+
+ref_lyr_name = 'ago_admin2'  # name of the QGIS layer with admin boundaries
+ref_id_field = 'GID_2'  # column name with a unique ID (e.g. pcode) for admin unit
+
 
 ######################################
-# CONFIG FOR North Macedonia
-# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\Sample data\NorthMacedonia\MICS6_MKD National_Georef.csv'
-# cluster_no_field = 'CLUSTER_NO'  # column name with cluster number
-# cluster_type_field = 'HH6_ClusterType'  # column name with cluster type
-# lat_field = 'FI'  # column name with latitude (WGS84) coordinate (must be double, not string)
-# lon_field = 'L'  # column name with longitude (WGS84) coordinate (must be double, not string)
+# CONFIG FOR SAMPLE 05
+######################################
+input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2021\MICS\Sample data\Sample05\sample05_cluster_polygons.shp'
+cluster_no_field = 'ClusterNo'
+cluster_type_field = 'Type'
+lat_field = 'Lat'  # column name with latitude (WGS84) coordinate (must be double, not string)
+lon_field = 'Lon'  # column name with longitude (WGS84) coordinate (must be double, not string)
 
-# CONFIG FOR CIV - SHP input
-# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\civ_admbnda_adm2_cntig_20160527.shp'
-# cluster_no_field = 'cluster'
-# cluster_type_field = 'type'
+urban_types = ['U']  # values form the cluster type column that belong to urban type
+rural_types = ['R']  # values form the cluster type column that belong to rural type
 
-# urban_types = ['1']  # values form the cluster type column that belong to urban type
-# rural_types = ['2']  # values form the cluster type column that belong to rural type
-#
-# ref_lyr_name = 'MKD_admn_adm3_py_EuroGeographics-NTES_pp'  # name of the QGIS layer with admin boundaries
-# ref_id_field = 'SHN3'  # column name with a unique ID (e.g. pcode) for admin unit
+ref_lyr_name = 'fji_admin1'  # name of the QGIS layer with admin boundaries
+ref_id_field = 'GID_1'  # column name with a unique ID (e.g. pcode) for admin unit
+
 
 ######################################
-
+# CONFIG FOR SAMPLE 06
 ######################################
-# # CONFIG FOR LAO
-# input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\lao_gps_clusters.csv'
-# cluster_no_field = 'GP1'  # column name with cluster number
-# cluster_type_field = 'GP2'  # column name with cluster type
-# lat_field = 'GP8D'  # column name with latitude (WGS84) coordinate (must be double, not string)
-# lon_field = 'GP9D'  # column name with longitude (WGS84) coordinate (must be double, not string)
-#
-# # CONFIG FOR CIV - SHP input
-# # input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2020\MICS geocoding\DEMO1\civ_admbnda_adm2_cntig_20160527.shp'
-# # cluster_no_field = 'cluster'
-# # cluster_type_field = 'type'
-#
-# urban_types = ['1']  # values form the cluster type column that belong to urban type
-# rural_types = ['2','3']  # values form the cluster type column that belong to rural type
-#
-# ref_lyr_name = 'lao_bnd_admin1_ngd2018'  # name of the QGIS layer with admin boundaries
-# ref_id_field = 'ADM1_PCODE'  # column name with a unique ID (e.g. pcode) for admin unit
+input_file_clusters = r'C:\Users\Janek\Documents\____UNICEF_GIS_STRATEGY\Projects\2021\MICS\Sample data\Sample06\sample06_cluster_coordinates_tab.csv'
+cluster_no_field = 'ClusterNo'
+cluster_type_field = 'Type'
+lat_field = 'Lat'  # column name with latitude (WGS84) coordinate (must be double, not string)
+lon_field = 'Lon'  # column name with longitude (WGS84) coordinate (must be double, not string)
 
-######################################
+urban_types = ['U']  # values form the cluster type column that belong to urban type
+rural_types = ['R']  # values form the cluster type column that belong to rural type
+
+ref_lyr_name = 'ago_admin2'  # name of the QGIS layer with admin boundaries
+ref_id_field = 'GID_2'  # column name with a unique ID (e.g. pcode) for admin unit
 
 
 # ToDo: for buffers crossing antimeridian, use a modified CS: "GEOGCRS["WGS 84",
@@ -188,13 +229,12 @@ cluster_anonym_disp_centroid_buffer_prov = cluster_anonym_disp_centroid_buffer_l
 cluster_anonym_disp_centroid_buffer_prov.addAttributes([QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("buf_dist", QVariant.Double)])
 cluster_anonym_disp_centroid_buffer_lyr.updateFields()
 
-
 # add ref areas to spatial index
 ref_lyr = [layer for layer in QgsProject.instance().mapLayers().values() if layer.name() == ref_lyr_name][0]
 ref_fts_index = QgsSpatialIndex(ref_lyr.getFeatures())
 
 # create layer for cluster polygons (for use if the input is shp not csv)
-cluster_polygon_lyr = QgsVectorLayer(input_file_clusters, "Cluster Polygons", "ogr")
+cluster_lyr = QgsVectorLayer(input_file_clusters, "Cluster Polygons", "ogr")
 
 # define geographic and projected coordinate systems
 sourceCrs = QgsCoordinateReferenceSystem(4326)
@@ -287,13 +327,22 @@ if input_file_clusters_format == "csv":
 		# cluster_centroid_fts.append(cluster_centroid_ft)
 
 elif input_file_clusters_format == "shp":
-	cluster_polygons = [ft for ft in cluster_polygon_lyr.getFeatures()]
-	for cluster_polygon in cluster_polygons:
-		cluster_centroid_ft = QgsFeature()
-		cluster_centroid_ft.setAttributes([cluster_polygon[cluster_no_field], cluster_polygon[cluster_type_field], 1])
-		cluster_centroid_ft.setGeometry(cluster_polygon.geometry().poleOfInaccessibility(100)[0])
-		cluster_centroid_prov.addFeatures([cluster_centroid_ft])
-		# cluster_centroid_fts.append(cluster_centroid_ft)
+	if cluster_lyr.wkbType() == 1: #QgsWkbTypes.Point
+		cluster_centroids = [ft for ft in cluster_lyr.getFeatures()]
+		for cluster_centroid in cluster_centroids:
+			cluster_centroid_ft = QgsFeature()
+			cluster_centroid_ft.setAttributes([cluster_centroid[cluster_no_field], cluster_centroid[cluster_type_field], 1])
+			cluster_centroid_ft.setGeometry(cluster_centroid.geometry())
+			cluster_centroid_prov.addFeatures([cluster_centroid_ft])
+
+	if cluster_lyr.wkbType() == 6: #QgsWkbTypes.Polygon
+		cluster_polygons = [ft for ft in cluster_lyr.getFeatures()]
+		for cluster_polygon in cluster_polygons:
+			cluster_centroid_ft = QgsFeature()
+			cluster_centroid_ft.setAttributes([cluster_polygon[cluster_no_field], cluster_polygon[cluster_type_field], 1])
+			cluster_centroid_ft.setGeometry(cluster_polygon.geometry().poleOfInaccessibility(100)[0])
+			cluster_centroid_prov.addFeatures([cluster_centroid_ft])
+			# cluster_centroid_fts.append(cluster_centroid_ft)
 
 for cluster_centroid_ft in cluster_centroid_lyr.getFeatures():
 	# copy geometry of centroid
@@ -430,8 +479,8 @@ if input_file_clusters_format == "csv":
 	registry.addMapLayer(cluster_multipt_lyr)
 
 if input_file_clusters_format == "shp":
-	cluster_polygon_lyr.updateExtents()
-	registry.addMapLayer(cluster_polygon_lyr)
+	cluster_lyr.updateExtents()
+	registry.addMapLayer(cluster_lyr)
 
 # Update extent of the layer and add to map
 cluster_disp_centroid_buffer_lyr.updateExtents()
