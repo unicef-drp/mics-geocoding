@@ -32,15 +32,18 @@ This script setup locally the qgis plugin. It copies everything at the right pla
 
 This is made for development phase and personal setup.
 
-### WIN_zip.bat
-
-This script setup a zip file baed on `%APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\micsgeocodeplugin`
-This is made to share the project with others.
-For more information on this, please refer to the [official documentation on this topic](https://docs.qgis.org/3.16/fr/docs/user_manual/plugins/plugins.html#the-install-from-zip-tab)
-
 > The first time the plugin is copied using WIN_copy.bat, it is loaded but not activated. This has to be don in QGIS:
 > `Plugin/Install or manage the extension` then `All` then search for `micsgeocode`
 > Finally, check the checkbox, and it's all set !
+### WIN_zip.bat
+
+This script setup a zip file based on `%APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\micsgeocodeplugin`.
+The zip file is named `micsgeocodeplugin.zip`, and will be located in the same folder as the WIN_zip.bat.
+This is made to share the project with others.
+For more information on this, please refer to the [official documentation on this topic](https://docs.qgis.org/3.16/fr/docs/user_manual/plugins/plugins.html#the-install-from-zip-tab)
+
+> This script is based on the very common 7zip.
+> Make sure this lib is installed before running this script.
 
 ### Plugin
 
