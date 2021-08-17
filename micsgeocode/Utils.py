@@ -141,7 +141,8 @@ def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
             LayersName.fileName(layerType),
             QgsCoordinateTransformContext(),
             options)
-        reloadLayerFromDiskToAvoidMemoryFlag(layerType)
+        # Don't know how to manage this.
+        # reloadLayerFromDiskToAvoidMemoryFlag(layerType)
 
 
 def getval(ft: QgsFeature, field: QgsField) -> str:
