@@ -57,18 +57,8 @@ class MGPMainWindow(QtWidgets.QWidget):
         self.title = self.windowTitle() + " (" + version + ")"
         self.setWindowTitle(self.title)
 
-        # Update position with last one used (handle switch from multiscreen to singlescrenn, change resolution, etc.)
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
-        pos = settings.value("WindowPosition", QtCore.QPoint(200, 200))
-        wholeDisplayGeometry = QtCore.QRect(0, 0, 0, 0)
-        for i in range(0, QtWidgets.QApplication.desktop().screenCount()):
-            wholeDisplayGeometry = wholeDisplayGeometry.united(QtWidgets.QApplication.desktop().screen(i).geometry())
-        if pos.x() > wholeDisplayGeometry.width()-50:
-            pos.setX(200)
-        if pos.y() > wholeDisplayGeometry.height()-50:
-            pos.setY(200)
-
-        self.move(pos)
+        # Always 200-200
+        self.move(QtCore.QPoint(200, 200))
 
         # Down-right logo. Here file szes and label sizes are the same, no need for scaling
         # Label size: 177 x 35
@@ -149,11 +139,6 @@ class MGPMainWindow(QtWidgets.QWidget):
     def closeEvent(self, event) -> typing.NoReturn:
         '''Save stuffs before closing
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
-
-        # Save current window position
-        settings.setValue("WindowPosition", self.pos())
-
         # Ask for save
         if self.needsSave:
             msgBox = QtWidgets.QMessageBox()
