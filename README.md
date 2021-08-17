@@ -11,19 +11,7 @@ Support in dev: Etienne Delclaux, CartONG
 
 ## Project structure description
 
-```
-├───micsgeocode
-├───plugin
-├───WIN_copy.bat
-└───WIN_zip.bat
-```
-
-This project is a qgis plugin project. However, it has been splitted in two main folders:
-
-- micsgeocode: the algoritm related code. It doesn't depend on the plugin part, but it strongly depends on qgis.
-- plugin: all the UI specific relatives python files, qt files, and script
-
-At this folder level, there are two helpers script for windows:
+There are three helpers script for windows:
 
 ### WIN_copy.bat
 
@@ -35,6 +23,7 @@ This is made for development phase and personal setup.
 > The first time the plugin is copied using WIN_copy.bat, it is loaded but not activated. This has to be don in QGIS:
 > `Plugin/Install or manage the extension` then `All` then search for `micsgeocode`
 > Finally, check the checkbox, and it's all set !
+
 ### WIN_zip.bat
 
 This script setup a zip file based on `%APPDATA%\QGIS\QGIS3\profiles\default\python\plugins\micsgeocodeplugin`.
