@@ -49,7 +49,7 @@ set PLUGIN_DIRECTORIES=test
 
 @REM all plugin related files
 set PLUGIN_FILES=__init__.py
-set PLUGIN_FILES=%PLUGIN_FILES%;icon.png
+set PLUGIN_FILES=%PLUGIN_FILES%;icon_bars.png
 set PLUGIN_FILES=%PLUGIN_FILES%;metadata.txt
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_plugin.py
 set PLUGIN_FILES=%PLUGIN_FILES%;ui_mgp_dialog.py

@@ -3,10 +3,9 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=MGP
+name=MICS GIS PLUGIN
 qgisMinimumVersion=3.0
-description=MGP
-version=0.7
+description=MICS GIS PLUGIN
 author=e
 email=e
 
@@ -27,7 +26,7 @@ tags=python
 
 homepage=http://homepage
 category=Plugins
-icon=icon.png
+icon=icon_bars.png
 # experimental flag
 experimental=True
 

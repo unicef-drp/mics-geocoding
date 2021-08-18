@@ -59,7 +59,7 @@ class mgp_config_writer:
             except:
                 images_dir = ""
 
-            configWriter['program'] = {'name': 'MGP', 'version': '0.0.1'}
+            configWriter['program'] = {'name': 'MICS GIS PLUGIN', 'version': '0.0.1'}
 
             configWriter['global'] = {
                 'basename': self.mainWindow.ui.basenameLineEdit.text(),
