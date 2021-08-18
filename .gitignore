@@ -2,5 +2,5 @@
 
 .qt-for-python/*
 
-micsgeocodeplugin.zip
+micsgeocodeplugin*.zip
 *.autosave
