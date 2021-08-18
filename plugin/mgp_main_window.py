@@ -57,9 +57,6 @@ class MGPMainWindow(QtWidgets.QWidget):
         self.title = self.windowTitle() + " (" + version + ")"
         self.setWindowTitle(self.title)
 
-        # Always 200-200
-        self.move(QtCore.QPoint(200, 200))
-
         # Down-right logo. Here file szes and label sizes are the same, no need for scaling
         # Label size: 177 x 35
         # Could be more flexible, with an horizontal spacer or halignment settings.
