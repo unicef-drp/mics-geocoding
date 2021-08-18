@@ -33,6 +33,7 @@ from .mgp_version import mgp_VERSION
 class mgp_plugin:
     """QGIS Plugin Implementation."""
     mainWindow = None
+    mgpToolbar = None
 
     def __init__(self, iface):
         """Constructor.
@@ -49,7 +50,7 @@ class mgp_plugin:
 
         # Declare instance attributes
         self.actions = []
-        self.menu = 'MICS GIS PLUGIN'
+        self.menu = 'MICS GIS'
 
         self.icon_path = ":/plugins/MGP/icon_bars.png"
 
@@ -115,7 +116,7 @@ class mgp_plugin:
 
         if add_to_toolbar:
             # Adds plugin icon to Plugins toolbar
-            self.iface.addToolBarIcon(action)
+            self.mgpToolbar.addAction(action)
 
         if add_to_menu:
             self.iface.addPluginToMenu(
@@ -128,6 +129,10 @@ class mgp_plugin:
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
+        self.mgpToolbar = self.iface.mainWindow().findChild(QtWidgets.QToolBar, u'MICS GIS')
+        if not self.mgpToolbar:
+            self.mgpToolbar = self.iface.addToolBar(u'MICS GIS')
+            self.mgpToolbar.setObjectName(u'MICS GIS')
 
         self.add_action(
             text='Mics Geocode Plugin',
@@ -138,9 +143,8 @@ class mgp_plugin:
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
             self.iface.removePluginMenu(
-                'MICS GIS PLUGIN',
+                'MICS GIS',
                 action)
-            self.iface.removeToolBarIcon(action)
 
     def run(self):
         """Run method that performs all the real work"""
