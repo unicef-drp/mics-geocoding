@@ -94,6 +94,9 @@ class MGPMainWindow(QtWidgets.QWidget):
         self.displaceCentroidsHandler = MGPMainWindowTab2Handler(self.ui)
         self.covariatesHandler = MGPMainWindowTab3Handler(self.ui)
 
+        # Auto update output directory with default values
+        self.onOutputDirLineEditChanged()
+
         ## ####################################################################
         # Init signal slots connection
         ## ####################################################################
@@ -221,7 +224,6 @@ class MGPMainWindow(QtWidgets.QWidget):
         path = settings.value("last_file_directory", QtCore.QDir.homePath())
         dir = QtWidgets.QFileDialog.getExistingDirectory(None, "Select output directory", path)
         if dir:
-            self.outputDirectory = dir
             self.ui.outputDirLineEdit.setText(dir)
             settings.setValue("last_file_directory", dir)
 
