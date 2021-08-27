@@ -85,7 +85,7 @@ class MGPMainWindow(QtWidgets.QWidget):
         self.ui.basenameLineEdit.clear()
 
         # Init output directory with tmpPath
-        self.ui.outputDirLineEdit.setText(QtCore.QDir.tempPath())
+        self.ui.outputDirLineEdit.setText(QtCore.QDir.toNativeSeparators(QtCore.QDir.tempPath()))
 
         # Force tab to init at first tab. Frequent mistake when manipulating qtdesigner
         self.ui.tabWidget.setCurrentIndex(0)
