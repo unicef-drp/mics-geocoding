@@ -9,6 +9,8 @@ Support in dev: Etienne Delclaux, CartONG
 
 > In this project, MGP is used as an acornym for Mics Geocode Plugin
 
+- [release notes](release-notes.md)
+
 ## Project structure description
 
 There are three helpers script for windows:
