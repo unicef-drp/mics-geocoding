@@ -159,14 +159,37 @@ class CovariatesProcesser():
                         layer = QgsVectorLayer(file_path, file_name, "ogr")
                         search_features = [feature for feature in layer.getFeatures()]
                         for cluster_ft in self.__ref_layer.getFeatures():
-                            cswc = min(
-                                [(l.id(), l.geometry().closestSegmentWithContext(cluster_ft.geometry().centroid().asPoint())) for l in
-                                 search_features], key=itemgetter(1))
-                            minDistPoint = cswc[1][1]  # nearest point on line
-                            minDistLine = cswc[0]  # line id of nearest point
                             feat = QgsFeature()
-                            line = QgsGeometry.fromPolyline([QgsPoint(cluster_ft.geometry().centroid().asPoint()), QgsPoint(
-                                minDistPoint[0], minDistPoint[1])])  # creating line between point and nearest point on segment
+                            startPt = QgsPoint(cluster_ft.geometry().centroid().asPoint())
+                            startGeom = cluster_ft.geometry().centroid()
+                            endPt = QgsPoint(QgsPointXY(0, 0))
+                            endGeom = QgsGeometry.fromPointXY(QgsPointXY(0, 0))
+
+                            minDistFtId = 0
+                            if layer.geometryType() == 0:  # for point input shapefile
+                                distance = -99
+                                for nf in search_features:
+                                    nfGeom = nf.geometry()
+                                    new_distance = startGeom.distance(nfGeom)
+
+                                    if distance < 0 or new_distance < distance:
+                                        distance = new_distance
+                                        closest_point = nfGeom.nearestPoint(startGeom)
+                                        minDistFtId = nf.id()
+                                endGeom = closest_point
+
+                            elif layer.geometryType() in (1, 2):  # for line (1) / polygon (2) input shapefile
+                                cswc = min(
+                                    [(l.id(), l.geometry().closestSegmentWithContext(
+                                        cluster_ft.geometry().centroid().asPoint())) for l in
+                                     search_features], key=itemgetter(1))
+                                minDistPoint = cswc[1][1]  # nearest point on line
+                                minDistFtId = cswc[0]  # line id of nearest point
+                                endPt = QgsPoint(minDistPoint[0], minDistPoint[1])
+                                endGeom = QgsGeometry.fromPointXY(QgsPointXY(minDistPoint[0], minDistPoint[1]))
+
+                            line = QgsGeometry.fromPolyline([QgsPoint(startGeom.asPoint()), QgsPoint(
+                                endGeom.asPoint())])  # creating line between point and nearest point
                             feat.setGeometry(line)
 
                             # get distance in meters - transform to Web Mercator
