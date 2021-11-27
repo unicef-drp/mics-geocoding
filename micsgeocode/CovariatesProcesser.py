@@ -196,7 +196,7 @@ class CovariatesProcesser():
                             line_merc = QgsGeometry(line)
                             line_merc.transform(Transforms.tr)
 
-                            feat.setAttributes([cluster_ft[self.__ref_layer_cluster_no_field_name], minDistLine, line_merc.length()])
+                            feat.setAttributes([cluster_ft[self.__ref_layer_cluster_no_field_name], minDistFtId, line_merc.length()])
                             shortest_dist_prov.addFeatures([feat])
 
                         # Update extent of the layer
