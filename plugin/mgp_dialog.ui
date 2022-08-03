@@ -45,7 +45,7 @@
         <bool>false</bool>
        </property>
        <attribute name="title">
-        <string>Step 1 - Load</string>
+        <string>Load</string>
        </attribute>
        <widget class="QGroupBox" name="groupBoxCentroid">
         <property name="geometry">

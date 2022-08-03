@@ -449,7 +449,7 @@ class Ui_MGPDialog(object):
         self.longitudeFieldLabel_2.setText(_translate("MGPDialog", "Longitude Field"))
         self.latitudeFieldLabel_2.setText(_translate("MGPDialog", "Latitude Field"))
         self.loadCentroidsButton.setText(_translate("MGPDialog", "Load Centroids"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step1), _translate("MGPDialog", "Step 1 - Load"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step1), _translate("MGPDialog", "Load"))
         self.groupBoxDisplacer.setTitle(_translate("MGPDialog", "Centroid Displacement"))
         self.loadCentroidsFromStep01.setText(_translate("MGPDialog", "Load centroids from Step 1"))
         self.centroidsLayerLabel.setText(_translate("MGPDialog", "Centroids"))
