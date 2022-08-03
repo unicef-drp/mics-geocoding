@@ -103,7 +103,7 @@ class MGPMainWindowTab2Handler():
     def onCentroidsLayerToolButtonClicked(self) -> typing.NoReturn:
         '''Browse for centroid file
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open centroids layer file", dir, "(*.shp)")
         if file:
@@ -155,7 +155,7 @@ class MGPMainWindowTab2Handler():
     def onReferenceLayerToolButtonClicked(self) -> typing.NoReturn:
         '''handle browse for reference layer clicked
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, " Open reference layer", dir, "*.shp")
         if file:

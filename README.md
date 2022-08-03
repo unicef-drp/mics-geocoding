@@ -1,4 +1,4 @@
-# Mics Geocode
+# MICS Geocode
 
 This document is aimed at describing the project and helping developer at onboarding.
 
@@ -7,7 +7,7 @@ This document is **NOT** a comitment to anything. It is **NOT** an official tech
 Author: Jan Burdziej, Unicef
 Support in dev: Etienne Delclaux, CartONG
 
-> In this project, MGP is used as an acornym for Mics Geocode Plugin
+> In this project, MGP is used as an acornym for MICS Geocode Plugin
 
 - [release notes](release-notes.md)
 
@@ -94,7 +94,7 @@ pip install pyqt5-tools
   Basically, this file helps maanging user inputs, testing values, and starts the processes.
   In order to the run the processes, it triggeres the Step01Manager and CovariatesProcesser contains in the **micsgeocode folder**
 
-### MicsGeoCode
+### MICS GeoCode
 
 - `__init__.py` mandatory files for this folder to be used as a package
 - `Logger.py` helper class that handle all the logging part. This trigger a logging inside the QGis Log Pannel

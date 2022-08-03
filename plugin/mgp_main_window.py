@@ -168,7 +168,7 @@ class MGPMainWindow(QtWidgets.QWidget):
     def onLoadConfigButtonClicked(self) -> typing.NoReturn:
         '''Pick and trigger the open configuration
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open config file", dir, "*.mgc")
         if file:
@@ -201,7 +201,7 @@ class MGPMainWindow(QtWidgets.QWidget):
     def onSaveConfigAsButtonClicked(self):
         '''Pick a file and save the project to it
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         path = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getSaveFileName(None, "Save project configuration file", path, "*.mgc")
         if file:
@@ -220,7 +220,7 @@ class MGPMainWindow(QtWidgets.QWidget):
     def onOutputDirToolButtonClicked(self) -> typing.NoReturn:
         '''Manage browse for directory
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         path = settings.value("last_file_directory", QtCore.QDir.homePath())
         dir = QtWidgets.QFileDialog.getExistingDirectory(None, "Select output directory", path)
         if dir:

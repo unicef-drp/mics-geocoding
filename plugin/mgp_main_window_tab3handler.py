@@ -107,7 +107,7 @@ class MGPMainWindowTab3Handler():
     def onCovinputsSourceFileToolButtonClicked(self) -> typing.NoReturn:
         '''Browse for covinputs file
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open covinputs file", dir, "*.txt")
         if file:
@@ -187,7 +187,7 @@ class MGPMainWindowTab3Handler():
     def onImagesSourceFileToolButtonClicked(self) -> typing.NoReturn:
         '''Manage browse for images directory
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         path = settings.value("last_file_directory", QtCore.QDir.homePath())
         dir = QtWidgets.QFileDialog.getExistingDirectory(None, "Select images directory", path)
         if dir:
@@ -209,7 +209,7 @@ class MGPMainWindowTab3Handler():
     def onCovrefLayerToolButtonClicked(self) -> typing.NoReturn:
         '''handle browse for covref layer clicked
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open reference layer", dir, "*.shp")
         if file:

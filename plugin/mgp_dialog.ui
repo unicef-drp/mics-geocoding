@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Mics Geocode Plugin</string>
+   <string>MICS Geocode Plugin</string>
   </property>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
