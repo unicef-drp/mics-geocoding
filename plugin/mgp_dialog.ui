@@ -416,7 +416,7 @@
       </widget>
       <widget class="QWidget" name="tab_step3">
        <attribute name="title">
-        <string>Step 3 - Extract</string>
+        <string>Extract</string>
        </attribute>
        <widget class="QGroupBox" name="groupBoxCentroid_2">
         <property name="geometry">
