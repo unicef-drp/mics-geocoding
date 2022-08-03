@@ -430,7 +430,7 @@ class Ui_MGPDialog(object):
         self.basenameLineEdit.setObjectName("basenameLineEdit")
 
         self.retranslateUi(MGPDialog)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MGPDialog)
 
     def retranslateUi(self, MGPDialog):
