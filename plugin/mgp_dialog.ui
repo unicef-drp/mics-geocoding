@@ -283,24 +283,24 @@
           <item>
            <layout class="QFormLayout" name="formLayout_5">
             <item row="0" column="0">
-             <widget class="QLabel" name="centroidsLayerTypeFieldLabel">
+             <widget class="QLabel" name="centroidsLayerNumeroFieldLabel">
               <property name="text">
-               <string>Type Field</string>
+               <string>Cluster Number (HH1) </string>
               </property>
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QComboBox" name="centroidsLayerTypeFieldComboBox"/>
+             <widget class="QComboBox" name="centroidsLayerNumeroFieldComboBox"/>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="centroidsLayerNumeroFieldLabel">
+             <widget class="QLabel" name="centroidsLayerTypeFieldLabel">
               <property name="text">
-               <string>Numero Field</string>
+               <string>Area (HH6)</string>
               </property>
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QComboBox" name="centroidsLayerNumeroFieldComboBox"/>
+             <widget class="QComboBox" name="centroidsLayerTypeFieldComboBox"/>
             </item>
            </layout>
           </item>

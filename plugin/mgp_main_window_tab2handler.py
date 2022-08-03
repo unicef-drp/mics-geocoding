@@ -68,8 +68,8 @@ class MGPMainWindowTab2Handler():
         self.ui.loadCentroidsFromStep01.setToolTip("Import step1 outputs as inputs")
         self.ui.centroidsLayerToolButton.setToolTip("Browse for centroids layer on the computer. Must be point shapefile.")
         self.ui.centroidsLayerLineEdit.setToolTip("Cluster centroids file on the computer.")
-        self.ui.centroidsLayerNumeroFieldComboBox.setToolTip("Choose the field corresponding to cluster numero")
-        self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field corresponding to cluster type")
+        self.ui.centroidsLayerNumeroFieldComboBox.setToolTip("Choose the field indicating cluster number variable.")
+        self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field indicating cluster area variable.")
 
         self.ui.displaceCentroidsButton.setToolTip("Proceed centroids displacement")
 
