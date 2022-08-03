@@ -61,7 +61,7 @@ class MGPMainWindowTab1Handler():
         self.ui.longitudeFieldComboBox.setToolTip("Choose the field indicating longitude. Must be in decimal degree.")
         self.ui.latitudeFieldComboBox.setToolTip("Choose the field indicating latitude. Must be in decimal degree.")
 
-        self.ui.loadCentroidsButton.setToolTip("Load Centroids")
+        self.ui.loadCentroidsButton.setToolTip("Generate Centroids. QGIS generates layers depending on input.")
 
     ## #############################################################
     # update save status
