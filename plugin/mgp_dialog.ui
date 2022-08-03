@@ -440,7 +440,7 @@
          </size>
         </property>
         <property name="title">
-         <string>Covariates inputs</string>
+         <string>Covariates input</string>
         </property>
         <property name="flat">
          <bool>false</bool>
