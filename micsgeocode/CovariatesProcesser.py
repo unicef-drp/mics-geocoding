@@ -151,9 +151,11 @@ class CovariatesProcesser():
                         # create layer for shortest distance
                         shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(file_name), 'memory')
                         shortest_dist_prov = shortest_dist_lyr.dataProvider()
-                        shortest_dist_prov.addAttributes(
-                            [QgsField("cluster", QVariant.String), QgsField("nearestfid", QVariant.String),
-                             QgsField("dist", QVariant.Double)])
+                        shortest_dist_prov.addAttributes([
+                            QgsField("cluster", QVariant.String),
+                            QgsField("nearestfid", QVariant.String),
+                            QgsField("dist", QVariant.Double, "", 0, 2)
+                        ])
                         shortest_dist_lyr.updateFields()
 
                         layer = QgsVectorLayer(file_path, file_name, "ogr")
