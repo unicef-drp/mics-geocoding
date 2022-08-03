@@ -264,7 +264,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Centroids</string>
+               <string>Centroids Source File</string>
               </property>
              </widget>
             </item>

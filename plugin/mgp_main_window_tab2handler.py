@@ -66,8 +66,8 @@ class MGPMainWindowTab2Handler():
         self.ui.urbanValuesLineEdit.setToolTip("Field description for urban values. It can receive multiple values, splitted by ';' or ',' or ' '")
 
         self.ui.loadCentroidsFromStep01.setToolTip("Import step1 outputs as inputs")
-        self.ui.centroidsLayerToolButton.setToolTip("Browse for the centroids layer on the disk")
-        self.ui.centroidsLayerLineEdit.setToolTip("Browse for the centroids layer on the disk")
+        self.ui.centroidsLayerToolButton.setToolTip("Browse for centroids layer on the computer. Must be point shapefile.")
+        self.ui.centroidsLayerLineEdit.setToolTip("Cluster centroids file on the computer.")
         self.ui.centroidsLayerNumeroFieldComboBox.setToolTip("Choose the field corresponding to cluster numero")
         self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field corresponding to cluster type")
 

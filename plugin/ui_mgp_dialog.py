@@ -452,7 +452,7 @@ class Ui_MGPDialog(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step1), _translate("MGPDialog", "Load"))
         self.groupBoxDisplacer.setTitle(_translate("MGPDialog", "Centroid Displacement"))
         self.loadCentroidsFromStep01.setText(_translate("MGPDialog", "Load centroids from Step 1"))
-        self.centroidsLayerLabel.setText(_translate("MGPDialog", "Centroids"))
+        self.centroidsLayerLabel.setText(_translate("MGPDialog", "Centroids Source File"))
         self.centroidsLayerToolButton.setText(_translate("MGPDialog", "..."))
         self.centroidsLayerTypeFieldLabel.setText(_translate("MGPDialog", "Type Field"))
         self.centroidsLayerNumeroFieldLabel.setText(_translate("MGPDialog", "Numero Field"))
