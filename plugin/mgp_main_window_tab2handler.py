@@ -59,8 +59,8 @@ class MGPMainWindowTab2Handler():
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################
 
-        self.ui.referenceLayerToolButton.setToolTip("Browse for the reference Layer on the disk")
-        self.ui.referenceLayerLineEdit.setToolTip("Reference Layer on the disk")
+        self.ui.referenceLayerToolButton.setToolTip("Browse for the boundary shapefile selected for cluster displacement.")
+        self.ui.referenceLayerLineEdit.setToolTip("Reference Layer on the computer.")
         self.ui.referenceLayerFieldCombobox.setToolTip("Reference layer field")
         self.ui.ruralValuesLineEdit.setToolTip("Field description for rural values. It can receive multiple values, splitted by ';' or ',' or ' '")
         self.ui.urbanValuesLineEdit.setToolTip("Field description for urban values. It can receive multiple values, splitted by ';' or ',' or ' '")
