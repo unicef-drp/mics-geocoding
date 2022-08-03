@@ -271,11 +271,11 @@ class CentroidsDisplacer():
 
         # create layer for displacement links
         self.__generatedLayers[Utils.LayersType.LINKS] = Utils.createLayer('LineString?crs='+Transforms.layer_proj, Utils.LayersType.LINKS, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int), QgsField("lon_orig", QVariant.Double), QgsField(
-            "lat_orig", QVariant.Double), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double), QgsField("disp_dist_m", QVariant.Double), QgsField("disp_angle", QVariant.Double), QgsField("refar_id_b", QVariant.String), QgsField("refar_id_a", QVariant.String), QgsField("iter", QVariant.Int)])
+            "lat_orig", QVariant.Double), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double), QgsField("disp_dist_m", QVariant.Double), QgsField("disp_angle", QVariant.Int), QgsField("refar_id_b", QVariant.String), QgsField("refar_id_a", QVariant.String), QgsField("iter", QVariant.Int)])
 
         # create layer for displaced centroids
         self.__generatedLayers[Utils.LayersType.DISPLACED] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.DISPLACED, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int), QgsField("lon_orig", QVariant.Double), QgsField(
-            "lat_orig", QVariant.Double), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double), QgsField("disp_dist_m", QVariant.Double), QgsField("disp_angle", QVariant.Double), QgsField("refar_id_b", QVariant.String), QgsField("refar_id_a", QVariant.String), QgsField("iter", QVariant.Int)])
+            "lat_orig", QVariant.Double), QgsField("lon_disp", QVariant.Double), QgsField("lat_disp", QVariant.Double), QgsField("disp_dist_m", QVariant.Double), QgsField("disp_angle", QVariant.Int), QgsField("refar_id_b", QVariant.String), QgsField("refar_id_a", QVariant.String), QgsField("iter", QVariant.Int)])
 
         # create layer for anonymized displaced centroids
         self.__generatedLayers[Utils.LayersType.DISPLACEDANON] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.DISPLACEDANON, [QgsField(
