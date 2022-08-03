@@ -311,7 +311,6 @@ class CentroidsDisplacer():
         # create layer for anonymized displaced centroids
         self.__generatedLayers[Utils.LayersType.DISPLACEDANON] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.DISPLACEDANON, [
             QgsField("cluster", QVariant.String),
-            QgsField("type", QVariant.String),
             QgsField("lon_disp", QVariant.Double),
             QgsField("lat_disp", QVariant.Double)
         ])
@@ -346,7 +345,7 @@ class CentroidsDisplacer():
         # add anoymized displaced centroid
         feat_anonym_disp_centroid = QgsFeature()
         feat_anonym_disp_centroid.setGeometry(displaced_point_wgs)
-        feat_anonym_disp_centroid.setAttributes([cluster_centroid_ft['cluster'], cluster_centroid_ft['type'], displaced_point_wgs.asPoint().x(), displaced_point_wgs.asPoint().y()])
+        feat_anonym_disp_centroid.setAttributes([cluster_centroid_ft['cluster'], displaced_point_wgs.asPoint().x(), displaced_point_wgs.asPoint().y()])
         self.__generatedLayers[Utils.LayersType.DISPLACEDANON].dataProvider().addFeatures([feat_anonym_disp_centroid])
 
         # add displacement links
