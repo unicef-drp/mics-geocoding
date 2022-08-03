@@ -484,7 +484,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Covariate input file</string>
+               <string>Covariates Input File</string>
               </property>
              </widget>
             </item>

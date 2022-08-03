@@ -63,8 +63,8 @@ class MGPMainWindowTab3Handler():
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################
 
-        self.ui.covinputsSourceFileToolButton.setToolTip("Browse for the covariates inputs file on the disk")
-        self.ui.covinputsSourceFileLineEdit.setToolTip("Covariates inputs file on the disk")
+        self.ui.covinputsSourceFileToolButton.setToolTip("Browse for covariates input file on the computer. Must be CSV file.")
+        self.ui.covinputsSourceFileLineEdit.setToolTip("Covariates input file on the computer.")
 
         self.ui.imagesSourceFileToolButton.setToolTip("Browse for the images directory on the disk")
         self.ui.imagesSourceFileLineEdit.setToolTip("Images directory on the disk")
@@ -109,7 +109,7 @@ class MGPMainWindowTab3Handler():
         '''
         settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
-        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open covinputs file", dir, "*.txt")
+        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open covinputs file", dir, "*.csv")
         if file:
             self.ui.covinputsSourceFileLineEdit.setText(os.path.normpath(file))
             settings.setValue("last_file_directory", os.path.dirname(file))
