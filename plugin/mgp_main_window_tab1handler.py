@@ -53,8 +53,8 @@ class MGPMainWindowTab1Handler():
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################
 
-        self.ui.centroidsSourceFileToolButton.setToolTip("Browse for the centroids layer on the disk")
-        self.ui.centroidsSourceFileLineEdit.setToolTip("Browse for the centroids layer on the disk")
+        self.ui.centroidsSourceFileToolButton.setToolTip("Browse for source file on the computer. Must be CSV file or shapefile (polygon or point layer).")
+        self.ui.centroidsSourceFileLineEdit.setToolTip("Cluster source file on the computer.")
 
         self.ui.longitudeFieldComboBox.setToolTip("Choose the field corresponding to longitude")
         self.ui.latitudeFieldComboBox.setToolTip("Choose the field corresponding to latitude")
