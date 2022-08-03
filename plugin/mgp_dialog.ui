@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>505</width>
+    <width>500</width>
     <height>724</height>
    </rect>
   </property>
@@ -38,7 +38,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_step1">
        <property name="autoFillBackground">
@@ -882,8 +882,8 @@
      <rect>
       <x>10</x>
       <y>80</y>
-      <width>126</width>
-      <height>16</height>
+      <width>201</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -893,15 +893,18 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>Outputs basename:</string>
+     <string>Basename of layers and file generation:</string>
+    </property>
+    <property name="wordWrap">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLineEdit" name="basenameLineEdit">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>210</x>
       <y>80</y>
-      <width>281</width>
+      <width>251</width>
       <height>22</height>
      </rect>
     </property>

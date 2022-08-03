@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MGPDialog(object):
     def setupUi(self, MGPDialog):
         MGPDialog.setObjectName("MGPDialog")
-        MGPDialog.resize(505, 724)
+        MGPDialog.resize(500, 724)
         self.verticalLayoutWidget = QtWidgets.QWidget(MGPDialog)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 143, 481, 481))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
@@ -421,20 +421,21 @@ class Ui_MGPDialog(object):
         self.outputDirToolButton.setObjectName("outputDirToolButton")
         self.horizontalLayout_3.addWidget(self.outputDirToolButton)
         self.label_3 = QtWidgets.QLabel(self.groupBoxOutConfig)
-        self.label_3.setGeometry(QtCore.QRect(10, 80, 126, 16))
+        self.label_3.setGeometry(QtCore.QRect(10, 80, 201, 21))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
         self.label_3.setSizePolicy(sizePolicy)
+        self.label_3.setWordWrap(False)
         self.label_3.setObjectName("label_3")
         self.basenameLineEdit = QtWidgets.QLineEdit(self.groupBoxOutConfig)
-        self.basenameLineEdit.setGeometry(QtCore.QRect(140, 80, 281, 22))
+        self.basenameLineEdit.setGeometry(QtCore.QRect(210, 80, 251, 22))
         self.basenameLineEdit.setText("")
         self.basenameLineEdit.setObjectName("basenameLineEdit")
 
         self.retranslateUi(MGPDialog)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MGPDialog)
 
     def retranslateUi(self, MGPDialog):
@@ -483,4 +484,4 @@ class Ui_MGPDialog(object):
         self.groupBoxOutConfig.setTitle(_translate("MGPDialog", "Outputs"))
         self.label.setText(_translate("MGPDialog", "Directory for outputs: "))
         self.outputDirToolButton.setText(_translate("MGPDialog", "..."))
-        self.label_3.setText(_translate("MGPDialog", "Outputs basename:"))
+        self.label_3.setText(_translate("MGPDialog", "Basename of layers and file generation:"))
