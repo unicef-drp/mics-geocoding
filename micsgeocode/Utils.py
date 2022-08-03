@@ -45,7 +45,7 @@ class LayersName():
         LayersType.BUFFERS: "cluster_buffers",
         LayersType.BUFFERSANON: "cluster_anonymized_buffers",
         LayersType.LINKS: "cluster_displacement_links",
-        LayersType.DISPLACED: "cluster_displaced_centroids",
+        LayersType.DISPLACED: "cluster_unanonymized_displaced_centroids",
         LayersType.DISPLACEDANON: "cluster_anonymized_displaced_centroids",
     }
 
