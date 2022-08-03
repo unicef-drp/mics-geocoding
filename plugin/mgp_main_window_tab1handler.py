@@ -56,10 +56,10 @@ class MGPMainWindowTab1Handler():
         self.ui.centroidsSourceFileToolButton.setToolTip("Browse for source file on the computer. Must be CSV file or shapefile (polygon or point layer).")
         self.ui.centroidsSourceFileLineEdit.setToolTip("Cluster source file on the computer.")
 
-        self.ui.longitudeFieldComboBox.setToolTip("Choose the field corresponding to longitude")
-        self.ui.latitudeFieldComboBox.setToolTip("Choose the field corresponding to latitude")
-        self.ui.numeroFieldComboBox.setToolTip("Choose the field corresponding to cluster numero")
-        self.ui.typeFieldComboBox.setToolTip("Choose the field corresponding to cluster type")
+        self.ui.numeroFieldComboBox.setToolTip("Choose the field indicating cluster number variable.")
+        self.ui.typeFieldComboBox.setToolTip("Choose the field indicating cluster area variable.")
+        self.ui.longitudeFieldComboBox.setToolTip("Choose the field indicating longitude. Must be in decimal degree.")
+        self.ui.latitudeFieldComboBox.setToolTip("Choose the field indicating latitude. Must be in decimal degree.")
 
         self.ui.loadCentroidsButton.setToolTip("Load Centroids")
 
