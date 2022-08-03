@@ -77,6 +77,7 @@ class MGPMainWindow(QtWidgets.QWidget):
 
         # Hold the save button status
         self.needsSave = False
+        self.fileMGC = None
 
         # Initiate Managers
 
