@@ -189,7 +189,7 @@
       </widget>
       <widget class="QWidget" name="tab_step2">
        <attribute name="title">
-        <string>Step 2 - Displace</string>
+        <string>Displace</string>
        </attribute>
        <widget class="QGroupBox" name="groupBoxDisplacer">
         <property name="geometry">
