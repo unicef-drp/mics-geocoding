@@ -505,7 +505,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="filenameFieldLabel">
               <property name="text">
-               <string>Filename Field</string>
+               <string>File Name</string>
               </property>
              </widget>
             </item>
@@ -515,7 +515,7 @@
             <item row="1" column="0">
              <widget class="QLabel" name="fileformatFieldLabel">
               <property name="text">
-               <string>File Format field</string>
+               <string>File Format</string>
               </property>
              </widget>
             </item>
@@ -525,7 +525,7 @@
             <item row="2" column="0">
              <widget class="QLabel" name="sumstatFieldLabel">
               <property name="text">
-               <string>Summary Statistic Field</string>
+               <string>Summary Statistics</string>
               </property>
              </widget>
             </item>
@@ -535,7 +535,7 @@
             <item row="3" column="0">
              <widget class="QLabel" name="columnnameFieldLabel">
               <property name="text">
-               <string>Column Name Field</string>
+               <string>Variable Name</string>
               </property>
              </widget>
             </item>
@@ -558,7 +558,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Image Directory</string>
+               <string>Covariates input folder</string>
               </property>
              </widget>
             </item>
@@ -645,7 +645,7 @@
              </size>
             </property>
             <property name="text">
-             <string>Compute covariates</string>
+             <string>Compute Covariates</string>
             </property>
            </widget>
           </item>
