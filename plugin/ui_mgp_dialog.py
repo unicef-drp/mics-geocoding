@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\mics-geocode_original\plugin\mgp_dialog.ui'
+# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\unicef-mics\mics-geocoding\plugin\mgp_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
