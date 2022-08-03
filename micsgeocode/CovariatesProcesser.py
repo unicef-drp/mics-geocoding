@@ -214,7 +214,21 @@ class CovariatesProcesser():
 
                 c = c + 1
 
-            summary_df.to_csv(output_file, sep=',', encoding='utf-8')
+            summary_df.to_csv(
+                output_file,
+                sep=',',
+                encoding='utf-8',
+                index=False,
+                columns=[
+                    "cluster",
+                    "pop_2000",
+                    "pop_2005",
+                    "pop_2010",
+                    "pop_2015",
+                    "pop_2020",
+                    "dis_b_2020"
+                ]
+            )
 
             # Rewrite the layer on disk -> no memory flag
             layerName = 'Shortest distance to {}'.format(file_name)
