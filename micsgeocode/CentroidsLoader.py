@@ -62,7 +62,7 @@ class CentroidsLoader():
             QgsField("cluster", QVariant.String),
             QgsField("type", QVariant.String),
             QgsField("count", QVariant.Int),
-            QgsField("adminBoundaries", QVariant.String)
+            QgsField("admin", QVariant.String)
         ])
         input_file_clusters_format = Path(self.input_file).suffix[1:]
         if input_file_clusters_format == "shp":
@@ -210,7 +210,7 @@ class CentroidsLoader():
                         'type': line[cluster_type_id],
                         'lat': float(line[lat_id]),
                         'lon': float(line[lon_id]),
-                        'adminBoundaries': line[admin_boundaries_id]
+                        'admin': line[admin_boundaries_id]
                     })
                 c = c + 1
         return gps_coords
@@ -243,7 +243,7 @@ class CentroidsLoader():
 
         # compute centroid
         cluster_centroid_ft = QgsFeature()
-        cluster_centroid_ft.setAttributes([cluster[0], cluster[1], len(gps_coords_list), gps_coords_per_cluster[0]['adminBoundaries']])
+        cluster_centroid_ft.setAttributes([cluster[0], cluster[1], len(gps_coords_list), gps_coords_per_cluster[0]['admin']])
         self.__computeCentroidGeometry(cluster_centroid_ft, cluster_multipt_ft, cluster_convexhull_ft)
         self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
 
