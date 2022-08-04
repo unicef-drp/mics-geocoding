@@ -26,7 +26,6 @@ class LayersType(str, Enum):
     GPS = "GPS"
     MULTIPLT = "MULTIPLT"
     CONVEXHULL = "CONVEXHULL"
-    BUFFERS = "BUFFERS"
     BUFFERSANON = "BUFFERSANON"
     LINKS = "LINKS"
     DISPLACED = "DISPLACED"
