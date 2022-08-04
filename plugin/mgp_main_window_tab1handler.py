@@ -26,12 +26,16 @@ from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 
 
-class MGPMainWindowTab1Handler():
+class MGPMainWindowTab1Handler(QtCore.QObject):
     '''The actual window that is displayed in the qgis interface
     '''
+    # Define a signal called 'centroidsLoaded'
+    centroidsLoaded = QtCore.pyqtSignal()
 
     def __init__(self, ui):
         """Interface initialisation : display interface and define events"""
+        super().__init__()
+
         self.ui = ui
         self.needsSave = False
 
@@ -226,5 +230,7 @@ class MGPMainWindowTab1Handler():
 
             loader.loadCentroids()
             Logger.logSuccess("[CentroidsLoader] Centroids succcessfully loaded at {}".format(datetime.now()))
+
+            self.centroidsLoaded.emit()
         except:
             Logger.logWarning("[CentroidsLoader] A problem occured while loading centroids")

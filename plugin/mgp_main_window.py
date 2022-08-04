@@ -110,6 +110,9 @@ class MGPMainWindow(QtWidgets.QWidget):
         self.ui.saveConfigAsButton.clicked.connect(self.onSaveConfigAsButtonClicked)
         self.ui.saveConfigButton.clicked.connect(self.onSaveConfigButtonClicked)
 
+        self.loadCentroidsHandler.centroidsLoaded.connect(self.displaceCentroidsHandler.loadCentroidsFromStep01)
+        self.displaceCentroidsHandler.centroidsDisplaced.connect(self.covariatesHandler.loadCovrefFromStep02)
+
         ## ####################################################################
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################

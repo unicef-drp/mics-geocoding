@@ -26,13 +26,15 @@ from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 
 
-class MGPMainWindowTab2Handler():
+class MGPMainWindowTab2Handler(QtCore.QObject):
     '''The actual window that is displayed in the qgis interface
     '''
+    # Define a signal called 'centroidsLoaded'
+    centroidsDisplaced = QtCore.pyqtSignal()
 
     def __init__(self, ui):
         """Interface initialisation : display interface and define events"""
-        Logger.logInfo("Building the object")
+        super().__init__()
 
         self.ui = ui
         self.needsSave = False
@@ -47,7 +49,6 @@ class MGPMainWindowTab2Handler():
         self.ui.ruralValuesLineEdit.textChanged.connect(self.onRuralValuesLineEditChanged)
         self.ui.urbanValuesLineEdit.textChanged.connect(self.onUrbanValuesLineEditChanged)
 
-        self.ui.loadCentroidsFromStep01.clicked.connect(self.loadCentroidsFromStep01Clicked)
         self.ui.centroidsLayerToolButton.clicked.connect(self.onCentroidsLayerToolButtonClicked)
         self.ui.centroidsLayerLineEdit.textChanged.connect(self.onCentroidsLayerChanged)
         self.ui.centroidsLayerNumeroFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerNumeroFieldChanged)
@@ -65,7 +66,6 @@ class MGPMainWindowTab2Handler():
         self.ui.ruralValuesLineEdit.setToolTip("Field description for rural values. It can receive multiple values, splitted by ';' or ',' or ' '")
         self.ui.urbanValuesLineEdit.setToolTip("Field description for urban values. It can receive multiple values, splitted by ';' or ',' or ' '")
 
-        self.ui.loadCentroidsFromStep01.setToolTip("Import step1 outputs as inputs")
         self.ui.centroidsLayerToolButton.setToolTip("Browse for centroids layer on the computer. Must be point shapefile.")
         self.ui.centroidsLayerLineEdit.setToolTip("Cluster centroids file on the computer.")
         self.ui.centroidsLayerNumeroFieldComboBox.setToolTip("Choose the field indicating cluster number variable.")
@@ -86,10 +86,9 @@ class MGPMainWindowTab2Handler():
     # Load centroids from step01
     # #############################################################
 
-    def loadCentroidsFromStep01Clicked(self) -> typing.NoReturn:
+    def loadCentroidsFromStep01(self) -> typing.NoReturn:
         '''Browse for centroid file
         '''
-        # Utils.self.layers[Utils.LayersType.CENTROIDS]
         file = Utils.LayersName.fileName(Utils.LayersType.CENTROIDS)
         layer = None
         layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.CENTROIDS))
@@ -244,5 +243,7 @@ class MGPMainWindowTab2Handler():
             Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)
 
             Logger.logSuccess("[CentroidsDisplacer] Centroids succcessfully displaced at {}".format(datetime.now()))
+
+            self.centroidsDisplaced.emit()
         except:
             Logger.logWarning("[CentroidsDisplacer] A problem occured while displacing centroids")

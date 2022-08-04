@@ -25,13 +25,13 @@ from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 from .micsgeocode import CovariatesProcesser as CovariatesProcesser
 
 
-class MGPMainWindowTab3Handler():
+class MGPMainWindowTab3Handler(QtCore.QObject):
     '''The actual window that is displayed in the qgis interface
     '''
 
     def __init__(self, ui):
         """Interface initialisation : display interface and define events"""
-        Logger.logInfo("Building the object")
+        super().__init__()
 
         self.ui = ui
         self.needsSave = False
@@ -54,8 +54,6 @@ class MGPMainWindowTab3Handler():
         self.ui.covrefLayerToolButton.clicked.connect(self.onCovrefLayerToolButtonClicked)
         self.ui.covrefLayerLineEdit.textChanged.connect(self.onCovrefLayerFileChanged)
         self.ui.covrefLayerFieldCombobox.currentTextChanged.connect(self.onCovrefLayerFieldComboboxTextChanged)
-
-        self.ui.loadCovrefFromStep01.clicked.connect(self.onLoadCovrefFromStep02Clicked)
 
         self.ui.computeCovariatesButton.clicked.connect(self.onComputeCovariatesButtonClicked)
 
@@ -92,7 +90,7 @@ class MGPMainWindowTab3Handler():
     # Load covref from step2
     ## #############################################################
 
-    def onLoadCovrefFromStep02Clicked(self) -> typing.NoReturn:
+    def loadCovrefFromStep02(self) -> typing.NoReturn:
         '''handle reference layer changed
         '''
         file = Utils.LayersName.fileName(Utils.LayersType.BUFFERSANON)
