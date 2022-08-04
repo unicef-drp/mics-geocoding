@@ -46,8 +46,6 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.referenceLayerToolButton.clicked.connect(self.onReferenceLayerToolButtonClicked)
         self.ui.referenceLayerLineEdit.textChanged.connect(self.onReferenceLayerFileChanged)
         self.ui.referenceLayerFieldCombobox.currentTextChanged.connect(self.onReferenceLayerFieldComboboxTextChanged)
-        self.ui.ruralValuesLineEdit.textChanged.connect(self.onRuralValuesLineEditChanged)
-        self.ui.urbanValuesLineEdit.textChanged.connect(self.onUrbanValuesLineEditChanged)
 
         self.ui.centroidsLayerToolButton.clicked.connect(self.onCentroidsLayerToolButtonClicked)
         self.ui.centroidsLayerLineEdit.textChanged.connect(self.onCentroidsLayerChanged)
@@ -63,8 +61,6 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.referenceLayerToolButton.setToolTip("Browse for the boundary shapefile selected for cluster displacement.")
         self.ui.referenceLayerLineEdit.setToolTip("Boundary Layer on the computer.")
         self.ui.referenceLayerFieldCombobox.setToolTip("Choose the field corresponding to the boundary layer field.")
-        self.ui.ruralValuesLineEdit.setToolTip("Field description for rural values. It can receive multiple values, splitted by ';' or ',' or ' '")
-        self.ui.urbanValuesLineEdit.setToolTip("Field description for urban values. It can receive multiple values, splitted by ';' or ',' or ' '")
 
         self.ui.centroidsLayerToolButton.setToolTip("Browse for centroids layer on the computer. Must be point shapefile.")
         self.ui.centroidsLayerLineEdit.setToolTip("Cluster centroids file on the computer.")
@@ -184,20 +180,6 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         '''
         self.updateSaveStatus(True)
 
-    # #############################################################
-    # Urban, Rural values
-    # #############################################################
-
-    def onUrbanValuesLineEditChanged(self) -> typing.NoReturn:
-        '''handle urban values field changed
-        '''
-        self.updateSaveStatus(True)
-
-    def onRuralValuesLineEditChanged(self) -> typing.NoReturn:
-        '''handle rural values field changed
-        '''
-        self.updateSaveStatus(True)
-
     ## #############################################################
     # Main action
     ## #############################################################
@@ -212,14 +194,6 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         if not self.ui.referenceLayerLineEdit.text():
             Logger.logWarning("[CentroidsDisplacer] A valid reference source file must be provided")
             return
-        else:
-            if not self.ui.ruralValuesLineEdit.text():
-                Logger.logWarning("[CentroidsDisplacer] Rural value(s) must be provided")
-                return
-
-            if not self.ui.urbanValuesLineEdit.text():
-                Logger.logWarning("[CentroidsDisplacer] Rural value(s) must be provided")
-                return
 
         try:
             displacer = Displacer.CentroidsDisplacer()
@@ -233,10 +207,6 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
             displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
 
             displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
-
-            # separator can be ';' or ',' or ' '. feel free to add other
-            displacer.rural_types = [x for x in re.split(';|,| ', self.ui.ruralValuesLineEdit.text()) if x]
-            displacer.urban_types = [x for x in re.split(';|,| ', self.ui.urbanValuesLineEdit.text()) if x]
 
             displacer.displaceCentroids()
 

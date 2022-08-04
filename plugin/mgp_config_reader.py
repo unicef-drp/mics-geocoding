@@ -53,10 +53,6 @@ class mgp_config_reader:
                         self.mainWindow.ui.referenceLayerLineEdit.clear()
                 if 'fileReferenceLayerField' in configReader['ReferenceLayer']:
                     self.mainWindow.ui.referenceLayerFieldCombobox.setCurrentIndex(int(configReader['ReferenceLayer']['fileReferenceLayerField']))
-                if 'ruralTypes' in configReader['ReferenceLayer']:
-                    self.mainWindow.ui.ruralValuesLineEdit.setText(configReader['ReferenceLayer']['ruralTypes'])
-                if 'urbanTypes' in configReader['ReferenceLayer']:
-                    self.mainWindow.ui.urbanValuesLineEdit.setText(configReader['ReferenceLayer']['urbanTypes'])
 
             if 'CentroidsSource' in configReader:
                 if 'file' in configReader['CentroidsSource']:

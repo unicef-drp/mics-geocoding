@@ -51,10 +51,10 @@ class CentroidsDisplacer():
     """ Handle the centroids displacement.
         The existing centroids are available through a map layer.
     """
+    URBAN_TYPE = 'U'  # values form the cluster type column that belong to urban type
+    RURAL_TYPE = 'R'  # values form the cluster type column that belong to rural type
 
     def __init__(self):
-        self.urban_types = []  # values form the cluster type column that belong to urban type
-        self.rural_types = []  # values form the cluster type column that belong to rural type
         self.__generatedLayers = {}  # layer collection for centroids dispalcement
         self.ref_id_field = ""
         self.referenceLayer = ReferenceLayer.ReferenceLayer()
@@ -77,7 +77,7 @@ class CentroidsDisplacer():
         self.__createOutputsMemoryLayer()
 
         # Comput rural indexes for 10000 radius
-        count_rural = sum(cluster_centroid_ft[1] in self.rural_types for cluster_centroid_ft in self.centroidLayer.getFeatures())
+        count_rural = sum(cluster_centroid_ft[1] == CentroidsDisplacer.RURAL_TYPE for cluster_centroid_ft in self.centroidLayer.getFeatures())
         if count_rural > 0:
             count_radius10000 = max(int(round(count_rural // 100)), 1)
             self.__radius10000_indexes = random.sample(range(0, count_rural), count_radius10000)
@@ -160,11 +160,12 @@ class CentroidsDisplacer():
         else:
             ref_id_before = 'Many'
 
-        cluster_type = cluster_centroid_ft[1]
         # define max distance depending on cluster type
-        if cluster_type in self.urban_types:
+        cluster_type = cluster_centroid_ft[1]
+
+        if cluster_type == CentroidsDisplacer.URBAN_TYPE:
             max_displace_distance = 2000
-        elif cluster_type in self.rural_types:
+        elif cluster_type == CentroidsDisplacer.RURAL_TYPE:
             if self.__rural_displaced_points_count in self.__radius10000_indexes:  # Generate one int between 1 and 100, and test if it's equal to a specific value. equivalent to 1 % of chances.
                 max_displace_distance = 10000
             else:

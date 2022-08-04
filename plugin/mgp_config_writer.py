@@ -68,9 +68,7 @@ class mgp_config_writer:
 
             configWriter['ReferenceLayer'] = {
                 'fileReferenceLayer': ref_file,
-                'fileReferenceLayerField': str(self.mainWindow.ui.referenceLayerFieldCombobox.currentIndex()),
-                'ruralTypes': self.mainWindow.ui.ruralValuesLineEdit.text(),
-                'urbanTypes': self.mainWindow.ui.urbanValuesLineEdit.text()
+                'fileReferenceLayerField': str(self.mainWindow.ui.referenceLayerFieldCombobox.currentIndex())
             }
 
             configWriter['CentroidsSource'] = {
