@@ -60,8 +60,8 @@ class MGPMainWindowTab2Handler():
         ## ####################################################################
 
         self.ui.referenceLayerToolButton.setToolTip("Browse for the boundary shapefile selected for cluster displacement.")
-        self.ui.referenceLayerLineEdit.setToolTip("Reference Layer on the computer.")
-        self.ui.referenceLayerFieldCombobox.setToolTip("Reference layer field")
+        self.ui.referenceLayerLineEdit.setToolTip("Boundary Layer on the computer.")
+        self.ui.referenceLayerFieldCombobox.setToolTip("Choose the field corresponding to the boundary layer field.")
         self.ui.ruralValuesLineEdit.setToolTip("Field description for rural values. It can receive multiple values, splitted by ';' or ',' or ' '")
         self.ui.urbanValuesLineEdit.setToolTip("Field description for urban values. It can receive multiple values, splitted by ';' or ',' or ' '")
 

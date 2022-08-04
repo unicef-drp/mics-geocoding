@@ -324,7 +324,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Reference Layer</string>
+               <string>Boundary Layer</string>
               </property>
              </widget>
             </item>
@@ -594,7 +594,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Reference Layer</string>
+               <string>Buffer Layer</string>
               </property>
              </widget>
             </item>
