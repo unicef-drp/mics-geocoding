@@ -58,8 +58,12 @@ class CentroidsLoader():
 
         Logger.logInfo("[CentroidsLoader] Loading from file: " + self.input_file)
 
-        self.layers[Utils.LayersType.CENTROIDS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.CENTROIDS,
-                                                                    [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int)])
+        self.layers[Utils.LayersType.CENTROIDS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.CENTROIDS, [
+            QgsField("cluster", QVariant.String),
+            QgsField("type", QVariant.String),
+            QgsField("count", QVariant.Int),
+            QgsField("adminBoundaries", QVariant.String)
+        ])
         input_file_clusters_format = Path(self.input_file).suffix[1:]
         if input_file_clusters_format == "shp":
             self.__loadCentroidsFromSHP()
@@ -109,6 +113,7 @@ class CentroidsLoader():
         """
         Logger.logInfo("[CentroidsLoader] Cluster Numero field: " + self.cluster_no_field)
         Logger.logInfo("[CentroidsLoader] Cluster Type field: " + self.cluster_type_field)
+        Logger.logInfo("[CentroidsLoader] Admin Boundaries field: " + self.admin_boundaries_field)
 
         self.layers[Utils.LayersType.POLYGONS] = QgsVectorLayer(self.input_file, Utils.LayersName.layerName(Utils.LayersType.POLYGONS), "ogr")
 
@@ -116,7 +121,12 @@ class CentroidsLoader():
             cluster_centroids = [ft for ft in self.layers[Utils.LayersType.POLYGONS].getFeatures()]
             for cluster_centroid in cluster_centroids:
                 cluster_centroid_ft = QgsFeature()
-                cluster_centroid_ft.setAttributes([cluster_centroid[self.cluster_no_field], cluster_centroid[self.cluster_type_field], 1])
+                cluster_centroid_ft.setAttributes([
+                    cluster_centroid[self.cluster_no_field],
+                    cluster_centroid[self.cluster_type_field],
+                    1,
+                    cluster_centroid[self.admin_boundaries_field]
+                ])
                 cluster_centroid_ft.setGeometry(cluster_centroid.geometry())
                 self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
 
@@ -124,7 +134,12 @@ class CentroidsLoader():
             cluster_polygons = [ft for ft in self.layers[Utils.LayersType.POLYGONS].getFeatures()]
             for cluster_polygon in cluster_polygons:
                 cluster_centroid_ft = QgsFeature()
-                cluster_centroid_ft.setAttributes([cluster_polygon[self.cluster_no_field], cluster_polygon[self.cluster_type_field], 1])
+                cluster_centroid_ft.setAttributes([
+                    cluster_polygon[self.cluster_no_field],
+                    cluster_polygon[self.cluster_type_field],
+                    1,
+                    cluster_polygon[self.admin_boundaries_field]
+                ])
                 cluster_centroid_ft.setGeometry(cluster_polygon.geometry().poleOfInaccessibility(100)[0])
                 self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
                 # cluster_centroid_fts.append(cluster_centroid_ft)
@@ -142,13 +157,31 @@ class CentroidsLoader():
         Logger.logInfo("[CentroidsLoader] Cluster Type field: " + self.cluster_type_field)
         Logger.logInfo("[CentroidsLoader] Cluster Longitude field: " + self.lon_field)
         Logger.logInfo("[CentroidsLoader] Cluster Latitude field: " + self.lat_field)
+        Logger.logInfo("[CentroidsLoader] Admin Boundaries field: " + self.admin_boundaries_field)
 
-        self.layers[Utils.LayersType.GPS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.GPS, [QgsField("cluster", QVariant.String),
-                                                                                                                         QgsField("type", QVariant.String), QgsField("lon", QVariant.Double), QgsField("lat", QVariant.Double)])
-        self.layers[Utils.LayersType.MULTIPLT] = Utils.createLayer('MultiPoint?crs='+Transforms.layer_proj, Utils.LayersType.MULTIPLT,
-                                                                   [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField("count", QVariant.Int)])
-        self.layers[Utils.LayersType.CONVEXHULL] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.CONVEXHULL, [QgsField("cluster", QVariant.String), QgsField("type", QVariant.String), QgsField(
-            "count", QVariant.Int), QgsField("area_m2", QVariant.Double), QgsField("angle_deg", QVariant.Double), QgsField("width_m", QVariant.Double), QgsField("height_m", QVariant.Double)])
+        self.layers[Utils.LayersType.GPS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.GPS, [
+            QgsField("cluster", QVariant.String),
+            QgsField("type", QVariant.String),
+            QgsField("lon", QVariant.Double),
+            QgsField("lat", QVariant.Double)
+        ])
+
+        self.layers[Utils.LayersType.MULTIPLT] = Utils.createLayer('MultiPoint?crs='+Transforms.layer_proj, Utils.LayersType.MULTIPLT, [
+            QgsField("cluster", QVariant.String),
+            QgsField("type", QVariant.String),
+            QgsField("count", QVariant.Int)
+        ])
+
+        self.layers[Utils.LayersType.CONVEXHULL] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.CONVEXHULL, [
+            QgsField("cluster", QVariant.String),
+            QgsField("type", QVariant.String),
+            QgsField("count", QVariant.Int),
+            QgsField("area_m2", QVariant.Double),
+            QgsField("angle_deg", QVariant.Double),
+            QgsField("width_m", QVariant.Double),
+            QgsField("height_m", QVariant.Double)
+        ])
+
         gps_coords = self.__csv2gps()
         self.__addGpsLayer(gps_coords)
         self.__computeCentroidsfromGPSCoords(gps_coords)
@@ -168,6 +201,7 @@ class CentroidsLoader():
                     cluster_type_id = line.index(self.cluster_type_field)
                     lat_id = line.index(self.lat_field)
                     lon_id = line.index(self.lon_field)
+                    admin_boundaries_id = line.index(self.admin_boundaries_field)
                     Logger.logInfo("cluster_no_id")
                 if c != 0:
                     line = re.split(',', g.strip())
@@ -175,7 +209,8 @@ class CentroidsLoader():
                         'cluster': line[cluster_no_id],
                         'type': line[cluster_type_id],
                         'lat': float(line[lat_id]),
-                        'lon': float(line[lon_id])
+                        'lon': float(line[lon_id]),
+                        'adminBoundaries': line[admin_boundaries_id]
                     })
                 c = c + 1
         return gps_coords
@@ -208,7 +243,7 @@ class CentroidsLoader():
 
         # compute centroid
         cluster_centroid_ft = QgsFeature()
-        cluster_centroid_ft.setAttributes([cluster[0], cluster[1], len(gps_coords_list)])
+        cluster_centroid_ft.setAttributes([cluster[0], cluster[1], len(gps_coords_list), gps_coords_per_cluster[0]['adminBoundaries']])
         self.__computeCentroidGeometry(cluster_centroid_ft, cluster_multipt_ft, cluster_convexhull_ft)
         self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
 
