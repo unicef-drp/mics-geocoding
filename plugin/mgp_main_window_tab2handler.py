@@ -72,7 +72,7 @@ class MGPMainWindowTab2Handler():
         self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field indicating cluster area variable.")
 
         self.ui.displaceCentroidsButton.setToolTip(
-            "Displace Centroids. QGIS generates additional layers depending on inputs.\nThe final anonymised displaced cluster file is generated “BASENAME_cluster_anonymized_displaced_centroids”.")
+            "Displace Centroids. QGIS generates additional layers depending on inputs.\nThe final anonymised displaced cluster file is generated “BASENAME_cluster_anonymised_displaced_centroids”.")
 
     ## #############################################################
     # update save status

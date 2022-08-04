@@ -74,8 +74,8 @@ class MGPMainWindowTab3Handler():
         self.ui.sumstatFieldComboBox.setToolTip("Choose the field indicating summary statistics variable.")
         self.ui.columnnameFieldComboBox.setToolTip("Choose the field indicating variable name variable.")
 
-        self.ui.covrefLayerToolButton.setToolTip("Browse for the anonymized cluster buffer shapefile on the computer. It was generated to phase of cluster displacement (Displace).")
-        self.ui.covrefLayerLineEdit.setToolTip("Anonymized cluster buffer shapefile on the computer.")
+        self.ui.covrefLayerToolButton.setToolTip("Browse for the anonymised cluster buffer shapefile on the computer. It was generated to phase of cluster displacement (Displace).")
+        self.ui.covrefLayerLineEdit.setToolTip("Anonymised cluster buffer shapefile on the computer.")
         self.ui.covrefLayerFieldCombobox.setToolTip("Choose the field corresponding to cluster type.")
 
         self.ui.computeCovariatesButton.setToolTip("Compute covariates. QGIS generates additional layers depending on inputs and a CSV file with the outputs.")
