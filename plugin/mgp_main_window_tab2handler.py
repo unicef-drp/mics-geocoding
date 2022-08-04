@@ -59,19 +59,20 @@ class MGPMainWindowTab2Handler():
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################
 
-        self.ui.referenceLayerToolButton.setToolTip("Browse for the reference Layer on the disk")
-        self.ui.referenceLayerLineEdit.setToolTip("Reference Layer on the disk")
-        self.ui.referenceLayerFieldCombobox.setToolTip("Reference layer field")
+        self.ui.referenceLayerToolButton.setToolTip("Browse for the boundary shapefile selected for cluster displacement.")
+        self.ui.referenceLayerLineEdit.setToolTip("Boundary Layer on the computer.")
+        self.ui.referenceLayerFieldCombobox.setToolTip("Choose the field corresponding to the boundary layer field.")
         self.ui.ruralValuesLineEdit.setToolTip("Field description for rural values. It can receive multiple values, splitted by ';' or ',' or ' '")
         self.ui.urbanValuesLineEdit.setToolTip("Field description for urban values. It can receive multiple values, splitted by ';' or ',' or ' '")
 
         self.ui.loadCentroidsFromStep01.setToolTip("Import step1 outputs as inputs")
-        self.ui.centroidsLayerToolButton.setToolTip("Browse for the centroids layer on the disk")
-        self.ui.centroidsLayerLineEdit.setToolTip("Browse for the centroids layer on the disk")
-        self.ui.centroidsLayerNumeroFieldComboBox.setToolTip("Choose the field corresponding to cluster numero")
-        self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field corresponding to cluster type")
+        self.ui.centroidsLayerToolButton.setToolTip("Browse for centroids layer on the computer. Must be point shapefile.")
+        self.ui.centroidsLayerLineEdit.setToolTip("Cluster centroids file on the computer.")
+        self.ui.centroidsLayerNumeroFieldComboBox.setToolTip("Choose the field indicating cluster number variable.")
+        self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field indicating cluster area variable.")
 
-        self.ui.displaceCentroidsButton.setToolTip("Proceed centroids displacement")
+        self.ui.displaceCentroidsButton.setToolTip(
+            "Displace Centroids. QGIS generates additional layers depending on inputs.\nThe final anonymised displaced cluster file is generated “BASENAME_cluster_anonymised_displaced_centroids”.")
 
     ## #############################################################
     # update save status
@@ -103,7 +104,7 @@ class MGPMainWindowTab2Handler():
     def onCentroidsLayerToolButtonClicked(self) -> typing.NoReturn:
         '''Browse for centroid file
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open centroids layer file", dir, "(*.shp)")
         if file:
@@ -155,7 +156,7 @@ class MGPMainWindowTab2Handler():
     def onReferenceLayerToolButtonClicked(self) -> typing.NoReturn:
         '''handle browse for reference layer clicked
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, " Open reference layer", dir, "*.shp")
         if file:

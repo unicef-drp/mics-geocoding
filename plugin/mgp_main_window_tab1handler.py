@@ -54,16 +54,16 @@ class MGPMainWindowTab1Handler():
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################
 
-        self.ui.centroidsSourceFileToolButton.setToolTip("Browse for the centroids layer on the disk")
-        self.ui.centroidsSourceFileLineEdit.setToolTip("Browse for the centroids layer on the disk")
+        self.ui.centroidsSourceFileToolButton.setToolTip("Browse for source file on the computer. Must be CSV file or shapefile (polygon or point layer).")
+        self.ui.centroidsSourceFileLineEdit.setToolTip("Cluster source file on the computer.")
 
-        self.ui.longitudeFieldComboBox.setToolTip("Choose the field corresponding to longitude")
-        self.ui.latitudeFieldComboBox.setToolTip("Choose the field corresponding to latitude")
-        self.ui.numeroFieldComboBox.setToolTip("Choose the field corresponding to cluster numero")
-        self.ui.typeFieldComboBox.setToolTip("Choose the field corresponding to cluster type")
+        self.ui.numeroFieldComboBox.setToolTip("Choose the field indicating cluster number variable.")
+        self.ui.typeFieldComboBox.setToolTip("Choose the field indicating cluster area variable.")
+        self.ui.longitudeFieldComboBox.setToolTip("Choose the field indicating longitude. Must be in decimal degree.")
+        self.ui.latitudeFieldComboBox.setToolTip("Choose the field indicating latitude. Must be in decimal degree.")
         self.ui.adminBoundariesFieldComboBox.setToolTip("Administrative boundaries. Choose the field indicating administrative boundaries variable of displacement level.")
 
-        self.ui.loadCentroidsButton.setToolTip("Load Centroids")
+        self.ui.loadCentroidsButton.setToolTip("Generate Centroids. QGIS generates layers depending on input.")
 
     ## #############################################################
     # update save status
@@ -80,7 +80,7 @@ class MGPMainWindowTab1Handler():
     def onCentroidsSourceFileToolButtonClicked(self) -> typing.NoReturn:
         '''Browse for centroid file
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open centroids file", dir, "(*.csv *.shp)")
         if file:

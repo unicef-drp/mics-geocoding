@@ -135,7 +135,7 @@ class mgp_plugin:
             self.mgpToolbar.setObjectName(u'MICS GIS')
 
         self.add_action(
-            text='Mics Geocode Plugin',
+            text='MICS Geocode Plugin',
             callback=self.run,
             parent=self.iface.mainWindow())
 

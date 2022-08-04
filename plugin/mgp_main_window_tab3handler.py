@@ -63,20 +63,22 @@ class MGPMainWindowTab3Handler():
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################
 
-        self.ui.covinputsSourceFileToolButton.setToolTip("Browse for the covariates inputs file on the disk")
-        self.ui.covinputsSourceFileLineEdit.setToolTip("Covariates inputs file on the disk")
+        self.ui.covinputsSourceFileToolButton.setToolTip("Browse for covariates input file on the computer. Must be CSV file.")
+        self.ui.covinputsSourceFileLineEdit.setToolTip("Covariates input file on the computer.")
 
-        self.ui.imagesSourceFileToolButton.setToolTip("Browse for the images directory on the disk")
-        self.ui.imagesSourceFileLineEdit.setToolTip("Images directory on the disk")
+        self.ui.imagesSourceFileToolButton.setToolTip("Browse for covariates input folder on the computer. Must contain image files listed in the “Covariates Input File”.")
+        self.ui.imagesSourceFileLineEdit.setToolTip("Covariates input folder on the computer.")
 
-        self.ui.filenameFieldComboBox.setToolTip("Choose the field corresponding to filename")
-        self.ui.fileformatFieldComboBox.setToolTip("Choose the field corresponding to fileformat")
-        self.ui.sumstatFieldComboBox.setToolTip("Choose the field corresponding to sumstat")
-        self.ui.columnnameFieldComboBox.setToolTip("Choose the field corresponding to columnname")
+        self.ui.filenameFieldComboBox.setToolTip("Choose the field indicating file name variable.")
+        self.ui.fileformatFieldComboBox.setToolTip("Choose the field indicating file format variable.")
+        self.ui.sumstatFieldComboBox.setToolTip("Choose the field indicating summary statistics variable.")
+        self.ui.columnnameFieldComboBox.setToolTip("Choose the field indicating variable name variable.")
 
-        self.ui.covrefLayerToolButton.setToolTip("Browse for reference layer on the disk")
-        self.ui.covrefLayerLineEdit.setToolTip("Reference layer on the disk")
-        self.ui.covrefLayerFieldCombobox.setToolTip("Choose the field corresponding to cluster type")
+        self.ui.covrefLayerToolButton.setToolTip("Browse for the anonymised cluster buffer shapefile on the computer. It was generated to phase of cluster displacement (Displace).")
+        self.ui.covrefLayerLineEdit.setToolTip("Anonymised cluster buffer shapefile on the computer.")
+        self.ui.covrefLayerFieldCombobox.setToolTip("Choose the field corresponding to cluster type.")
+
+        self.ui.computeCovariatesButton.setToolTip("Compute covariates. QGIS generates additional layers depending on inputs and a CSV file with the outputs.")
 
     ## #############################################################
     # update save status
@@ -107,9 +109,9 @@ class MGPMainWindowTab3Handler():
     def onCovinputsSourceFileToolButtonClicked(self) -> typing.NoReturn:
         '''Browse for covinputs file
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
-        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open covinputs file", dir, "*.txt")
+        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open covinputs file", dir, "*.csv")
         if file:
             self.ui.covinputsSourceFileLineEdit.setText(os.path.normpath(file))
             settings.setValue("last_file_directory", os.path.dirname(file))
@@ -187,7 +189,7 @@ class MGPMainWindowTab3Handler():
     def onImagesSourceFileToolButtonClicked(self) -> typing.NoReturn:
         '''Manage browse for images directory
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         path = settings.value("last_file_directory", QtCore.QDir.homePath())
         dir = QtWidgets.QFileDialog.getExistingDirectory(None, "Select images directory", path)
         if dir:
@@ -209,7 +211,7 @@ class MGPMainWindowTab3Handler():
     def onCovrefLayerToolButtonClicked(self) -> typing.NoReturn:
         '''handle browse for covref layer clicked
         '''
-        settings = QtCore.QSettings('MicsGeocode', 'qgis plugin')
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
         file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open reference layer", dir, "*.shp")
         if file:

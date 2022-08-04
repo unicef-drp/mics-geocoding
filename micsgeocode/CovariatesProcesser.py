@@ -119,13 +119,13 @@ class CovariatesProcesser():
             # read all input covariates
             for i in f:
                 if c == 0:
-                    line = re.split('\t', i.strip())  # TODO: use comma instead of tab?
+                    line = re.split(',', i.strip())
                     input_file_id = line.index(self.input_csv_field_filename)
                     input_fileformat_id = line.index(self.input_csv_field_fileformat)
                     input_field_sumstat_id = line.index(self.input_csv_field_sumstat)
                     input_field_columnname_id = line.index(self.input_csv_field_columnname)
                 if c != 0:
-                    line = re.split('\t', i.strip())
+                    line = re.split(',', i.strip())
                     inputs.append({'file': line[input_file_id], 'file_format': line[input_fileformat_id], 'sum_stat': line[input_field_sumstat_id], 'column': line[input_field_columnname_id]})
                 c = c + 1
             c = 1
@@ -151,9 +151,11 @@ class CovariatesProcesser():
                         # create layer for shortest distance
                         shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(file_name), 'memory')
                         shortest_dist_prov = shortest_dist_lyr.dataProvider()
-                        shortest_dist_prov.addAttributes(
-                            [QgsField("cluster", QVariant.String), QgsField("nearestfid", QVariant.String),
-                             QgsField("dist", QVariant.Double)])
+                        shortest_dist_prov.addAttributes([
+                            QgsField("cluster", QVariant.String),
+                            QgsField("nearestfid", QVariant.String),
+                            QgsField("dist", QVariant.Double, "", 0, 2)
+                        ])
                         shortest_dist_lyr.updateFields()
 
                         layer = QgsVectorLayer(file_path, file_name, "ogr")
@@ -212,7 +214,21 @@ class CovariatesProcesser():
 
                 c = c + 1
 
-            summary_df.to_csv(output_file, sep=',', encoding='utf-8')
+            summary_df.to_csv(
+                output_file,
+                sep=',',
+                encoding='utf-8',
+                index=False,
+                columns=[
+                    "cluster",
+                    "pop_2000",
+                    "pop_2005",
+                    "pop_2010",
+                    "pop_2015",
+                    "pop_2020",
+                    "dis_b_2020"
+                ]
+            )
 
             # Rewrite the layer on disk -> no memory flag
             layerName = 'Shortest distance to {}'.format(file_name)

@@ -18,7 +18,7 @@ class Logger():
         Basically, it behaves as a QGsMessageLog wrapper.
         It is helpful to encapsulate the handling Category field (==> tab in qgis)
     """
-    CATEGORY = "MicsGeocode"
+    CATEGORY = "MICS Geocode"
 
     @staticmethod
     def logInfo(message: str) -> None:

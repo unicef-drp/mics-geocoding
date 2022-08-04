@@ -43,10 +43,10 @@ class LayersName():
         LayersType.MULTIPLT: "cluster_multi-points",
         LayersType.CONVEXHULL: "cluster_convex_hulls",
         LayersType.BUFFERS: "cluster_buffers",
-        LayersType.BUFFERSANON: "cluster_anonymized_buffers",
+        LayersType.BUFFERSANON: "cluster_anonymised_buffers",
         LayersType.LINKS: "cluster_displacement_links",
-        LayersType.DISPLACED: "cluster_displaced_centroids",
-        LayersType.DISPLACEDANON: "cluster_anonymized_displaced_centroids",
+        LayersType.DISPLACED: "cluster_unanonymised_displaced_centroids",
+        LayersType.DISPLACEDANON: "cluster_anonymised_displaced_centroids",
     }
 
     @staticmethod
