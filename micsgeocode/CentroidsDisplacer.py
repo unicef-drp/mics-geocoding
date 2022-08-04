@@ -311,8 +311,8 @@ class CentroidsDisplacer():
         # create layer for anonymized displaced centroids
         self.__generatedLayers[Utils.LayersType.DISPLACEDANON] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.DISPLACEDANON, [
             QgsField("cluster", QVariant.String),
-            QgsField("lon_disp", QVariant.Double),
-            QgsField("lat_disp", QVariant.Double)
+            QgsField("lon_disp", QVariant.Double, "", 0, 6),
+            QgsField("lat_disp", QVariant.Double, "", 0, 6)
         ])
 
         # add layers to project following correct z order
