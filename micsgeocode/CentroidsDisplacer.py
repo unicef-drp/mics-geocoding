@@ -266,14 +266,14 @@ class CentroidsDisplacer():
             QgsField("cluster", QVariant.String),
             QgsField("type", QVariant.String),
             QgsField("count", QVariant.Int),
-            QgsField("buf_dist", QVariant.Double)
+            QgsField("buf_dist", QVariant.Int)
         ])
 
         # create layer for anonymised buffers
         self.__generatedLayers[Utils.LayersType.BUFFERSANON] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.BUFFERSANON, [
             QgsField("cluster", QVariant.String),
             QgsField("type", QVariant.String),
-            QgsField("buf_dist", QVariant.Double)
+            QgsField("buf_dist", QVariant.Int)
         ])
 
         # create layer for displacement links
