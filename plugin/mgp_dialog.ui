@@ -38,7 +38,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_step1">
        <property name="autoFillBackground">
@@ -647,25 +647,6 @@
              <widget class="QToolButton" name="covrefLayerToolButton">
               <property name="text">
                <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="covrefLayerFieldCombobox">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>0</height>
-               </size>
               </property>
              </widget>
             </item>

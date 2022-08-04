@@ -53,7 +53,6 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
         self.ui.covrefLayerToolButton.clicked.connect(self.onCovrefLayerToolButtonClicked)
         self.ui.covrefLayerLineEdit.textChanged.connect(self.onCovrefLayerFileChanged)
-        self.ui.covrefLayerFieldCombobox.currentTextChanged.connect(self.onCovrefLayerFieldComboboxTextChanged)
 
         self.ui.computeCovariatesButton.clicked.connect(self.onComputeCovariatesButtonClicked)
 
@@ -74,7 +73,6 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
         self.ui.covrefLayerToolButton.setToolTip("Browse for the anonymised cluster buffer shapefile on the computer. It was generated to phase of cluster displacement (Displace).")
         self.ui.covrefLayerLineEdit.setToolTip("Anonymised cluster buffer shapefile on the computer.")
-        self.ui.covrefLayerFieldCombobox.setToolTip("Choose the field corresponding to cluster type.")
 
         self.ui.computeCovariatesButton.setToolTip("Compute covariates. QGIS generates additional layers depending on inputs and a CSV file with the outputs.")
 
@@ -219,26 +217,6 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
     def onCovrefLayerFileChanged(self) -> typing.NoReturn:
         '''handle reference layer changed
         '''
-        fields = Utils.getFieldsListAsStrArray(self.ui.covrefLayerLineEdit.text())
-        self.ui.covrefLayerFieldCombobox.clear()
-        if fields:
-            self.ui.covrefLayerFieldCombobox.addItems(fields)
-            self.ui.covrefLayerFieldCombobox.setEnabled(True)
-            self.ui.covrefLayerFieldCombobox.setCurrentIndex(0)
-
-            candidates = ["cluster", "Cluster", "CLUSTER"]
-            for item in candidates:
-                if item in fields:
-                    self.ui.covrefLayerFieldCombobox.setCurrentIndex(fields.index(item))
-                    break
-        else:
-            self.ui.covrefLayerFieldCombobox.setEnabled(False)
-
-        self.updateSaveStatus(True)
-
-    def onCovrefLayerFieldComboboxTextChanged(self) -> typing.NoReturn:
-        '''handle reference layer changed
-        '''
         self.updateSaveStatus(True)
 
     ## #############################################################
@@ -276,10 +254,6 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         if not self.ui.covrefLayerLineEdit.text():
             Logger.logWarning("[CovariatesProcesser] A reference source file must be provided")
             return
-        else:
-            if self.ui.covrefLayerFieldCombobox.isEnabled() and not self.ui.covrefLayerFieldCombobox.currentText():
-                Logger.logWarning("[CovariatesProcesser] A valid covreflayer field must be provided")
-                return
 
         try:
             covariatesProcesser = CovariatesProcesser.CovariatesProcesser()
@@ -299,7 +273,6 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
             covariatesProcesser.setReferenceLayer(
                 bufferAnonLayer,
-                self.ui.covrefLayerFieldCombobox.currentText(),
                 self.ui.covrefLayerLineEdit.text())
 
             covariatesProcesser.computeCovariates()

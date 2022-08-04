@@ -303,16 +303,6 @@ class Ui_MGPDialog(object):
         self.covrefLayerToolButton = QtWidgets.QToolButton(self.verticalLayoutWidget_5)
         self.covrefLayerToolButton.setObjectName("covrefLayerToolButton")
         self.horizontalLayoutRL_2.addWidget(self.covrefLayerToolButton)
-        self.covrefLayerFieldCombobox = QtWidgets.QComboBox(self.verticalLayoutWidget_5)
-        self.covrefLayerFieldCombobox.setEnabled(False)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.covrefLayerFieldCombobox.sizePolicy().hasHeightForWidth())
-        self.covrefLayerFieldCombobox.setSizePolicy(sizePolicy)
-        self.covrefLayerFieldCombobox.setMinimumSize(QtCore.QSize(100, 0))
-        self.covrefLayerFieldCombobox.setObjectName("covrefLayerFieldCombobox")
-        self.horizontalLayoutRL_2.addWidget(self.covrefLayerFieldCombobox)
         self.verticalLayout_5.addLayout(self.horizontalLayoutRL_2)
         spacerItem5 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_5.addItem(spacerItem5)
@@ -427,7 +417,7 @@ class Ui_MGPDialog(object):
         self.basenameLineEdit.setObjectName("basenameLineEdit")
 
         self.retranslateUi(MGPDialog)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MGPDialog)
 
     def retranslateUi(self, MGPDialog):
