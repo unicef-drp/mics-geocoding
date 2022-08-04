@@ -863,7 +863,7 @@
      <rect>
       <x>10</x>
       <y>70</y>
-      <width>201</width>
+      <width>101</width>
       <height>21</height>
      </rect>
     </property>
@@ -874,7 +874,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>Basename of layers and file generation:</string>
+     <string>Outputs basename:</string>
     </property>
     <property name="wordWrap">
      <bool>false</bool>
@@ -883,9 +883,9 @@
    <widget class="QLineEdit" name="basenameLineEdit">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>125</x>
       <y>70</y>
-      <width>251</width>
+      <width>304</width>
       <height>22</height>
      </rect>
     </property>

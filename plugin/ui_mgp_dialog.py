@@ -416,7 +416,7 @@ class Ui_MGPDialog(object):
         self.outputDirToolButton.setObjectName("outputDirToolButton")
         self.horizontalLayout_3.addWidget(self.outputDirToolButton)
         self.label_3 = QtWidgets.QLabel(self.groupBoxOutConfig)
-        self.label_3.setGeometry(QtCore.QRect(10, 70, 201, 21))
+        self.label_3.setGeometry(QtCore.QRect(10, 70, 101, 21))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -425,7 +425,7 @@ class Ui_MGPDialog(object):
         self.label_3.setWordWrap(False)
         self.label_3.setObjectName("label_3")
         self.basenameLineEdit = QtWidgets.QLineEdit(self.groupBoxOutConfig)
-        self.basenameLineEdit.setGeometry(QtCore.QRect(210, 70, 251, 22))
+        self.basenameLineEdit.setGeometry(QtCore.QRect(125, 70, 304, 22))
         self.basenameLineEdit.setText("")
         self.basenameLineEdit.setObjectName("basenameLineEdit")
 
@@ -478,4 +478,4 @@ class Ui_MGPDialog(object):
         self.groupBoxOutConfig.setTitle(_translate("MGPDialog", "Outputs"))
         self.label.setText(_translate("MGPDialog", "Directory for outputs: "))
         self.outputDirToolButton.setText(_translate("MGPDialog", "..."))
-        self.label_3.setText(_translate("MGPDialog", "Basename of layers and file generation:"))
+        self.label_3.setText(_translate("MGPDialog", "Outputs basename:"))
