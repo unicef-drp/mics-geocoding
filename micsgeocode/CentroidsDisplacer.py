@@ -278,6 +278,7 @@ class CentroidsDisplacer():
             QgsField("lat_disp", QVariant.Double, "", 0, 6),
             QgsField("disp_dist", QVariant.Double, "", 0, 2),
             QgsField("disp_angle", QVariant.Int),
+            QgsField("ref_cl_src", QVariant.String),
             QgsField("ref_orig", QVariant.String),
             QgsField("ref_disp", QVariant.String),
             QgsField("iter", QVariant.Int)
@@ -294,6 +295,7 @@ class CentroidsDisplacer():
             QgsField("lat_disp", QVariant.Double, "", 0, 6),
             QgsField("disp_dist", QVariant.Double, "", 0, 2),
             QgsField("disp_angle", QVariant.Int),
+            QgsField("ref_cl_src", QVariant.String),
             QgsField("ref_orig", QVariant.String),
             QgsField("ref_disp", QVariant.String),
             QgsField("iter", QVariant.Int)
@@ -338,6 +340,7 @@ class CentroidsDisplacer():
             displaced_point_wgs.asPoint().y(),
             distance,
             angle_degree,
+            cluster_centroid_ft['admin'],
             ref_id_before,
             ref_id_after,
             iterations
@@ -367,6 +370,7 @@ class CentroidsDisplacer():
             displaced_point_wgs.asPoint().y(),
             distance,
             angle_degree,
+            cluster_centroid_ft['admin'],
             ref_id_before,
             ref_id_after,
             iterations
