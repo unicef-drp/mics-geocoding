@@ -42,7 +42,6 @@ class LayersName():
         LayersType.GPS: "cluster_points",
         LayersType.MULTIPLT: "cluster_multi-points",
         LayersType.CONVEXHULL: "cluster_convex_hulls",
-        LayersType.BUFFERS: "cluster_buffers",
         LayersType.BUFFERSANON: "cluster_anonymised_buffers",
         LayersType.LINKS: "cluster_displacement_links",
         LayersType.DISPLACED: "cluster_unanonymised_displaced_centroids",
