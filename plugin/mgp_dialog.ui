@@ -45,7 +45,7 @@
         <bool>false</bool>
        </property>
        <attribute name="title">
-        <string>Load</string>
+        <string>Generate</string>
        </attribute>
        <widget class="QGroupBox" name="groupBoxCentroid">
         <property name="geometry">
