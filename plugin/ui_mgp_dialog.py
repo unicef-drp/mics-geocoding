@@ -118,7 +118,7 @@ class Ui_MGPDialog(object):
         self.groupBoxDisplacer.setMinimumSize(QtCore.QSize(0, 0))
         self.groupBoxDisplacer.setObjectName("groupBoxDisplacer")
         self.verticalLayoutWidget_4 = QtWidgets.QWidget(self.groupBoxDisplacer)
-        self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(0, 23, 441, 201))
+        self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(0, 23, 441, 208))
         self.verticalLayoutWidget_4.setObjectName("verticalLayoutWidget_4")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_4)
         self.verticalLayout_4.setContentsMargins(10, 10, 10, 10)
@@ -194,6 +194,10 @@ class Ui_MGPDialog(object):
         self.displaceCentroidsButton.setMinimumSize(QtCore.QSize(0, 30))
         self.displaceCentroidsButton.setObjectName("displaceCentroidsButton")
         self.verticalLayout_4.addWidget(self.displaceCentroidsButton)
+        self.exportDisplacedCentroidsButton = QtWidgets.QPushButton(self.tab_step2)
+        self.exportDisplacedCentroidsButton.setGeometry(QtCore.QRect(20, 320, 421, 30))
+        self.exportDisplacedCentroidsButton.setMinimumSize(QtCore.QSize(0, 30))
+        self.exportDisplacedCentroidsButton.setObjectName("exportDisplacedCentroidsButton")
         self.tabWidget.addTab(self.tab_step2, "")
         self.tab_step3 = QtWidgets.QWidget()
         self.tab_step3.setObjectName("tab_step3")
@@ -417,7 +421,7 @@ class Ui_MGPDialog(object):
         self.basenameLineEdit.setObjectName("basenameLineEdit")
 
         self.retranslateUi(MGPDialog)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MGPDialog)
 
     def retranslateUi(self, MGPDialog):
@@ -441,6 +445,7 @@ class Ui_MGPDialog(object):
         self.referenceLayerLabel.setText(_translate("MGPDialog", "Boundary Layer"))
         self.referenceLayerToolButton.setText(_translate("MGPDialog", "..."))
         self.displaceCentroidsButton.setText(_translate("MGPDialog", "Displace Centroids"))
+        self.exportDisplacedCentroidsButton.setText(_translate("MGPDialog", "Export Displaced Centroids"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step2), _translate("MGPDialog", "Displace"))
         self.groupBoxCentroid_2.setTitle(_translate("MGPDialog", "Covariates Input"))
         self.covinputsSourceFileLabel.setText(_translate("MGPDialog", "Covariates Input File"))

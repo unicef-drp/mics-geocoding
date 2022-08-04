@@ -54,6 +54,8 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
         self.ui.displaceCentroidsButton.clicked.connect(self.onDisplaceCentroidsButtonClicked)
 
+        self.ui.exportDisplacedCentroidsButton.clicked.connect(self.onExportDisplacedCentroidsButtonClicked)
+
         ## ####################################################################
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################
@@ -69,6 +71,8 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
         self.ui.displaceCentroidsButton.setToolTip(
             "Displace Centroids. QGIS generates additional layers depending on inputs.\nThe final anonymised displaced cluster file is generated “BASENAME_cluster_anonymised_displaced_centroids”.")
+
+        self.ui.exportDisplacedCentroidsButton.setToolTip("Export anonymised displaced cluster centroids as a CSV file.")
 
     ## #############################################################
     # update save status
@@ -217,3 +221,12 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
             self.centroidsDisplaced.emit()
         except:
             Logger.logWarning("[CentroidsDisplacer] A problem occured while displacing centroids")
+
+    def onExportDisplacedCentroidsButtonClicked(self) -> typing.NoReturn:
+        '''Displace centroids
+        '''
+        try:
+            Utils.writeLayerAsCSVIfExists(Utils.LayersType.DISPLACEDANON)
+            Logger.logSuccess("[CentroidsDisplacer] Displaced Anonymised Centroids successfully saved as CSV: {}".format(Utils.LayersName.fileName(Utils.LayersType.DISPLACEDANON, "csv")))
+        except:
+            Logger.logWarning("[CentroidsDisplacer] A problem occured while saving displaced anonymised centroids")

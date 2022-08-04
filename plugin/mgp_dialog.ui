@@ -38,7 +38,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab_step1">
        <property name="autoFillBackground">
@@ -244,7 +244,7 @@
            <x>0</x>
            <y>23</y>
            <width>441</width>
-           <height>201</height>
+           <height>208</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -416,6 +416,25 @@
           </item>
          </layout>
         </widget>
+       </widget>
+       <widget class="QPushButton" name="exportDisplacedCentroidsButton">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>320</y>
+          <width>421</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Export Displaced Centroids</string>
+        </property>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_step3">

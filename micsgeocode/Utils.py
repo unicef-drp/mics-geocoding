@@ -56,20 +56,20 @@ class LayersName():
         return LayersName.layerNames[t]
 
     @staticmethod
-    def fileName(t: LayersType) -> str:
+    def fileName(t: LayersType, ext: str = "shp") -> str:
         """ generates layer name for file
         """
         if LayersName.basename:
-            return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + LayersName.layerNames[t] + ".shp"
-        return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.layerNames[t] + ".shp"
+            return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + LayersName.layerNames[t] + "." + ext
+        return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.layerNames[t] + "." + ext
 
     @staticmethod
-    def customfileName(base: str) -> str:
+    def customfileName(base: str, ext: str = "shp") -> str:
         """ generates layer name for file
         """
         if LayersName.basename:
-            return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + base + ".shp"
-        return LayersName.outputDirectory + QtCore.QDir.separator() + base + ".shp"
+            return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + base + "." + ext
+        return LayersName.outputDirectory + QtCore.QDir.separator() + base + "." + ext
 
 
 def removeLayerIfExistsByName(layerName: str) -> typing.NoReturn:
@@ -137,6 +137,24 @@ def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
         writer = QgsVectorFileWriter.writeAsVectorFormatV2(
             layers[0],
             LayersName.fileName(layerType),
+            QgsCoordinateTransformContext(),
+            options)
+        # Don't know how to manage this.
+        # reloadLayerFromDiskToAvoidMemoryFlag(layerType)
+
+
+def writeLayerAsCSVIfExists(layerType: LayersType) -> typing.NoReturn:
+    """ Write hte layer on disk, if it exists in the project instance
+    """
+    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
+    if layers:
+        options = QgsVectorFileWriter.SaveVectorOptions()
+        options.driverName = "CSV"
+
+        # writer = QgsVectorFileWriter( "output_path_and_name.shp", provider.encoding(), provider.fields(), QGis.WKBPolygon, provider.crs() )
+        writer = QgsVectorFileWriter.writeAsVectorFormatV2(
+            layers[0],
+            LayersName.fileName(layerType, "csv"),
             QgsCoordinateTransformContext(),
             options)
         # Don't know how to manage this.
