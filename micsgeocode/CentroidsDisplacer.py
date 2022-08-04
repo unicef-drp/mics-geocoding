@@ -252,7 +252,7 @@ class CentroidsDisplacer():
         self.__generatedLayers[Utils.LayersType.BUFFERSANON] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.BUFFERSANON, [
             QgsField("cluster", QVariant.Int),
             QgsField("type", QVariant.String),
-            QgsField("buf_dist", QVariant.Double)
+            QgsField("buf_dist", QVariant.Int)
         ])
 
         # create layer for displacement links
