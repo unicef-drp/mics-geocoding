@@ -46,6 +46,7 @@ class MGPMainWindowTab1Handler():
         self.ui.latitudeFieldComboBox.currentTextChanged.connect(self.onLatitudeFieldChanged)
         self.ui.numeroFieldComboBox.currentTextChanged.connect(self.onNumeroFieldChanged)
         self.ui.typeFieldComboBox.currentTextChanged.connect(self.onTypeFieldChanged)
+        self.ui.adminBoundariesFieldComboBox.currentTextChanged.connect(self.onAdminBoundariesFieldChanged)
 
         self.ui.loadCentroidsButton.clicked.connect(self.onLoadCentroidsButtonCLicked)
 
@@ -60,6 +61,7 @@ class MGPMainWindowTab1Handler():
         self.ui.latitudeFieldComboBox.setToolTip("Choose the field corresponding to latitude")
         self.ui.numeroFieldComboBox.setToolTip("Choose the field corresponding to cluster numero")
         self.ui.typeFieldComboBox.setToolTip("Choose the field corresponding to cluster type")
+        self.ui.adminBoundariesFieldComboBox.setToolTip("Administrative boundaries. Choose the field indicating administrative boundaries variable of displacement level.")
 
         self.ui.loadCentroidsButton.setToolTip("Load Centroids")
 
@@ -102,6 +104,7 @@ class MGPMainWindowTab1Handler():
         self.ui.numeroFieldComboBox.clear()
         self.ui.longitudeFieldComboBox.clear()
         self.ui.latitudeFieldComboBox.clear()
+        self.ui.adminBoundariesFieldComboBox.clear()
 
         # init type combobox and look for a default value
         self.ui.typeFieldComboBox.addItems(fields)
@@ -144,6 +147,14 @@ class MGPMainWindowTab1Handler():
             self.ui.longitudeFieldComboBox.setEnabled(False)
             self.ui.latitudeFieldComboBox.setEnabled(False)
 
+        # init cluster combobox and look for a default value
+        self.ui.adminBoundariesFieldComboBox.addItems(fields)
+        candidates = ["adminBoundaries", "AdminBoundaries", "ADMINBOUNDARIES"]
+        for item in candidates:
+            if item in fields:
+                self.ui.adminBoundariesFieldComboBox.setCurrentIndex(fields.index(item))
+                break
+
     def onLongitudeFieldChanged(self) -> typing.NoReturn:
         '''Update longitude field
         '''
@@ -161,6 +172,11 @@ class MGPMainWindowTab1Handler():
 
     def onTypeFieldChanged(self) -> typing.NoReturn:
         '''Update type field
+        '''
+        self.updateSaveStatus(True)
+
+    def onAdminBoundariesFieldChanged(self) -> typing.NoReturn:
+        '''Update longitude field
         '''
         self.updateSaveStatus(True)
 
@@ -190,6 +206,11 @@ class MGPMainWindowTab1Handler():
             if self.ui.typeFieldComboBox.isEnabled() and not self.ui.typeFieldComboBox.currentText():
                 Logger.logWarning("[CentroidsLoader] A valid latitude field must be provided")
                 return
+
+            if self.ui.adminBoundariesFieldComboBox.isEnabled() and not self.ui.adminBoundariesFieldComboBox.currentText():
+                Logger.logWarning("[CentroidsLoader] A valid admin boundaries field must be provided")
+                return
+
             Logger.logWarning("[CentroidsLoader] A problem occured while loading centroids")
 
         try:
@@ -201,6 +222,7 @@ class MGPMainWindowTab1Handler():
             loader.lat_field = self.ui.latitudeFieldComboBox.currentText()
             loader.cluster_no_field = self.ui.numeroFieldComboBox.currentText()
             loader.cluster_type_field = self.ui.typeFieldComboBox.currentText()
+            loader.admin_boundaries_field = self.ui.adminBoundariesFieldComboBox.currentText()
 
             loader.loadCentroids()
             Logger.logSuccess("[CentroidsLoader] Centroids succcessfully loaded at {}".format(datetime.now()))

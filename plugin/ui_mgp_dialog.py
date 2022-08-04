@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\mics-geocode_original\plugin\mgp_dialog.ui'
+# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\unicef-mics\mics-geocoding\plugin\mgp_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -92,6 +92,12 @@ class Ui_MGPDialog(object):
         self.latitudeFieldComboBox = QtWidgets.QComboBox(self.verticalLayoutWidget_3)
         self.latitudeFieldComboBox.setObjectName("latitudeFieldComboBox")
         self.formLayout_3.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.latitudeFieldComboBox)
+        self.adminBoundariesFieldLabel_2 = QtWidgets.QLabel(self.verticalLayoutWidget_3)
+        self.adminBoundariesFieldLabel_2.setObjectName("adminBoundariesFieldLabel_2")
+        self.formLayout_3.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.adminBoundariesFieldLabel_2)
+        self.adminBoundariesFieldComboBox = QtWidgets.QComboBox(self.verticalLayoutWidget_3)
+        self.adminBoundariesFieldComboBox.setObjectName("adminBoundariesFieldComboBox")
+        self.formLayout_3.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.adminBoundariesFieldComboBox)
         self.verticalLayout_3.addLayout(self.formLayout_3)
         self.loadCentroidsButton = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
         self.loadCentroidsButton.setMinimumSize(QtCore.QSize(0, 30))
@@ -434,7 +440,7 @@ class Ui_MGPDialog(object):
         self.basenameLineEdit.setObjectName("basenameLineEdit")
 
         self.retranslateUi(MGPDialog)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MGPDialog)
 
     def retranslateUi(self, MGPDialog):
@@ -447,6 +453,7 @@ class Ui_MGPDialog(object):
         self.numeroFieldLabel_2.setText(_translate("MGPDialog", "Numero Field"))
         self.longitudeFieldLabel_2.setText(_translate("MGPDialog", "Longitude Field"))
         self.latitudeFieldLabel_2.setText(_translate("MGPDialog", "Latitude Field"))
+        self.adminBoundariesFieldLabel_2.setText(_translate("MGPDialog", "Admin boundaries"))
         self.loadCentroidsButton.setText(_translate("MGPDialog", "Load Centroids"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step1), _translate("MGPDialog", "Step 1 - Load"))
         self.groupBoxDisplacer.setTitle(_translate("MGPDialog", "Centroid Displacement"))

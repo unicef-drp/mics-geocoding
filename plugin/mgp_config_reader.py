@@ -73,6 +73,8 @@ class mgp_config_reader:
                     self.mainWindow.ui.latitudeFieldComboBox.setCurrentIndex(int(configReader['CentroidsSource']['latIndex']))
                 if 'longIndex' in configReader['CentroidsSource']:
                     self.mainWindow.ui.longitudeFieldComboBox.setCurrentIndex(int(configReader['CentroidsSource']['longIndex']))
+                if 'adminBoundariesIndex' in configReader['CentroidsSource']:
+                    self.mainWindow.ui.adminBoundariesFieldComboBox.setCurrentIndex(int(configReader['CentroidsSource']['adminBoundariesIndex']))
 
             if 'CovariatesInputs' in configReader:
                 if 'file' in configReader['CovariatesInputs']:

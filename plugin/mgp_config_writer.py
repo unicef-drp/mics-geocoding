@@ -79,6 +79,7 @@ class mgp_config_writer:
                 'typeIndex': str(self.mainWindow.ui.typeFieldComboBox.currentIndex()),
                 'latIndex': str(self.mainWindow.ui.latitudeFieldComboBox.currentIndex()),
                 'longIndex': str(self.mainWindow.ui.longitudeFieldComboBox.currentIndex()),
+                'adminBoundariesIndex': str(self.mainWindow.ui.adminBoundariesFieldComboBox.currentIndex())
             }
 
             configWriter['CovariatesInputs'] = {

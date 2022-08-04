@@ -41,6 +41,7 @@ class CentroidsLoader():
         self.lon_field = "default"
         self.cluster_no_field = "default"
         self.cluster_type_field = "default"
+        self.admin_boundaries_field = "default"
 
     def loadCentroids(self) -> typing.NoReturn:
         """ Facade method that handle all the centroids loading
