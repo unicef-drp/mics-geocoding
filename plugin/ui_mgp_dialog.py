@@ -457,7 +457,7 @@ class Ui_MGPDialog(object):
         self.urbanValuesLabel.setText(_translate("MGPDialog", "Urban Values"))
         self.displaceCentroidsButton.setText(_translate("MGPDialog", "Displace Centroids"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step2), _translate("MGPDialog", "Displace"))
-        self.groupBoxCentroid_2.setTitle(_translate("MGPDialog", "Covariates input"))
+        self.groupBoxCentroid_2.setTitle(_translate("MGPDialog", "Covariates Input"))
         self.covinputsSourceFileLabel.setText(_translate("MGPDialog", "Covariates Input File"))
         self.covinputsSourceFileToolButton.setText(_translate("MGPDialog", "..."))
         self.filenameFieldLabel.setText(_translate("MGPDialog", "File Name"))
