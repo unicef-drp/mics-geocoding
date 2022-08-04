@@ -153,7 +153,7 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
 
         # init cluster combobox and look for a default value
         self.ui.adminBoundariesFieldComboBox.addItems(fields)
-        candidates = ["adminBoundaries", "AdminBoundaries", "ADMINBOUNDARIES"]
+        candidates = ["adminBoundaries", "AdminBoundaries", "ADMINBOUNDARIES", "region", "Region", "REGION"]
         for item in candidates:
             if item in fields:
                 self.ui.adminBoundariesFieldComboBox.setCurrentIndex(fields.index(item))
