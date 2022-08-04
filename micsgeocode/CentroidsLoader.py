@@ -129,6 +129,7 @@ class CentroidsLoader():
                 ])
                 cluster_centroid_ft.setGeometry(cluster_centroid.geometry())
                 self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
+            self.layers[Utils.LayersType.POLYGONS] = None
 
         elif self.layers[Utils.LayersType.POLYGONS].wkbType() == 6:  # QgsWkbTypes.Polygon: # 6
             cluster_polygons = [ft for ft in self.layers[Utils.LayersType.POLYGONS].getFeatures()]
@@ -143,8 +144,7 @@ class CentroidsLoader():
                 cluster_centroid_ft.setGeometry(cluster_polygon.geometry().poleOfInaccessibility(100)[0])
                 self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
                 # cluster_centroid_fts.append(cluster_centroid_ft)
-
-        QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.POLYGONS])
+            QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.POLYGONS])
 
 ## ###########################################################################
 # CSV Inputs
