@@ -202,7 +202,6 @@ class CentroidsLoader():
                     lat_id = line.index(self.lat_field)
                     lon_id = line.index(self.lon_field)
                     admin_boundaries_id = line.index(self.admin_boundaries_field)
-                    Logger.logInfo("cluster_no_id")
                 if c != 0:
                     line = re.split(',', g.strip())
                     gps_coords.append({
