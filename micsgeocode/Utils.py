@@ -22,6 +22,7 @@ from .Logger import Logger
 
 class LayersType(str, Enum):
     CENTROIDS = "CENTROIDS"
+    CENTROIDS_BUFFERS = "CENTROIDS_BUFFER"
     POLYGONS = "POLYGONS"
     GPS = "GPS"
     MULTIPLT = "MULTIPLT"
@@ -37,6 +38,7 @@ class LayersName():
     outputDirectory = ""
     layerNames = {
         LayersType.CENTROIDS: "cluster_centroids",
+        LayersType.CENTROIDS_BUFFERS: "cluster_original_centroid_buffers.",
         LayersType.POLYGONS: "cluster_polygons",
         LayersType.GPS: "cluster_points",
         LayersType.MULTIPLT: "cluster_multi-points",
