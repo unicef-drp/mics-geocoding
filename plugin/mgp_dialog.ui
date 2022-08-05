@@ -215,10 +215,10 @@
        <widget class="QPushButton" name="toggleShowMoreButton">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>270</y>
-          <width>451</width>
-          <height>23</height>
+          <x>391</x>
+          <y>272</y>
+          <width>81</width>
+          <height>25</height>
          </rect>
         </property>
         <property name="maximumSize">
@@ -227,15 +227,21 @@
           <height>25</height>
          </size>
         </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>Show More</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
         </property>
        </widget>
        <widget class="QWidget" name="moreWidget" native="true">
         <property name="geometry">
          <rect>
           <x>11</x>
-          <y>297</y>
+          <y>299</y>
           <width>451</width>
           <height>60</height>
          </rect>

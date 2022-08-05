@@ -43,15 +43,26 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         # Animation init
         ## #############################################################
 
-        self.moreWidgetSizeAnimation = QtCore.QPropertyAnimation(self.ui.moreWidget, b"size")
-        self.moreWidgetSizeAnimation.setDuration(50)
-        self.moreWidgetSizeAnimation.setStartValue(QtCore.QSize(451, 60))
-        self.moreWidgetSizeAnimation.setEndValue(QtCore.QSize(451, 0))
-        self.moreWidgetSizeAnimation.setEasingCurve(QtCore.QEasingCurve.OutCubic)
+        self.showMoreWidgetSizeAnimation = QtCore.QPropertyAnimation(self.ui.moreWidget, b"size")
+        self.showMoreWidgetSizeAnimation.setDuration(250)
+        self.showMoreWidgetSizeAnimation.setStartValue(QtCore.QSize(451, 0))
+        self.showMoreWidgetSizeAnimation.setEndValue(QtCore.QSize(451, 60))
+        self.showMoreWidgetSizeAnimation.setEasingCurve(QtCore.QEasingCurve.OutCubic)
+
+        self.showLessWidgetSizeAnimation = QtCore.QPropertyAnimation(self.ui.moreWidget, b"size")
+        self.showLessWidgetSizeAnimation.setDuration(250)
+        self.showLessWidgetSizeAnimation.setStartValue(QtCore.QSize(451, 60))
+        self.showLessWidgetSizeAnimation.setEndValue(QtCore.QSize(451, 0))
+        self.showLessWidgetSizeAnimation.setEasingCurve(QtCore.QEasingCurve.OutCubic)
+
+        self.showLessIcon = self.ui.toggleShowMoreButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TitleBarShadeButton"))
+        self.showMoreIcon = self.ui.toggleShowMoreButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TitleBarUnshadeButton"))
 
         self.isMoreVisible = False
         self.ui.moreWidget.setProperty(b"size", QtCore.QSize(451, 0))
+
         self.ui.toggleShowMoreButton.setText("Show More")
+        self.ui.toggleShowMoreButton.setIcon(self.showMoreIcon)
 
         ## ####################################################################
         # Init signal slots connection
@@ -103,12 +114,12 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
     def onToggleShowMoreButtonClicked(self) -> typing.NoReturn:
         if self.isMoreVisible:
             self.ui.toggleShowMoreButton.setText("Show More")
-            self.moreWidgetSizeAnimation.setDirection(QtCore.QAbstractAnimation.Forward)
-            self.moreWidgetSizeAnimation.start()
+            self.ui.toggleShowMoreButton.setIcon(self.showMoreIcon)
+            self.showLessWidgetSizeAnimation.start()
         else:
             self.ui.toggleShowMoreButton.setText("Show Less")
-            self.moreWidgetSizeAnimation.setDirection(QtCore.QAbstractAnimation.Backward)
-            self.moreWidgetSizeAnimation.start()
+            self.ui.toggleShowMoreButton.setIcon(self.showLessIcon)
+            self.showMoreWidgetSizeAnimation.start()
 
         self.isMoreVisible = not self.isMoreVisible
 
