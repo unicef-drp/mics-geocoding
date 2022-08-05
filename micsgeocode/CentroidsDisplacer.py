@@ -297,7 +297,8 @@ class CentroidsDisplacer():
             QgsField("ref_cl_src", QVariant.String),
             QgsField("ref_orig", QVariant.String),
             QgsField("ref_disp", QVariant.String),
-            QgsField("iter", QVariant.Int)
+            QgsField("iter", QVariant.Int),
+            QgsField("Remarks", QVariant.String)
         ])
 
         # create layer for anonymised displaced centroids
@@ -342,7 +343,8 @@ class CentroidsDisplacer():
             cluster_centroid_ft['admin'],
             ref_id_before,
             ref_id_after,
-            iterations
+            iterations,
+            "Remarks"
         ])
         self.__generatedLayers[Utils.LayersType.DISPLACED].dataProvider().addFeatures([feat_disp_centroid])
 
