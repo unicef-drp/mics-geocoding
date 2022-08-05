@@ -92,5 +92,6 @@ class mgp_config_reader:
                         self.mainWindow.ui.imagesSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['imagesDir'])))
                     except:
                         self.mainWindow.ui.imagesSourceFileLineEdit.clear()
-        except:
-            Logger.logWarning("[ConfigReader] A problem occured while loading the project from :  " + self.fileMGC)
+
+        except BaseException as e:
+            Logger.logException("[ConfigReader] A problem occured while loading the project from :  " + self.fileMGC, e)

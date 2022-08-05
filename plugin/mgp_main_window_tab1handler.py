@@ -232,5 +232,6 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
             Logger.logSuccess("[CentroidsLoader] Centroids succcessfully loaded at {}".format(datetime.now()))
 
             self.centroidsLoaded.emit()
-        except:
-            Logger.logWarning("[CentroidsLoader] A problem occured while loading centroids")
+
+        except BaseException as e:
+            Logger.logException("[CentroidsLoader] A problem occured while loading centroids.", e)

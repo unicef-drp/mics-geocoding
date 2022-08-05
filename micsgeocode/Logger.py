@@ -29,6 +29,11 @@ class Logger():
         QgsMessageLog.logMessage(message, Logger.CATEGORY, Qgis.Warning)
 
     @staticmethod
+    def logException(message: str, e: BaseException) -> None:
+        messageException = "Error: {0}. Arguments: {1!r}".format(type(e).__name__, e.args)
+        QgsMessageLog.logMessage(message + '\n' + messageException, Logger.CATEGORY, Qgis.Warning)
+
+    @staticmethod
     def logError(message: str) -> None:
         QgsMessageLog.logMessage(message, Logger.CATEGORY, Qgis.Critical)
 

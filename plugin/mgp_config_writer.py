@@ -91,5 +91,6 @@ class mgp_config_writer:
 
             with open(self.fileMGC, 'w') as file:
                 configWriter.write(file)
-        except:
-            Logger.logWarning("[ConfigWriter] A problem occured while saving the project to :  " + self.fileMGC)
+
+        except BaseException as e:
+            Logger.logException("[ConfigWriter] A problem occured while saving the project to :  " + self.fileMGC, e)
