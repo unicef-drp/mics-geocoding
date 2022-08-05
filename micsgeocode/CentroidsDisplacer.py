@@ -39,6 +39,8 @@ from datetime import datetime
 from . import CentroidsLoader as CentroidsLoader
 from . import ReferenceLayer as ReferenceLayer
 from . import Utils
+from . import CentroidsBufferMaxDistanceComputer as Radier
+
 from .Transforms import Transforms
 from .Logger import Logger
 
@@ -51,8 +53,6 @@ class CentroidsDisplacer():
     """ Handle the centroids displacement.
         The existing centroids are available through a map layer.
     """
-    URBAN_TYPE = 'U'  # values form the cluster type column that belong to urban type
-    RURAL_TYPE = 'R'  # values form the cluster type column that belong to rural type
 
     def __init__(self):
         self.__generatedLayers = {}  # layer collection for centroids dispalcement
@@ -61,26 +61,26 @@ class CentroidsDisplacer():
         self.centroidLayer = None
         self.cluster_no_field = ""
         self.cluster_type_field = ""
-        self.__rural_displaced_points_count = 0
-        self.__radius10000_indexes = []
+
+        self.presetMaxDistances = None
+        self.__maxDistances = None
 
     def displaceCentroids(self) -> typing.NoReturn:
         """ Facade method that handle all the centroids displacement.
         """
         Logger.logInfo("[CentroidsDisplacer] Centroids displacement starts at {}".format(datetime.now()))
 
-        self.__rural_displaced_points_count = 0
-        self.__radius10000_indexes = []
-
         self.clearLayers()
 
-        self.__createOutputsMemoryLayer()
+        if self.presetMaxDistances:
+            self.__maxDistances = self.presetMaxDistances
+        else:
+            radier = Radier.CentroidsBufferMaxDistanceComputer()
+            radier.centroidLayer = self.centroidLayer
+            radier.computeBufferRadiusesCentroids()
+            self.__maxDistances = radier.maxDistance
 
-        # Comput rural indexes for 10000 radius
-        count_rural = sum(cluster_centroid_ft[1] == CentroidsDisplacer.RURAL_TYPE for cluster_centroid_ft in self.centroidLayer.getFeatures())
-        if count_rural > 0:
-            count_radius10000 = max(int(round(count_rural // 100)), 1)
-            self.__radius10000_indexes = random.sample(range(0, count_rural), count_radius10000)
+        self.__createOutputsMemoryLayer()
 
         # Displace points
         for cluster_centroid_ft in self.centroidLayer.getFeatures():
@@ -158,19 +158,8 @@ class CentroidsDisplacer():
         else:
             ref_id_before = 'Many'
 
-        # define max distance depending on cluster type
-        cluster_type = cluster_centroid_ft[1]
-
-        if cluster_type == CentroidsDisplacer.URBAN_TYPE:
-            max_displace_distance = 2000
-        elif cluster_type == CentroidsDisplacer.RURAL_TYPE:
-            if self.__rural_displaced_points_count in self.__radius10000_indexes:  # Generate one int between 1 and 100, and test if it's equal to a specific value. equivalent to 1 % of chances.
-                max_displace_distance = 10000
-            else:
-                max_displace_distance = 5000
-            self.__rural_displaced_points_count += 1
-        else:
-            max_displace_distance = 5000
+        # retrieve correct max_displace_distance
+        max_displace_distance = self.__maxDistances[cluster_centroid_ft[0]]
 
         # iterate
         con = True

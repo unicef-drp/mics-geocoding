@@ -21,6 +21,7 @@ import typing
 
 from .ui_mgp_dialog import Ui_MGPDialog
 from .micsgeocode import CentroidsLoader as Loader
+from .micsgeocode import CentroidsBufferMaxDistanceComputer as Radier
 from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
@@ -283,4 +284,12 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
             Logger.logException("[CentroidsLoader] A problem occured while loading centroids.", e)
 
     def onGenerateCentroidsBuffersButtonCLicked(self) -> typing.NoReturn:
-        Logger.logSuccess("[CentroidsLoader] buffered ..")
+        Logger.logSuccess("[CentroidsLoader] incomplete. Requirer layer creation from the data.")
+        file = Utils.LayersName.fileName(Utils.LayersType.CENTROIDS)
+        layer = None
+        layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.CENTROIDS))
+        if layers:
+            layer = layers[0]
+            radier = Radier.CentroidsBufferMaxDistanceComputer()
+            radier.centroidLayer = layer
+            radier.computeBufferRadiusesCentroids()

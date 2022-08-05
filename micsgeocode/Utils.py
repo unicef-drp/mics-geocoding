@@ -20,6 +20,11 @@ from enum import Enum
 from .Logger import Logger
 
 
+class FieldAreaType(str, Enum):
+    RURAL = "R"
+    URBAN = "U"
+
+
 class LayersType(str, Enum):
     CENTROIDS = "CENTROIDS"
     CENTROIDS_BUFFERS = "CENTROIDS_BUFFER"
