@@ -15,6 +15,7 @@ class Ui_MGPDialog(object):
     def setupUi(self, MGPDialog):
         MGPDialog.setObjectName("MGPDialog")
         MGPDialog.resize(509, 619)
+        MGPDialog.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedKingdom))
         self.verticalLayoutWidget = QtWidgets.QWidget(MGPDialog)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 130, 481, 391))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
