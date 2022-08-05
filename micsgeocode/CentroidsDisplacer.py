@@ -207,7 +207,6 @@ class CentroidsDisplacer():
             if ref_id_after == ref_id_before:
                 con = False
             iterations += 1
-            # Logger.logInfo("[CentroidsDisplacer] cluster: {}, ref_id_before: {}, ref_id_after: {}, iteration: {}". format(cluster_centroid_ft['cluster'], ref_id_before, ref_id_after, iterations))
             if iterations > 10:
                 con = False
 
