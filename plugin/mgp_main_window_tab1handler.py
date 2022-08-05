@@ -39,6 +39,20 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         self.ui = ui
         self.needsSave = False
 
+        ## #############################################################
+        # Animation init
+        ## #############################################################
+
+        self.moreWidgetSizeAnimation = QtCore.QPropertyAnimation(self.ui.moreWidget, b"size")
+        self.moreWidgetSizeAnimation.setDuration(50)
+        self.moreWidgetSizeAnimation.setStartValue(QtCore.QSize(451, 60))
+        self.moreWidgetSizeAnimation.setEndValue(QtCore.QSize(451, 0))
+        self.moreWidgetSizeAnimation.setEasingCurve(QtCore.QEasingCurve.OutCubic)
+
+        self.isMoreVisible = False
+        self.ui.moreWidget.setProperty(b"size", QtCore.QSize(451, 0))
+        self.ui.toggleShowMoreButton.setText("Show More")
+
         ## ####################################################################
         # Init signal slots connection
         ## ####################################################################
@@ -53,6 +67,11 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         self.ui.adminBoundariesFieldComboBox.currentTextChanged.connect(self.onAdminBoundariesFieldChanged)
 
         self.ui.loadCentroidsButton.clicked.connect(self.onLoadCentroidsButtonCLicked)
+
+        self.ui.generateCentroidsBufferButton.clicked.connect(self.onGenerateCentroidsBuffersButtonCLicked)
+
+        # Command window
+        self.ui.toggleShowMoreButton.clicked.connect(self.onToggleShowMoreButtonClicked)
 
         ## ####################################################################
         # Init Tooltips - easier than in qtdesigner
@@ -76,6 +95,22 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
     def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
         self.needsSave = needsSave
         self.ui.saveConfigButton.setEnabled(self.needsSave)
+
+    ## #############################################################
+    # show hide the more section
+    ## #############################################################
+
+    def onToggleShowMoreButtonClicked(self) -> typing.NoReturn:
+        if self.isMoreVisible:
+            self.ui.toggleShowMoreButton.setText("Show More")
+            self.moreWidgetSizeAnimation.setDirection(QtCore.QAbstractAnimation.Forward)
+            self.moreWidgetSizeAnimation.start()
+        else:
+            self.ui.toggleShowMoreButton.setText("Show Less")
+            self.moreWidgetSizeAnimation.setDirection(QtCore.QAbstractAnimation.Backward)
+            self.moreWidgetSizeAnimation.start()
+
+        self.isMoreVisible = not self.isMoreVisible
 
     # #############################################################
     # Centroids Source
@@ -235,3 +270,6 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
 
         except BaseException as e:
             Logger.logException("[CentroidsLoader] A problem occured while loading centroids.", e)
+
+    def onGenerateCentroidsBuffersButtonCLicked(self) -> typing.NoReturn:
+        Logger.logSuccess("[CentroidsLoader] buffered ..")
