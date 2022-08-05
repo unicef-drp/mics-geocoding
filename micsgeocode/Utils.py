@@ -144,21 +144,18 @@ def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
 
 
 def writeLayerAsCSVIfExists(layerType: LayersType) -> typing.NoReturn:
-    """ Write hte layer on disk, if it exists in the project instance
+    """ Write the layer on disk, if it exists in the project instance
     """
     layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
     if layers:
-        options = QgsVectorFileWriter.SaveVectorOptions()
-        options.driverName = "CSV"
-
-        # writer = QgsVectorFileWriter( "output_path_and_name.shp", provider.encoding(), provider.fields(), QGis.WKBPolygon, provider.crs() )
-        writer = QgsVectorFileWriter.writeAsVectorFormatV2(
+        QgsVectorFileWriter.writeAsVectorFormat(
             layers[0],
             LayersName.fileName(layerType, "csv"),
-            QgsCoordinateTransformContext(),
-            options)
-        # Don't know how to manage this.
-        # reloadLayerFromDiskToAvoidMemoryFlag(layerType)
+            "utf-8",
+            layers[0].crs(),
+            "CSV",
+            layerOptions=["STRING_QUOTING=IF_NEEDED"]
+        )
 
 
 def getval(ft: QgsFeature, field: QgsField) -> str:
