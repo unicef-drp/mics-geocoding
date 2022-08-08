@@ -21,7 +21,6 @@ import typing
 
 from .ui_mgp_dialog import Ui_MGPDialog
 from .micsgeocode import CentroidsLoader as Loader
-from .micsgeocode import CentroidsBufferMaxDistanceComputer as Radier
 from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
@@ -40,31 +39,6 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         self.ui = ui
         self.needsSave = False
 
-        ## #############################################################
-        # Animation init
-        ## #############################################################
-
-        self.showMoreWidgetSizeAnimation = QtCore.QPropertyAnimation(self.ui.moreWidget, b"size")
-        self.showMoreWidgetSizeAnimation.setDuration(250)
-        self.showMoreWidgetSizeAnimation.setStartValue(QtCore.QSize(451, 0))
-        self.showMoreWidgetSizeAnimation.setEndValue(QtCore.QSize(451, 60))
-        self.showMoreWidgetSizeAnimation.setEasingCurve(QtCore.QEasingCurve.OutCubic)
-
-        self.showLessWidgetSizeAnimation = QtCore.QPropertyAnimation(self.ui.moreWidget, b"size")
-        self.showLessWidgetSizeAnimation.setDuration(250)
-        self.showLessWidgetSizeAnimation.setStartValue(QtCore.QSize(451, 60))
-        self.showLessWidgetSizeAnimation.setEndValue(QtCore.QSize(451, 0))
-        self.showLessWidgetSizeAnimation.setEasingCurve(QtCore.QEasingCurve.OutCubic)
-
-        self.showLessIcon = self.ui.toggleShowMoreButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TitleBarShadeButton"))
-        self.showMoreIcon = self.ui.toggleShowMoreButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TitleBarUnshadeButton"))
-
-        self.isMoreVisible = False
-        self.ui.moreWidget.setProperty(b"size", QtCore.QSize(451, 0))
-
-        self.ui.toggleShowMoreButton.setText("Show More")
-        self.ui.toggleShowMoreButton.setIcon(self.showMoreIcon)
-
         ## ####################################################################
         # Init signal slots connection
         ## ####################################################################
@@ -79,11 +53,6 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         self.ui.adminBoundariesFieldComboBox.currentTextChanged.connect(self.onAdminBoundariesFieldChanged)
 
         self.ui.loadCentroidsButton.clicked.connect(self.onLoadCentroidsButtonCLicked)
-
-        self.ui.generateCentroidsBufferButton.clicked.connect(self.onGenerateCentroidsBuffersButtonCLicked)
-
-        # Command window
-        self.ui.toggleShowMoreButton.clicked.connect(self.onToggleShowMoreButtonClicked)
 
         ## ####################################################################
         # Init Tooltips - easier than in qtdesigner
@@ -107,22 +76,6 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
     def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
         self.needsSave = needsSave
         self.ui.saveConfigButton.setEnabled(self.needsSave)
-
-    ## #############################################################
-    # show hide the more section
-    ## #############################################################
-
-    def onToggleShowMoreButtonClicked(self) -> typing.NoReturn:
-        if self.isMoreVisible:
-            self.ui.toggleShowMoreButton.setText("Show More")
-            self.ui.toggleShowMoreButton.setIcon(self.showMoreIcon)
-            self.showLessWidgetSizeAnimation.start()
-        else:
-            self.ui.toggleShowMoreButton.setText("Show Less")
-            self.ui.toggleShowMoreButton.setIcon(self.showLessIcon)
-            self.showMoreWidgetSizeAnimation.start()
-
-        self.isMoreVisible = not self.isMoreVisible
 
     # #############################################################
     # Centroids Source
@@ -282,14 +235,3 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
 
         except BaseException as e:
             Logger.logException("[CentroidsLoader] A problem occured while loading centroids.", e)
-
-    def onGenerateCentroidsBuffersButtonCLicked(self) -> typing.NoReturn:
-        Logger.logSuccess("[CentroidsLoader] incomplete. Requirer layer creation from the data.")
-        file = Utils.LayersName.fileName(Utils.LayersType.CENTROIDS)
-        layer = None
-        layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.CENTROIDS))
-        if layers:
-            layer = layers[0]
-            radier = Radier.CentroidsBufferMaxDistanceComputer()
-            radier.centroidLayer = layer
-            radier.computeBufferRadiusesCentroids()

@@ -212,72 +212,6 @@
          </layout>
         </widget>
        </widget>
-       <widget class="QPushButton" name="toggleShowMoreButton">
-        <property name="geometry">
-         <rect>
-          <x>391</x>
-          <y>272</y>
-          <width>81</width>
-          <height>25</height>
-         </rect>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="autoFillBackground">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Show More</string>
-        </property>
-        <property name="flat">
-         <bool>true</bool>
-        </property>
-       </widget>
-       <widget class="QWidget" name="moreWidget" native="true">
-        <property name="geometry">
-         <rect>
-          <x>11</x>
-          <y>299</y>
-          <width>451</width>
-          <height>60</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>60</height>
-         </size>
-        </property>
-        <widget class="QPushButton" name="generateCentroidsBufferButton">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>4</y>
-           <width>449</width>
-           <height>30</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>Generate Centroids Buffers</string>
-         </property>
-        </widget>
-       </widget>
       </widget>
       <widget class="QWidget" name="tab_step2">
        <attribute name="title">
@@ -486,24 +420,90 @@
          </layout>
         </widget>
        </widget>
-       <widget class="QPushButton" name="exportDisplacedCentroidsButton">
+       <widget class="QPushButton" name="toggleShowMoreButton">
         <property name="geometry">
          <rect>
-          <x>20</x>
-          <y>320</y>
-          <width>421</width>
-          <height>30</height>
+          <x>391</x>
+          <y>240</y>
+          <width>81</width>
+          <height>25</height>
          </rect>
         </property>
-        <property name="minimumSize">
+        <property name="maximumSize">
          <size>
-          <width>0</width>
-          <height>30</height>
+          <width>16777215</width>
+          <height>25</height>
          </size>
         </property>
-        <property name="text">
-         <string>Export Displaced Centroids</string>
+        <property name="autoFillBackground">
+         <bool>false</bool>
         </property>
+        <property name="text">
+         <string>Show More</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QWidget" name="moreWidget" native="true">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>260</y>
+          <width>451</width>
+          <height>101</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <widget class="QWidget" name="verticalLayoutWidget_2">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>451</width>
+           <height>91</height>
+          </rect>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QPushButton" name="generateCentroidsBufferButton">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Generate Centroids Buffers</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="exportDisplacedCentroidsButton">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Export Displaced Centroids</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_step3">
