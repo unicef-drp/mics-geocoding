@@ -251,32 +251,32 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
             Logger.logWarning("[CentroidsDisplacer] A valid reference source file must be provided")
             return
 
-        try:
-            self.maxDistancesPerBufferId = None
+        # try:
+        self.maxDistancesPerBufferId = None
 
-            displacer = Displacer.CentroidsDisplacer()
+        displacer = Displacer.CentroidsDisplacer()
 
-            # Centroid Layer
-            centroidsLayerName = Utils.LayersName.layerName(Utils.LayersType.CENTROIDS)
-            Utils.removeLayerIfExistsByName(centroidsLayerName)
-            displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
-            QgsProject.instance().addMapLayer(displacer.centroidLayer)
+        # Centroid Layer
+        centroidsLayerName = Utils.LayersName.layerName(Utils.LayersType.CENTROIDS)
+        Utils.removeLayerIfExistsByName(centroidsLayerName)
+        displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
+        QgsProject.instance().addMapLayer(displacer.centroidLayer)
 
-            displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
+        displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
 
-            displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
+        displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
 
-            displacer.displaceCentroids()
+        displacer.displaceCentroids()
 
-            Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)
+        Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)
 
-            Logger.logSuccess("[CentroidsDisplacer] Centroids succcessfully displaced at {}".format(datetime.now()))
+        Logger.logSuccess("[CentroidsDisplacer] Centroids succcessfully displaced at {}".format(datetime.now()))
 
-            self.maxDistancesPerBufferId = displacer.maxDistances
+        self.maxDistancesPerBufferId = displacer.maxDistances
 
-            self.centroidsDisplaced.emit()
-        except:
-            Logger.logWarning("[CentroidsDisplacer] A problem occured while displacing centroids")
+        self.centroidsDisplaced.emit()
+        # except:
+        #     Logger.logWarning("[CentroidsDisplacer] A problem occured while displacing centroids")
 
     def onExportDisplacedCentroidsButtonClicked(self) -> typing.NoReturn:
         '''Displace centroids

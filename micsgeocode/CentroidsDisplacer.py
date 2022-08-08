@@ -39,6 +39,7 @@ from datetime import datetime
 from . import CentroidsLoader as CentroidsLoader
 from . import ReferenceLayer as ReferenceLayer
 from . import Utils
+from . import Errors
 from . import CentroidsBufferMaxDistanceComputer as Radier
 
 from .Transforms import Transforms
@@ -332,7 +333,7 @@ class CentroidsDisplacer():
             ref_id_before,
             ref_id_after,
             iterations,
-            "Remarks"
+            Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_1]
         ])
         self.__generatedLayers[Utils.LayersType.DISPLACED].dataProvider().addFeatures([feat_disp_centroid])
 
