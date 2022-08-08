@@ -43,7 +43,7 @@ class LayersName():
     outputDirectory = ""
     layerNames = {
         LayersType.CENTROIDS: "cluster_centroids",
-        LayersType.CENTROIDS_BUFFERS: "cluster_original_centroid_buffers.",
+        LayersType.CENTROIDS_BUFFERS: "cluster_original_centroid_buffers",
         LayersType.POLYGONS: "cluster_polygons",
         LayersType.GPS: "cluster_points",
         LayersType.MULTIPLT: "cluster_multi-points",
@@ -77,6 +77,16 @@ class LayersName():
         if LayersName.basename:
             return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + base + "." + ext
         return LayersName.outputDirectory + QtCore.QDir.separator() + base + "." + ext
+
+
+def getLayerIfExists(layerType: LayersType) -> QgsMapLayer:
+    """ Remove existing layer with the same name. Avoid duplication when run multiple times.
+    """
+    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
+    if layers:
+        return layers[0]
+
+    return None
 
 
 def removeLayerIfExistsByName(layerName: str) -> typing.NoReturn:

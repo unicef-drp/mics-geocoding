@@ -62,8 +62,7 @@ class CentroidsDisplacer():
         self.cluster_no_field = ""
         self.cluster_type_field = ""
 
-        self.presetMaxDistances = None
-        self.__maxDistances = None
+        self.maxDistances = None
 
     def displaceCentroids(self) -> typing.NoReturn:
         """ Facade method that handle all the centroids displacement.
@@ -72,13 +71,10 @@ class CentroidsDisplacer():
 
         self.clearLayers()
 
-        if self.presetMaxDistances:
-            self.__maxDistances = self.presetMaxDistances
-        else:
-            radier = Radier.CentroidsBufferMaxDistanceComputer()
-            radier.centroidLayer = self.centroidLayer
-            radier.computeBufferRadiusesCentroids()
-            self.__maxDistances = radier.maxDistance
+        radier = Radier.CentroidsBufferMaxDistanceComputer()
+        radier.centroidLayer = self.centroidLayer
+        radier.computeBufferRadiusesCentroids()
+        self.maxDistances = radier.maxDistance
 
         self.__createOutputsMemoryLayer()
 
@@ -95,6 +91,9 @@ class CentroidsDisplacer():
         Utils.removeLayerIfExists(Utils.LayersType.LINKS)
         Utils.removeLayerIfExists(Utils.LayersType.DISPLACED)
         Utils.removeLayerIfExists(Utils.LayersType.DISPLACEDANON)
+
+        Utils.removeLayerIfExists(Utils.LayersType.CENTROIDS_BUFFERS)
+        # actually generated elsewher, but depends on this computation
 
         self.__generatedLayers.clear()
 
@@ -159,7 +158,7 @@ class CentroidsDisplacer():
             ref_id_before = 'Many'
 
         # retrieve correct max_displace_distance
-        max_displace_distance = self.__maxDistances[cluster_centroid_ft[0]]
+        max_displace_distance = self.maxDistances[cluster_centroid_ft[0]]
 
         # iterate
         con = True

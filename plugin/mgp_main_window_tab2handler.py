@@ -22,6 +22,7 @@ import typing
 from .ui_mgp_dialog import Ui_MGPDialog
 from .micsgeocode import CentroidsDisplacer as Displacer
 from .micsgeocode import CentroidsBufferMaxDistanceComputer as Radier
+from .micsgeocode import CentroidsBufferLayerWriter as BufferWriter
 from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
@@ -39,6 +40,10 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
         self.ui = ui
         self.needsSave = False
+
+        # Values are stored after the centroids displacement
+        # --> Used for generating buffer around original buffer
+        self.maxDistancesPerBufferId = None
 
         ## #############################################################
         # Animation init
@@ -247,6 +252,8 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
             return
 
         try:
+            self.maxDistancesPerBufferId = None
+
             displacer = Displacer.CentroidsDisplacer()
 
             # Centroid Layer
@@ -265,6 +272,8 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
             Logger.logSuccess("[CentroidsDisplacer] Centroids succcessfully displaced at {}".format(datetime.now()))
 
+            self.maxDistancesPerBufferId = displacer.maxDistances
+
             self.centroidsDisplaced.emit()
         except:
             Logger.logWarning("[CentroidsDisplacer] A problem occured while displacing centroids")
@@ -279,12 +288,19 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
             Logger.logWarning("[CentroidsDisplacer] A problem occured while saving displaced anonymised centroids")
 
     def onGenerateCentroidsBuffersButtonCLicked(self) -> typing.NoReturn:
-        Logger.logSuccess("[CentroidsLoader] incomplete. Requirer layer creation from the data.")
-        file = Utils.LayersName.fileName(Utils.LayersType.CENTROIDS)
-        layer = None
-        layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.CENTROIDS))
-        if layers:
-            layer = layers[0]
-            radier = Radier.CentroidsBufferMaxDistanceComputer()
-            radier.centroidLayer = layer
-            radier.computeBufferRadiusesCentroids()
+        Logger.logInfo("[CentroidsDisplacer] About to generate")
+        if not self.maxDistancesPerBufferId:
+            Logger.logWarning("[CentroidsDisplacer] The displacement has not been computed. The centroids buffer layer can't be generated.")
+            return
+
+        if not self.ui.centroidsLayerLineEdit.text():
+            Logger.logWarning("[CentroidsDisplacer] A valid centroid source file must be provided")
+            return
+
+        try:
+            bufferer = BufferWriter.CentroidsBufferLayerWriter()
+            bufferer.maxDistances = self.maxDistancesPerBufferId
+            bufferer.writerCentroidsBufferLayer()
+
+        except:
+            Logger.logWarning("[CentroidsDisplacer] A problem occured while generating centroids buffer.")
