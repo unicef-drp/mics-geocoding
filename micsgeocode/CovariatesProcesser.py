@@ -65,10 +65,10 @@ class CovariatesProcesser():
     def __init__(self):
         # CSV input
         self.input_csv = ""
-        self.input_csv_field_filename = 'FileName'
-        self.input_csv_field_fileformat = 'FileFormat'
-        self.input_csv_field_sumstat = 'SummaryStatistic'
-        self.input_csv_field_columnname = 'ColumnName'
+        self.input_csv_field_filename = ''
+        self.input_csv_field_fileformat = ''
+        self.input_csv_field_sumstat = ''
+        self.input_csv_field_columnname = ''
 
         self.images_directory = Path(self.input_csv).parent
 
