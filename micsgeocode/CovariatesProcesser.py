@@ -181,9 +181,9 @@ class CovariatesProcesser():
                         search_features = [feature for feature in layer.getFeatures()]
                         for cluster_ft in self.__ref_layer.getFeatures():
                             feat = QgsFeature()
-                            startPt = QgsPoint(cluster_ft.geometry().centroid().asPoint())
+                            # startPt = QgsPoint(cluster_ft.geometry().centroid().asPoint())
                             startGeom = cluster_ft.geometry().centroid()
-                            endPt = QgsPoint(QgsPointXY(0, 0))
+                            # endPt = QgsPoint(QgsPointXY(0, 0))
                             endGeom = QgsGeometry.fromPointXY(QgsPointXY(0, 0))
 
                             minDistFtId = 0
