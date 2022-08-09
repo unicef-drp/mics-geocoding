@@ -14,16 +14,15 @@ from .Transforms import Transforms
 from . import Utils
 
 import numpy as np
-from osgeo.gdalconst import *
+from osgeo.gdalconst import GA_ReadOnly
 from osgeo import gdal, ogr
 import os
 import re
 import typing
 
 
+from qgis.core import QgsVectorLayer, QgsGeometry, QgsPoint, QgsPointXY, QgsField, QgsFeature, QgsVectorFileWriter, QgsProject, QgsCoordinateTransformContext  # QGIS3
 from PyQt5 import QtCore
-from qgis.core import *  # QGIS3
-from qgis.PyQt.QtCore import *
 from pathlib import Path
 from datetime import datetime
 from operator import itemgetter
@@ -151,9 +150,9 @@ class CovariatesProcesser():
                         shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(file_name), 'memory')
                         shortest_dist_prov = shortest_dist_lyr.dataProvider()
                         shortest_dist_prov.addAttributes([
-                            QgsField("cluster", QVariant.Int),
-                            QgsField("nearestfid", QVariant.String),
-                            QgsField("dist", QVariant.Double, "", 0, 2)
+                            QgsField("cluster", QtCore.QVariant.Int),
+                            QgsField("nearestfid", QtCore.QVariant.String),
+                            QgsField("dist", QtCore.QVariant.Double, "", 0, 2)
                         ])
                         shortest_dist_lyr.updateFields()
 
