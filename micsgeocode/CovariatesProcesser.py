@@ -380,11 +380,13 @@ class CovariatesProcesser():
                 'min': float(masked.min()),
                 'mean': float(masked.mean()),
                 'max': float(masked.max()),
+                'median': np.ma.median(masked),
                 'std': float(masked.std()),
                 'sum': float(masked.sum()),
                 'count': int(masked.count()),
                 'cluster': feat[cluster_no_field],
-                'fid': int(feat.GetFID())}
+                'fid': int(feat.GetFID())
+            }
 
             # get the actual pixel value for all stats if mask is returning null (e.g. pixel size is too large)
             if not masked.min():
@@ -402,6 +404,7 @@ class CovariatesProcesser():
                     'min': float(intval),
                     'mean': float(intval),
                     'max': float(intval),
+                    'median': float(intval),
                     'std': float(intval),
                     'sum': float(intval),
                     'count': int(intval),
