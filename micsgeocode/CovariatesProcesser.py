@@ -161,9 +161,7 @@ class CovariatesProcesser():
                         summary_df,
                         results_df[[column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]],
                         on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
-                        how='inner',
-                        left_index=False,
-                        right_index=False
+                        how='inner'
                     )
 
                 if file_format == 'Shapefile':
