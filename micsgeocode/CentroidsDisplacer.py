@@ -55,6 +55,8 @@ class CentroidsDisplacer():
         The existing centroids are available through a map layer.
     """
 
+    MAX_ITERATIONS = 20
+
     def __init__(self):
         self.__generatedLayers = {}  # layer collection for centroids dispalcement
         self.ref_id_field = ""
@@ -196,7 +198,7 @@ class CentroidsDisplacer():
             if ref_id_after == ref_id_before:
                 con = False
             iterations += 1
-            if iterations > 10:
+            if iterations > CentroidsDisplacer.MAX_ITERATIONS:
                 con = False
 
         self.__updateOutputsMemoryLayer(
