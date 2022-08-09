@@ -109,8 +109,13 @@ class CovariatesProcesser():
 
             registry = QgsProject.instance()
 
-            clusters = [{'fid': ft.id(), CovariatesProcesser.CLUSTER_N0_FIELD_NAME: ft[CovariatesProcesser.CLUSTER_N0_FIELD_NAME]} for ft in self.__ref_layer.getFeatures()
-                        ]  # TODO: ft.id() is different than ft.GetFID()? !!!!! make sure IDs match - fix required!!!
+            clusters = [
+                {
+                    'fid': ft.id(),
+                    CovariatesProcesser.CLUSTER_N0_FIELD_NAME: ft[CovariatesProcesser.CLUSTER_N0_FIELD_NAME]
+                } for ft in self.__ref_layer.getFeatures()
+            ]  # TODO: ft.id() is different than ft.GetFID()? !!!!! make sure IDs match - fix required!!!
+
             # Convert the dictionary into DataFrame
             summary_df = pd.DataFrame(clusters)
 
@@ -124,7 +129,12 @@ class CovariatesProcesser():
                     input_field_columnname_id = line.index(self.input_csv_field_columnname)
                 if c != 0:
                     line = re.split(',', i.strip())
-                    inputs.append({'file': line[input_file_id], 'file_format': line[input_fileformat_id], 'sum_stat': line[input_field_sumstat_id], 'column': line[input_field_columnname_id]})
+                    inputs.append({
+                        'file': line[input_file_id],
+                        'file_format': line[input_fileformat_id],
+                        'sum_stat': line[input_field_sumstat_id],
+                        'column': line[input_field_columnname_id]
+                    })
                 c = c + 1
             c = 1
 
@@ -138,10 +148,23 @@ class CovariatesProcesser():
                 Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(c, file_name, file_format, sum_stat, column_name))
 
                 if file_format == 'GeoTIFF':
-                    stats = self.zonal_stats(self.__ref_layer_shp, file_path, CovariatesProcesser.CLUSTER_N0_FIELD_NAME, -99999)
+                    stats = self.zonal_stats(
+                        self.__ref_layer_shp,
+                        file_path,
+                        CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
+                        -99999
+                    )
+
                     results_df = pd.DataFrame(stats)[[sum_stat, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]]
                     results_df.columns = [column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]
-                    summary_df = pd.merge(summary_df, results_df[[column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]], on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME, how='inner')
+                    summary_df = pd.merge(
+                        summary_df,
+                        results_df[[column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]],
+                        on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
+                        how='inner',
+                        left_index=False,
+                        right_index=False
+                    )
 
                 if file_format == 'Shapefile':
                     # search_gdf = gpd.read_file(file_path)
@@ -185,7 +208,7 @@ class CovariatesProcesser():
                                      search_features], key=itemgetter(1))
                                 minDistPoint = cswc[1][1]  # nearest point on line
                                 minDistFtId = cswc[0]  # line id of nearest point
-                                endPt = QgsPoint(minDistPoint[0], minDistPoint[1])
+                                # endPt = QgsPoint(minDistPoint[0], minDistPoint[1])
                                 endGeom = QgsGeometry.fromPointXY(QgsPointXY(minDistPoint[0], minDistPoint[1]))
 
                             line = QgsGeometry.fromPolyline([QgsPoint(startGeom.asPoint()), QgsPoint(
@@ -212,20 +235,19 @@ class CovariatesProcesser():
 
                 c = c + 1
 
+            # iterating the columns
+            selected_columns = []
+            excluded_columns = ["fid"]
+            for col in summary_df.columns:
+                if not col in excluded_columns:
+                    selected_columns.append(col)
+
             summary_df.to_csv(
                 output_file,
                 sep=',',
                 encoding='utf-8',
                 index=False,
-                columns=[
-                    "cluster",
-                    "pop_2000",
-                    "pop_2005",
-                    "pop_2010",
-                    "pop_2015",
-                    "pop_2020",
-                    "dis_b_2020"
-                ]
+                columns=selected_columns
             )
 
             # Rewrite the layer on disk -> no memory flag
