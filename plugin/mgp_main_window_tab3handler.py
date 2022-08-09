@@ -132,13 +132,16 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.sumstatFieldComboBox.addItems(fields)
         self.ui.columnnameFieldComboBox.addItems(fields)
 
-        candidates = ["filename", "FileName", "Filename", "FILENAME"]
+        candidates = ["filename", "FileName", "Filename", "FILENAME",
+                      "file name", "File Name", "File name", "FILE NAME"
+                      "name", "Name", "name", "NAME"]
         for item in candidates:
             if item in fields:
                 self.ui.filenameFieldComboBox.setCurrentIndex(fields.index(item))
                 break
 
         candidates = ["fileformat", "FileFormat", "Fileformat", "FILEFORMAT",
+                      "file format", "File Format", "File format", "FILE FORMAT",
                       "format", "Format", "FORMAT"]
         for item in candidates:
             if item in fields:
@@ -146,13 +149,22 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
                 break
 
         candidates = ["sumstat", "SumStat", "Sumstat", "SUMSTAT",
-                      "summarystatistic", "SummaryStatistic", "Summarystatistic", "SUMMARYSTATISTIC"]
+                      "sum stat", "Sum Stat", "Sum stat", "SUM STAT",
+                      "sumstats", "SumStats", "Sumstats", "SUMSTATS",
+                      "sum stats", "Sum Stats", "Sum stats", "SUM STATS",
+                      "summarystatistic", "SummaryStatistic", "Summarystatistic", "SUMMARYSTATISTIC",
+                      "summary statistic", "Summary Statistic", "Summary statistic", "SUMMARY STATISTIC",
+                      "summarystatistics", "SummaryStatistics", "Summarystatistics", "SUMMARYSTATISTICS",
+                      "summary statistics", "Summary Statistics", "Summary statistics", "SUMMARY STATISTICS"]
         for item in candidates:
             if item in fields:
                 self.ui.sumstatFieldComboBox.setCurrentIndex(fields.index(item))
                 break
 
-        candidates = ["columnname", "ColumnName", "Columnname", "COLUMNNAME"]
+        candidates = ["columnname", "ColumnName", "Columnname", "COLUMNNAME",
+                      "column name", "Column Name", "Column name", "COLUMN NAME",
+                      "variablename", "VariableName", "Variablename", "VARIABLENAME",
+                      "variable name", "Variable Name", "Variable name", "VARIABLE NAME"]
         for item in candidates:
             if item in fields:
                 self.ui.columnnameFieldComboBox.setCurrentIndex(fields.index(item))
