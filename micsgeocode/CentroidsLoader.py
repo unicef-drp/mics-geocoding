@@ -58,12 +58,8 @@ class CentroidsLoader():
 
         Logger.logInfo("[CentroidsLoader] Loading from file: " + self.input_file)
 
-        self.layers[Utils.LayersType.CENTROIDS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.CENTROIDS, [
-            QgsField("cluster", QVariant.Int),
-            QgsField("type", QVariant.String),
-            QgsField("count", QVariant.Int),
-            QgsField("admin", QVariant.String)
-        ])
+        self.__initLayer(Utils.LayersType.CENTROIDS)
+
         input_file_clusters_format = Path(self.input_file).suffix[1:]
         if input_file_clusters_format == "shp":
             self.__loadCentroidsFromSHP()
@@ -130,6 +126,17 @@ class CentroidsLoader():
                 self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
             self.layers[Utils.LayersType.POLYGONS] = None
 
+        elif self.layers[Utils.LayersType.POLYGONS].wkbType() == 4:  # QgsWkbTypes.MultiPoints: # 4
+
+            # reproduce the csv input mecanism, to share the same algo. not very optimized, but hey.
+            self.__initLayer(Utils.LayersType.MULTIPLT)
+            self.__initLayer(Utils.LayersType.CONVEXHULL)
+
+            gps_coords = self.__layer2gps(self.layers[Utils.LayersType.POLYGONS])
+            self.__computeCentroidsfromGPSCoords(gps_coords)
+            QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.MULTIPLT])
+            QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.CONVEXHULL])
+
         elif self.layers[Utils.LayersType.POLYGONS].wkbType() == 6:  # QgsWkbTypes.Polygon: # 6
             cluster_polygons = [ft for ft in self.layers[Utils.LayersType.POLYGONS].getFeatures()]
             for cluster_polygon in cluster_polygons:
@@ -146,6 +153,44 @@ class CentroidsLoader():
             QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.POLYGONS])
 
 ## ###########################################################################
+# init layers
+## ###########################################################################
+
+    def __initLayer(self, type: Utils.LayersType):
+        if type == Utils.LayersType.GPS:
+            self.layers[Utils.LayersType.GPS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.GPS, [
+                QgsField("cluster", QVariant.Int),
+                QgsField("type", QVariant.String),
+                QgsField("lon", QVariant.Double),
+                QgsField("lat", QVariant.Double)
+            ])
+
+        elif type == Utils.LayersType.MULTIPLT:
+            self.layers[Utils.LayersType.MULTIPLT] = Utils.createLayer('MultiPoint?crs='+Transforms.layer_proj, Utils.LayersType.MULTIPLT, [
+                QgsField("cluster", QVariant.Int),
+                QgsField("type", QVariant.String),
+                QgsField("count", QVariant.Int)
+            ])
+
+        elif type == Utils.LayersType.CONVEXHULL:
+            self.layers[Utils.LayersType.CONVEXHULL] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.CONVEXHULL, [
+                QgsField("cluster", QVariant.Int),
+                QgsField("type", QVariant.String),
+                QgsField("count", QVariant.Int),
+                QgsField("area_m2", QVariant.Double),
+                QgsField("angle_deg", QVariant.Double),
+                QgsField("width_m", QVariant.Double),
+                QgsField("height_m", QVariant.Double)
+            ])
+        elif type == Utils.LayersType.CENTROIDS:
+            self.layers[Utils.LayersType.CENTROIDS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.CENTROIDS, [
+                QgsField("cluster", QVariant.Int),
+                QgsField("type", QVariant.String),
+                QgsField("count", QVariant.Int),
+                QgsField("admin", QVariant.String)
+            ])
+
+## ###########################################################################
 # CSV Inputs
 ## ###########################################################################
 
@@ -158,28 +203,9 @@ class CentroidsLoader():
         Logger.logInfo("[CentroidsLoader] Cluster Latitude field: " + self.lat_field)
         Logger.logInfo("[CentroidsLoader] Admin Boundaries field: " + self.admin_boundaries_field)
 
-        self.layers[Utils.LayersType.GPS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.GPS, [
-            QgsField("cluster", QVariant.Int),
-            QgsField("type", QVariant.String),
-            QgsField("lon", QVariant.Double),
-            QgsField("lat", QVariant.Double)
-        ])
-
-        self.layers[Utils.LayersType.MULTIPLT] = Utils.createLayer('MultiPoint?crs='+Transforms.layer_proj, Utils.LayersType.MULTIPLT, [
-            QgsField("cluster", QVariant.Int),
-            QgsField("type", QVariant.String),
-            QgsField("count", QVariant.Int)
-        ])
-
-        self.layers[Utils.LayersType.CONVEXHULL] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.CONVEXHULL, [
-            QgsField("cluster", QVariant.Int),
-            QgsField("type", QVariant.String),
-            QgsField("count", QVariant.Int),
-            QgsField("area_m2", QVariant.Double),
-            QgsField("angle_deg", QVariant.Double),
-            QgsField("width_m", QVariant.Double),
-            QgsField("height_m", QVariant.Double)
-        ])
+        self.__initLayer(Utils.LayersType.GPS)
+        self.__initLayer(Utils.LayersType.MULTIPLT)
+        self.__initLayer(Utils.LayersType.CONVEXHULL)
 
         gps_coords = self.__csv2gps()
         self.__addGpsLayer(gps_coords)
@@ -187,6 +213,21 @@ class CentroidsLoader():
         QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.GPS])
         QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.MULTIPLT])
         QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.CONVEXHULL])
+
+    def __layer2gps(self, layer) -> typing.List:
+        gps_coords = []
+        for feature in layer.getFeatures():
+            geom = feature.geometry()
+            for part in geom.parts():  # loop through the parts of each multipoint feature
+                for p in part.vertices():  # now "loop through" each vertex of each part (actually a loop isnt really needed but easier to implement, since each part always has exact one vertex)
+                    gps_coords.append({
+                        'cluster': feature[self.cluster_no_field],
+                        'type': feature[self.cluster_type_field],
+                        'lat': p.y(),
+                        'lon': p.x(),
+                        'admin': feature[self.admin_boundaries_field]
+                    })
+        return gps_coords
 
     def __csv2gps(self) -> typing.List:
         gps_coords = []
