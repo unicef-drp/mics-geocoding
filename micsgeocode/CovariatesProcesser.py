@@ -14,6 +14,8 @@ from .Transforms import Transforms
 from . import Utils
 
 import numpy as np
+from scipy import stats as st
+
 from osgeo.gdalconst import GA_ReadOnly
 from osgeo import gdal, ogr
 import os
@@ -380,7 +382,8 @@ class CovariatesProcesser():
                 'min': float(masked.min()),
                 'mean': float(masked.mean()),
                 'max': float(masked.max()),
-                'median': np.ma.median(masked),
+                'median': float(np.ma.median(masked)),
+                # 'mode': float(st.mode(masked)), # result is not that simple
                 'std': float(masked.std()),
                 'sum': float(masked.sum()),
                 'count': int(masked.count()),
@@ -405,6 +408,7 @@ class CovariatesProcesser():
                     'mean': float(intval),
                     'max': float(intval),
                     'median': float(intval),
+                    # 'mode': float(intval),
                     'std': float(intval),
                     'sum': float(intval),
                     'count': int(intval),
