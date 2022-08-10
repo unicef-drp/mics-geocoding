@@ -111,12 +111,30 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.exportDisplacedCentroidsButton.setToolTip("Export anonymised displaced cluster centroids as a CSV file.")
 
     ## #############################################################
+    # reset
+    ## #############################################################
+
+    def reset(self) -> typing.NoReturn:
+
+        self.ui.centroidsLayerLineEdit.clear()
+        self.ui.referenceLayerLineEdit.clear()
+
+        self.maxDistancesPerBufferId = None
+
+        # hide show more section
+        self.isMoreVisible = False
+        self.ui.moreWidget.setProperty(b"size", QtCore.QSize(451, 0))
+
+        self.ui.toggleShowMoreButton.setText("Show More")
+        self.ui.toggleShowMoreButton.setIcon(self.showMoreIcon)
+
+    ## #############################################################
     # update save status
     ## #############################################################
 
     def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
         self.needsSave = needsSave
-        self.ui.saveConfigButton.setEnabled(self.needsSave)
+        self.ui.actionsave.setEnabled(self.needsSave)
 
     ## #############################################################
     # show hide the more section

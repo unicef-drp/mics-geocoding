@@ -70,12 +70,19 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         self.ui.loadCentroidsButton.setToolTip("Generate Centroids. QGIS generates layers depending on input.")
 
     ## #############################################################
+    # reset
+    ## #############################################################
+
+    def reset(self) -> typing.NoReturn:
+        self.ui.centroidsSourceFileLineEdit.clear()
+
+    ## #############################################################
     # update save status
     ## #############################################################
 
     def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
         self.needsSave = needsSave
-        self.ui.saveConfigButton.setEnabled(self.needsSave)
+        self.ui.actionsave.setEnabled(self.needsSave)
 
     # #############################################################
     # Centroids Source

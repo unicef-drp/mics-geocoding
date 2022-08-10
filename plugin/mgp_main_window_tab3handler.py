@@ -77,12 +77,21 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.computeCovariatesButton.setToolTip("Compute covariates. QGIS generates additional layers depending on inputs and a CSV file with the outputs.")
 
     ## #############################################################
+    # reset
+    ## #############################################################
+
+    def reset(self) -> typing.NoReturn:
+        self.ui.covinputsSourceFileLineEdit.clear()
+        self.ui.imagesSourceFileLineEdit.clear()
+        self.ui.covrefLayerLineEdit.clear()
+
+    ## #############################################################
     # update save status
     ## #############################################################
 
     def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
         self.needsSave = needsSave
-        self.ui.saveConfigButton.setEnabled(self.needsSave)
+        self.ui.actionsave.setEnabled(self.needsSave)
 
     ## #############################################################
     # Load covref from step2

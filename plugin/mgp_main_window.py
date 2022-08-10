@@ -57,10 +57,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         self.title = self.windowTitle() + " (" + version + ")"
         self.setWindowTitle(self.title)
 
-        ## ####################################################################
-        # handle menubar
-        ## ####################################################################
-
         # Down-right logo. Here file szes and label sizes are the same, no need for scaling
         # Label size: 177 x 35
         # Could be more flexible, with an horizontal spacer or halignment settings.
@@ -79,28 +75,36 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         # Init various members - might be overriden with config
         ## ####################################################################
 
-        # Hold the save button status
-        self.needsSave = False
-        self.fileMGC = None
-
-        # Initiate Managers
-
-        # Hold the basename values. Made to avoid too many 'editingFinished' signal issue
-        self.basename = ""
-        self.ui.basenameLineEdit.clear()
-
-        # Init output directory with tmpPath
-        self.ui.outputDirLineEdit.setText(QtCore.QDir.toNativeSeparators(QtCore.QDir.tempPath()))
-
-        # Force tab to init at first tab. Frequent mistake when manipulating qtdesigner
-        self.ui.tabWidget.setCurrentIndex(0)
-
         self.loadCentroidsHandler = MGPMainWindowTab1Handler(self.ui)
         self.displaceCentroidsHandler = MGPMainWindowTab2Handler(self.ui)
         self.covariatesHandler = MGPMainWindowTab3Handler(self.ui)
 
-        # Auto update output directory with default values
-        self.onOutputDirLineEditChanged()
+        ## ####################################################################
+        # handle menubar
+        ## ####################################################################
+
+        self.ui.actionnew.setIcon(
+            self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_FileDialogNewFolder"))
+        )
+
+        self.ui.actionopen.setIcon(
+            self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogOpenButton"))
+        )
+
+        self.ui.actionsave.setIcon(
+            self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton"))
+        )
+
+        self.ui.actionsave.setEnabled(False)
+
+        self.ui.actionnew.triggered.connect(self.onNewConfigTriggered)
+        self.ui.actionopen.triggered.connect(self.onOpenConfigTriggered)
+        self.ui.actionsave.triggered.connect(self.onSaveConfigTriggered)
+        self.ui.actionsaveas.triggered.connect(self.onSaveConfigAsTriggered)
+
+        self.ui.actionGenerate.triggered.connect(self.onFocusOnGenerateTriggered)
+        self.ui.actionDisplace.triggered.connect(self.onFocusOnDisplaceTriggered)
+        self.ui.actionExtract.triggered.connect(self.onFocusOnExtractTriggered)
 
         ## ####################################################################
         # Init signal slots connection
@@ -109,10 +113,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         self.ui.basenameLineEdit.editingFinished.connect(self.onBasenameLineEditChanged)
         self.ui.outputDirToolButton.clicked.connect(self.onOutputDirToolButtonClicked)
         self.ui.outputDirLineEdit.textChanged.connect(self.onOutputDirLineEditChanged)
-
-        self.ui.loadConfigButton.clicked.connect(self.onLoadConfigButtonClicked)
-        self.ui.saveConfigAsButton.clicked.connect(self.onSaveConfigAsButtonClicked)
-        self.ui.saveConfigButton.clicked.connect(self.onSaveConfigButtonClicked)
 
         self.loadCentroidsHandler.centroidsLoaded.connect(self.displaceCentroidsHandler.loadCentroidsFromStep01)
         self.displaceCentroidsHandler.centroidsDisplaced.connect(self.covariatesHandler.loadCovrefFromStep02)
@@ -127,6 +127,12 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         self.ui.outputDirToolButton.setToolTip("Browse for output directory on the disk")
 
         ## ####################################################################
+        # init all var
+        ## ####################################################################
+
+        self.reset()
+
+        ## ####################################################################
         # actually show the app
         ## ####################################################################
 
@@ -139,7 +145,33 @@ class MGPMainWindow(QtWidgets.QMainWindow):
 
     def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
         self.needsSave = needsSave
-        self.ui.saveConfigButton.setEnabled(self.needsSave)
+        self.ui.actionsave.setEnabled(self.needsSave)
+
+    # #############################################################
+    # Reset
+    # #############################################################
+
+    def reset(self) -> typing.NoReturn:
+        # Hold the save button status
+        self.needsSave = False
+        self.fileMGC = None
+
+        # Hold the basename values. Made to avoid too many 'editingFinished' signal issue
+        self.basename = ""
+        self.ui.basenameLineEdit.clear()
+
+        # Init output directory with tmpPath
+        self.ui.outputDirLineEdit.setText(QtCore.QDir.toNativeSeparators(QtCore.QDir.tempPath()))
+        # Auto update output directory with default values
+        self.onOutputDirLineEditChanged()
+
+        # Force tab to init at first tab. Frequent mistake when manipulating qtdesigner
+        self.ui.tabWidget.setCurrentIndex(0)
+
+        # tabs
+        self.loadCentroidsHandler.reset()
+        self.displaceCentroidsHandler.reset()
+        self.covariatesHandler.reset()
 
     ## #############################################################
     # Close event
@@ -171,10 +203,35 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             self.close()
 
     ## #############################################################
-    # Save Load config
+    # Switch tab
     ## #############################################################
 
-    def onLoadConfigButtonClicked(self) -> typing.NoReturn:
+    def onFocusOnGenerateTriggered(self) -> typing.NoReturn:
+        '''Focus on the 1st tab, generate
+        '''
+        self.ui.tabWidget.setCurrentIndex(0)
+
+    def onFocusOnDisplaceTriggered(self) -> typing.NoReturn:
+        '''Focus on the 2nd tab, displace
+        '''
+        self.ui.tabWidget.setCurrentIndex(1)
+
+    def onFocusOnExtractTriggered(self) -> typing.NoReturn:
+        '''Focus on the 3rd tab, extract
+        '''
+        self.ui.tabWidget.setCurrentIndex(2)
+
+   ## #############################################################
+   # Save Load config
+   ## #############################################################
+
+    def onNewConfigTriggered(self) -> typing.NoReturn:
+        '''Trigger the new configuration
+        '''
+        self.reset()
+        self.onSaveConfigAsTriggered()
+
+    def onOpenConfigTriggered(self) -> typing.NoReturn:
         '''Pick and trigger the open configuration
         '''
         settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
@@ -196,18 +253,18 @@ class MGPMainWindow(QtWidgets.QMainWindow):
 
         self.updateSaveStatus(False)
 
-    def onSaveConfigButtonClicked(self) -> typing.NoReturn:
+    def onSaveConfigTriggered(self) -> typing.NoReturn:
         '''Save the project to the current fileMGC.
            If there is none, trigger the saveas
         '''
         if not self.fileMGC:
-            self.onSaveConfigAsButtonClicked()
+            self.onSaveConfigAsTriggered()
         else:
             writer = mgp_config_writer(self.fileMGC, self)
             writer.writeConfig()
             self.updateSaveStatus(False)
 
-    def onSaveConfigAsButtonClicked(self):
+    def onSaveConfigAsTriggered(self):
         '''Pick a file and save the project to it
         '''
         settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
