@@ -31,7 +31,7 @@ from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 
 
-class MGPMainWindow(QtWidgets.QWidget):
+class MGPMainWindow(QtWidgets.QMainWindow):
     '''The actual window that is displayed in the qgis interface
     '''
 
@@ -46,7 +46,7 @@ class MGPMainWindow(QtWidgets.QWidget):
 
         # With or withoutl stays on top. Matter of taste.
         # QtWidgets.QWidget.__init__(self, None, QtCore.Qt.WindowStaysOnTopHint)
-        QtWidgets.QWidget.__init__(self, None)
+        QtWidgets.QMainWindow.__init__(self, None)
 
         # Setup ui based on the qtdesigner form
         self.ui = Ui_MGPDialog()
@@ -56,6 +56,10 @@ class MGPMainWindow(QtWidgets.QWidget):
         self.setFixedSize(self.width(), self.height())
         self.title = self.windowTitle() + " (" + version + ")"
         self.setWindowTitle(self.title)
+
+        ## ####################################################################
+        # handle menubar
+        ## ####################################################################
 
         # Down-right logo. Here file szes and label sizes are the same, no need for scaling
         # Label size: 177 x 35
