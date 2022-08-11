@@ -104,6 +104,8 @@ class CentroidsBufferLayerWriter():
         Utils.putLayerOnTopIfExists(Utils.LayersType.LINKS)  # fix z order
         Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)  # fix z order
 
+        Utils.reloadLayerFromDiskToAvoidMemoryFlag(Utils.LayersType.CENTROIDS_BUFFERS)
+
         Logger.logInfo("[CentroidsBufferLayerWriter] Centroids displacement finished at {}".format(datetime.now()))
 
     def clearLayers(self) -> typing.NoReturn:

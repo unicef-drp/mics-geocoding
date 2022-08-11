@@ -122,7 +122,7 @@ def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typ
 
     # error = QgsVectorFileWriter.writeAsVectorFormatV2(layer, "testdata/my_new_shapefile", transform_context, save_options)
     layer = QgsVectorLayer(layerType, LayersName.layerName(layerCategorie), 'memory')
-    layer.setCustomProperty("skipMemoryLayersCheck", 1)
+    #  layer.setCustomProperty("skipMemoryLayersCheck", 1)
     provider = layer.dataProvider()
     provider.addAttributes(layerAttributes)
     layer.updateFields()
