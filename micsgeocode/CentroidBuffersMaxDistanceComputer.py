@@ -1,6 +1,6 @@
 ## ###########################################################################
 ##
-# CentroidsBufferMaxDistanceComputer.py
+# CentroidBuffersMaxDistanceComputer.py
 ##
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
@@ -28,7 +28,7 @@ from .Logger import Logger
 ## #############################################################
 
 
-class CentroidsBufferMaxDistanceComputer():
+class CentroidBuffersMaxDistanceComputer():
     """ Handle the centroids buffer radiuses computation
         The radiuses are available through a dict: { cluster_id -> radius }
     """

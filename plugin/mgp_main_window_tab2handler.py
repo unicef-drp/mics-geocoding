@@ -21,8 +21,8 @@ import typing
 
 from .ui_mgp_dialog import Ui_MGPDialog
 from .micsgeocode import CentroidsDisplacer as Displacer
-from .micsgeocode import CentroidsBufferMaxDistanceComputer as Radier
-from .micsgeocode import CentroidsBufferLayerWriter as BufferWriter
+from .micsgeocode import CentroidBuffersMaxDistanceComputer as Radier
+from .micsgeocode import CentroidBuffersLayerWriter as BufferWriter
 from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
@@ -65,7 +65,7 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.showMoreIcon = self.ui.toggleShowMoreButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TitleBarUnshadeButton"))
 
         self.isMoreVisible = False
-        self.ui.moreWidget.setProperty(b"size", QtCore.QSize(461, 0))
+        self.ui.moreWidget.setProperty(b"size", QtCore.QSize(41, 0))
 
         self.ui.toggleShowMoreButton.setText("Show More")
         self.ui.toggleShowMoreButton.setIcon(self.showMoreIcon)
@@ -90,7 +90,7 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         # Command window
         self.ui.toggleShowMoreButton.clicked.connect(self.onToggleShowMoreButtonClicked)
 
-        self.ui.generateCentroidsBufferButton.clicked.connect(self.onGenerateCentroidsBuffersButtonCLicked)
+        self.ui.generateCentroidBuffersButton.clicked.connect(self.onGenerateCentroidBuffersButtonCLicked)
 
         ## ####################################################################
         # Init Tooltips - easier than in qtdesigner
@@ -106,7 +106,12 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field indicating cluster area variable.")
 
         self.ui.displaceCentroidsButton.setToolTip(
-            "Displace Centroids. QGIS generates additional layers depending on inputs.\nThe final anonymised displaced cluster file is generated “BASENAME_cluster_anonymised_displaced_centroids”.")
+            "Displace Centroids. QGIS generates additional layers depending on inputs.\nThe final anonymised displaced cluster file is generated “BASENAME_cluster_anonymised_displaced_centroids”."
+        )
+
+        self.ui.generateCentroidBuffersButton.setToolTip(
+            "Generate Buffers. QGIS generates a buffer layer for the original cluster centroids."
+        )
 
         self.ui.exportDisplacedCentroidsButton.setToolTip("Export anonymised displaced cluster centroids as a CSV file.")
 
@@ -288,6 +293,8 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
         Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)
 
+        Utils.reloadLayerFromDiskToAvoidMemoryFlag(Utils.LayersType.CENTROIDS)
+
         Logger.logSuccess("[CentroidsDisplacer] Centroids succcessfully displaced at {}".format(datetime.now()))
 
         self.maxDistancesPerBufferId = displacer.maxDistances
@@ -305,7 +312,7 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         except:
             Logger.logWarning("[CentroidsDisplacer] A problem occured while saving displaced anonymised centroids")
 
-    def onGenerateCentroidsBuffersButtonCLicked(self) -> typing.NoReturn:
+    def onGenerateCentroidBuffersButtonCLicked(self) -> typing.NoReturn:
         Logger.logInfo("[CentroidsDisplacer] About to generate")
         if not self.maxDistancesPerBufferId:
             Logger.logWarning("[CentroidsDisplacer] The displacement has not been computed. The centroids buffer layer can't be generated.")
@@ -316,9 +323,9 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
             return
 
         try:
-            bufferer = BufferWriter.CentroidsBufferLayerWriter()
+            bufferer = BufferWriter.CentroidBuffersLayerWriter()
             bufferer.maxDistances = self.maxDistancesPerBufferId
-            bufferer.writerCentroidsBufferLayer()
+            bufferer.writerCentroidBuffersLayer()
 
         except:
             Logger.logWarning("[CentroidsDisplacer] A problem occured while generating centroids buffer.")

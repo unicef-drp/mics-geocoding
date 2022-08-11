@@ -40,7 +40,7 @@ from . import CentroidsLoader as CentroidsLoader
 from . import ReferenceLayer as ReferenceLayer
 from . import Utils
 from . import Errors
-from . import CentroidsBufferMaxDistanceComputer as Radier
+from . import CentroidBuffersMaxDistanceComputer as Radier
 
 from .Transforms import Transforms
 from .Logger import Logger
@@ -74,7 +74,7 @@ class CentroidsDisplacer():
 
         self.clearLayers()
 
-        radier = Radier.CentroidsBufferMaxDistanceComputer()
+        radier = Radier.CentroidBuffersMaxDistanceComputer()
         radier.centroidLayer = self.centroidLayer
         radier.computeBufferRadiusesCentroids()
         self.maxDistances = radier.maxDistance

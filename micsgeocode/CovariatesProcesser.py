@@ -209,7 +209,7 @@ class CovariatesProcesser():
                                     pt = cluster_ft.geometry().centroid().asPoint()
                                     contains = geom.contains(pt)
                                     if contains:
-                                        isInsideFeature = True
+                                        isInsideFeature = False
                                 if not isInsideFeature:
                                     cswc = min(
                                         [(
@@ -398,7 +398,8 @@ class CovariatesProcesser():
                 'mean': float(masked.mean()),
                 'max': float(masked.max()),
                 'median': float(np.ma.median(masked)),
-                # 'mode': float(st.mode(masked)), # result is not that simple
+                'mode': float(np.ma.median(masked)),  # result is not that simple
+                # 'mode': float(np.ma.median(masked)),  # result is not that simple
                 'std': float(masked.std()),
                 'sum': float(masked.sum()),
                 'count': int(masked.count()),
@@ -423,7 +424,7 @@ class CovariatesProcesser():
                     'mean': float(intval),
                     'max': float(intval),
                     'median': float(intval),
-                    # 'mode': float(intval),
+                    'mode': float(intval),
                     'std': float(intval),
                     'sum': float(intval),
                     'count': int(intval),

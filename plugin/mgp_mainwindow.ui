@@ -585,7 +585,7 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_5">
              <item>
-              <widget class="QPushButton" name="generateCentroidsBufferButton">
+              <widget class="QPushButton" name="generateCentroidBuffersButton">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -593,7 +593,7 @@
                 </size>
                </property>
                <property name="text">
-                <string>Generate Centroids Buffers</string>
+                <string>Generate Centroid Buffers</string>
                </property>
               </widget>
              </item>
