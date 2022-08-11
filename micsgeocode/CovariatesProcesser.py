@@ -175,7 +175,7 @@ class CovariatesProcesser():
                         shortest_dist_prov.addAttributes([
                             QgsField("cluster", QtCore.QVariant.Int),
                             QgsField("nearestfid", QtCore.QVariant.String),
-                            QgsField("dist", QtCore.QVariant.Double, "", 0, 2)
+                            QgsField("dist", QtCore.QVariant.Double, 'double', 15, 2)
                         ])
                         shortest_dist_lyr.updateFields()
 
