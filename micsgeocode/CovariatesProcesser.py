@@ -188,7 +188,8 @@ class CovariatesProcesser():
                             # endPt = QgsPoint(QgsPointXY(0, 0))
                             endGeom = QgsGeometry.fromPointXY(QgsPointXY(0, 0))
 
-                            minDistFtId = 0
+                            minDistFtId = -1
+
                             if layer.geometryType() == 0:  # for point input shapefile
                                 distance = -99
                                 for nf in search_features:
@@ -202,25 +203,39 @@ class CovariatesProcesser():
                                 endGeom = closest_point
 
                             elif layer.geometryType() in (1, 2):  # for line (1) / polygon (2) input shapefile
-                                cswc = min(
-                                    [(l.id(), l.geometry().closestSegmentWithContext(
-                                        cluster_ft.geometry().centroid().asPoint())) for l in
-                                     search_features], key=itemgetter(1))
-                                minDistPoint = cswc[1][1]  # nearest point on line
-                                minDistFtId = cswc[0]  # line id of nearest point
-                                # endPt = QgsPoint(minDistPoint[0], minDistPoint[1])
-                                endGeom = QgsGeometry.fromPointXY(QgsPointXY(minDistPoint[0], minDistPoint[1]))
+                                isInsideFeature = False
+                                for tmp_ft in search_features:
+                                    geom = tmp_ft.geometry()
+                                    pt = cluster_ft.geometry().centroid().asPoint()
+                                    contains = geom.contains(pt)
+                                    if contains:
+                                        isInsideFeature = True
+                                if not isInsideFeature:
+                                    cswc = min(
+                                        [(
+                                            l.id(), l.geometry().closestSegmentWithContext(cluster_ft.geometry().centroid().asPoint())
+                                        ) for l in search_features],
+                                        key=itemgetter(1)
+                                    )
+                                    minDistPoint = cswc[1][1]  # nearest point on line
+                                    minDistFtId = cswc[0]  # line id of nearest point
+                                    # endPt = QgsPoint(minDistPoint[0], minDistPoint[1])
+                                    endGeom = QgsGeometry.fromPointXY(QgsPointXY(minDistPoint[0], minDistPoint[1]))
 
-                            line = QgsGeometry.fromPolyline([QgsPoint(startGeom.asPoint()), QgsPoint(
-                                endGeom.asPoint())])  # creating line between point and nearest point
-                            feat.setGeometry(line)
+                            if minDistFtId > -1:
+                                line = QgsGeometry.fromPolyline([
+                                    QgsPoint(startGeom.asPoint()),
+                                    QgsPoint(endGeom.asPoint())
+                                ])
+                                # creating line between point and nearest point
+                                feat.setGeometry(line)
 
-                            # get distance in meters - transform to Web Mercator
-                            line_merc = QgsGeometry(line)
-                            line_merc.transform(Transforms.tr)
+                                # get distance in meters - transform to Web Mercator
+                                line_merc = QgsGeometry(line)
+                                line_merc.transform(Transforms.tr)
 
-                            feat.setAttributes([cluster_ft[CovariatesProcesser.CLUSTER_N0_FIELD_NAME], minDistFtId, line_merc.length()])
-                            shortest_dist_prov.addFeatures([feat])
+                                feat.setAttributes([cluster_ft[CovariatesProcesser.CLUSTER_N0_FIELD_NAME], minDistFtId, line_merc.length()])
+                                shortest_dist_prov.addFeatures([feat])
 
                         # Update extent of the layer
                         shortest_dist_lyr.updateExtents()
