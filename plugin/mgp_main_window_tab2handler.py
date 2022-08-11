@@ -51,21 +51,21 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
         self.showMoreWidgetSizeAnimation = QtCore.QPropertyAnimation(self.ui.moreWidget, b"size")
         self.showMoreWidgetSizeAnimation.setDuration(250)
-        self.showMoreWidgetSizeAnimation.setStartValue(QtCore.QSize(451, 0))
-        self.showMoreWidgetSizeAnimation.setEndValue(QtCore.QSize(451, 100))
+        self.showMoreWidgetSizeAnimation.setStartValue(QtCore.QSize(461, 0))
+        self.showMoreWidgetSizeAnimation.setEndValue(QtCore.QSize(461, 100))
         self.showMoreWidgetSizeAnimation.setEasingCurve(QtCore.QEasingCurve.OutCubic)
 
         self.showLessWidgetSizeAnimation = QtCore.QPropertyAnimation(self.ui.moreWidget, b"size")
         self.showLessWidgetSizeAnimation.setDuration(250)
-        self.showLessWidgetSizeAnimation.setStartValue(QtCore.QSize(451, 100))
-        self.showLessWidgetSizeAnimation.setEndValue(QtCore.QSize(451, 0))
+        self.showLessWidgetSizeAnimation.setStartValue(QtCore.QSize(461, 100))
+        self.showLessWidgetSizeAnimation.setEndValue(QtCore.QSize(461, 0))
         self.showLessWidgetSizeAnimation.setEasingCurve(QtCore.QEasingCurve.OutCubic)
 
         self.showLessIcon = self.ui.toggleShowMoreButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TitleBarShadeButton"))
         self.showMoreIcon = self.ui.toggleShowMoreButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TitleBarUnshadeButton"))
 
         self.isMoreVisible = False
-        self.ui.moreWidget.setProperty(b"size", QtCore.QSize(451, 0))
+        self.ui.moreWidget.setProperty(b"size", QtCore.QSize(461, 0))
 
         self.ui.toggleShowMoreButton.setText("Show More")
         self.ui.toggleShowMoreButton.setIcon(self.showMoreIcon)
