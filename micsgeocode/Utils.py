@@ -160,21 +160,6 @@ def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
         # reloadLayerFromDiskToAvoidMemoryFlag(layerType)
 
 
-def writeLayerAsCSVIfExists(layerType: LayersType) -> typing.NoReturn:
-    """ Write the layer on disk, if it exists in the project instance
-    """
-    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
-    if layers:
-        QgsVectorFileWriter.writeAsVectorFormat(
-            layers[0],
-            LayersName.fileName(layerType, "csv"),
-            "utf-8",
-            layers[0].crs(),
-            "CSV",
-            layerOptions=["STRING_QUOTING=IF_NEEDED"]
-        )
-
-
 def getval(ft: QgsFeature, field: QgsField) -> str:
     """ get value as string from feature / field combo
     """

@@ -11,6 +11,7 @@
 
 
 import os
+import csv
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from pathlib import Path
@@ -307,8 +308,20 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         '''Displace centroids
         '''
         try:
-            Utils.writeLayerAsCSVIfExists(Utils.LayersType.DISPLACEDANON)
-            Logger.logSuccess("[CentroidsDisplacer] Displaced Anonymised Centroids successfully saved as CSV: {}".format(Utils.LayersName.fileName(Utils.LayersType.DISPLACEDANON, "csv")))
+            layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.DISPLACEDANON))
+            if layers:
+                layer = layers[0]
+                filename = Utils.LayersName.fileName(Utils.LayersType.DISPLACEDANON, "csv")
+                with open(filename, 'w', encoding="UTF8", newline="") as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerow(["Cluster Number", "Longitude", "Latitude"])
+                    for ft in layer.getFeatures():
+                        writer.writerow([
+                            str(ft['cluster']),
+                            "{:.6f}".format(ft.geometry().asPoint().x()),
+                            "{:.6f}".format(ft.geometry().asPoint().y())
+                        ])
+                Logger.logSuccess("[CentroidsDisplacer] Displaced Anonymised Centroids successfully saved as CSV: {}".format(Utils.LayersName.fileName(Utils.LayersType.DISPLACEDANON, "csv")))
         except:
             Logger.logWarning("[CentroidsDisplacer] A problem occured while saving displaced anonymised centroids")
 
