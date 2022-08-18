@@ -38,12 +38,13 @@ class mgp_config_reader:
             if 'global' in configReader:
                 if 'basename' in configReader['global']:
                     self.mainWindow.ui.basenameLineEdit.setText(configReader['global']['basename'])
-
                 if 'outputDir' in configReader['global']:
                     try:
                         self.mainWindow.ui.outputDirLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['global']['outputDir'])))
                     except:
                         self.mainWindow.ui.outputDirLineEdit.clear()
+                if 'tabindex' in configReader['global']:
+                    self.mainWindow.ui.tabWidget.setCurrentIndex(int(configReader['global']['tabindex']))
 
             if 'ReferenceLayer' in configReader:
                 if 'fileReferenceLayer' in configReader['ReferenceLayer']:

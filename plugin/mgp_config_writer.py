@@ -68,7 +68,8 @@ class mgp_config_writer:
 
             configWriter['global'] = {
                 'basename': self.mainWindow.ui.basenameLineEdit.text(),
-                'outputDir': output_dir
+                'outputDir': output_dir,
+                'tabindex': self.mainWindow.ui.tabWidget.currentIndex()
             }
 
             configWriter['ReferenceLayer'] = {
