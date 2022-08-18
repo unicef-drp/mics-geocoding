@@ -59,6 +59,11 @@ class mgp_config_writer:
             except:
                 images_dir = ""
 
+            try:
+                images_dir = os.path.relpath(self.mainWindow.ui.imagesSourceFileLineEdit.text(), project_root_path)
+            except:
+                images_dir = ""
+
             configWriter['program'] = {'name': 'MICS GIS PLUGIN', 'version': '0.0.1'}
 
             configWriter['global'] = {
@@ -86,7 +91,8 @@ class mgp_config_writer:
                 'fileformatIndex': str(self.mainWindow.ui.fileformatFieldComboBox.currentIndex()),
                 'sumstatIndex': str(self.mainWindow.ui.sumstatFieldComboBox.currentIndex()),
                 'columnnameIndex': str(self.mainWindow.ui.columnnameFieldComboBox.currentIndex()),
-                'imagesDir': images_dir
+                'imagesDir': images_dir,
+                'buffer': self.mainWindow.ui.covrefLayerLineEdit.text()
             }
 
             with open(self.fileMGC, 'w') as file:
