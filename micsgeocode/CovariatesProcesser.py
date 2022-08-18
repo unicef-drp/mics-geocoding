@@ -393,13 +393,19 @@ class CovariatesProcesser():
                 )
             )
 
+            # Compute mode:
+            mode, count = st.mode(masked)
+            modeValue = float(masked.mean())
+            if len(mode):
+                modeValue = np.mean(mode)
+
             feature_stats = {
                 'min': float(masked.min()),
                 'mean': float(masked.mean()),
                 'max': float(masked.max()),
                 'median': float(np.ma.median(masked)),
                 'mode': float(np.ma.median(masked)),  # result is not that simple
-                # 'mode': float(np.ma.median(masked)),  # result is not that simple
+                'mode': modeValue,
                 'std': float(masked.std()),
                 'sum': float(masked.sum()),
                 'count': int(masked.count()),
