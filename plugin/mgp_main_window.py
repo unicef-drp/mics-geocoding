@@ -99,6 +99,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
 
         self.ui.actionnew.triggered.connect(self.onNewConfigTriggered)
         self.ui.actionopen.triggered.connect(self.onOpenConfigTriggered)
+        self.ui.actionopenmostrecent.triggered.connect(self.onOpenMostRecentConfigTriggered)
         self.ui.actionsave.triggered.connect(self.onSaveConfigTriggered)
         self.ui.actionsaveas.triggered.connect(self.onSaveConfigAsTriggered)
 
@@ -241,6 +242,15 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             self.open(file)
             settings.setValue("last_file_directory", os.path.dirname(file))
 
+    def onOpenMostRecentConfigTriggered(self) -> typing.NoReturn:
+        '''Pick and trigger the open configuration
+        '''
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
+        lastOpened = settings.value("last_config_file")
+        if lastOpened:
+            self.open(lastOpened)
+            settings.setValue("last_file_directory", os.path.dirname(lastOpened))
+
     def open(self, fileMGC: str) -> typing.NoReturn:
         '''Open the configuration passed as an argument
         '''
@@ -250,6 +260,9 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         reader.readConfig()
         self.onBasenameLineEditChanged()
         self.onOutputDirLineEditChanged()
+
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
+        settings.setValue("last_config_file", self.fileMGC)
 
         self.updateSaveStatus(False)
 

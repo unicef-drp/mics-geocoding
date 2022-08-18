@@ -452,8 +452,11 @@ class Ui_MGPDialog(object):
         self.actionDisplace.setObjectName("actionDisplace")
         self.actionExtract = QtWidgets.QAction(MGPDialog)
         self.actionExtract.setObjectName("actionExtract")
+        self.actionopenmostrecent = QtWidgets.QAction(MGPDialog)
+        self.actionopenmostrecent.setObjectName("actionopenmostrecent")
         self.menutest.addAction(self.actionnew)
         self.menutest.addAction(self.actionopen)
+        self.menutest.addAction(self.actionopenmostrecent)
         self.menutest.addAction(self.actionsave)
         self.menutest.addAction(self.actionsaveas)
         self.menuHome.addAction(self.actionGenerate)
@@ -463,7 +466,7 @@ class Ui_MGPDialog(object):
         self.menubar.addAction(self.menuHome.menuAction())
 
         self.retranslateUi(MGPDialog)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MGPDialog)
 
     def retranslateUi(self, MGPDialog):
@@ -525,3 +528,5 @@ class Ui_MGPDialog(object):
         self.actionDisplace.setShortcut(_translate("MGPDialog", "Ctrl+D"))
         self.actionExtract.setText(_translate("MGPDialog", "Extract"))
         self.actionExtract.setShortcut(_translate("MGPDialog", "Ctrl+E"))
+        self.actionopenmostrecent.setText(_translate("MGPDialog", "Open most recent"))
+        self.actionopenmostrecent.setShortcut(_translate("MGPDialog", "Ctrl+Shift+O"))
