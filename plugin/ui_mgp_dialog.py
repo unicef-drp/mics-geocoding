@@ -14,7 +14,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MGPDialog(object):
     def setupUi(self, MGPDialog):
         MGPDialog.setObjectName("MGPDialog")
-        MGPDialog.resize(509, 649)
+        MGPDialog.resize(509, 650)
+        MGPDialog.setAutoFillBackground(True)
         self.centralwidget = QtWidgets.QWidget(MGPDialog)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
@@ -434,6 +435,7 @@ class Ui_MGPDialog(object):
         self.menuHome.setObjectName("menuHome")
         MGPDialog.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MGPDialog)
+        self.statusbar.setStyleSheet("background-color: white")
         self.statusbar.setSizeGripEnabled(False)
         self.statusbar.setObjectName("statusbar")
         MGPDialog.setStatusBar(self.statusbar)

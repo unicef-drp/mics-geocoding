@@ -95,8 +95,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton"))
         )
 
-        self.ui.actionsave.setEnabled(False)
-
         self.ui.actionnew.triggered.connect(self.onNewConfigTriggered)
         self.ui.actionopen.triggered.connect(self.onOpenConfigTriggered)
         self.ui.actionopenmostrecent.triggered.connect(self.onOpenMostRecentConfigTriggered)
@@ -140,13 +138,22 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         # Show
         self.show()
 
+        # Update status bar
+        self.showMessage("Ready")
+
+    ## #############################################################
+    # show message
+    ## #############################################################
+    def showMessage(self, msg: str, timeout: int = 5000) -> typing.NoReturn:
+        # Update status bar
+        self.statusBar().showMessage(msg, timeout)
+
     ## #############################################################
     # update save status
     ## #############################################################
 
     def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
         self.needsSave = needsSave
-        self.ui.actionsave.setEnabled(self.needsSave)
 
     # #############################################################
     # Reset
@@ -178,30 +185,38 @@ class MGPMainWindow(QtWidgets.QMainWindow):
     # Close event
     ## #############################################################
 
-    def closeEvent(self, event) -> typing.NoReturn:
-        '''Save stuffs before closing
+    def saveIfNeeded(self) -> bool:
+        '''Save stuff before opening new project
+           Return a keepgoing or not.
         '''
         # Ask for save
         if self.needsSave:
             msgBox = QtWidgets.QMessageBox()
-            msgBox.setText("The project has been modified.")
+            msgBox.setText("The current project has been modified.")
             msgBox.setInformativeText("Do you want to save your changes?")
             msgBox.setStandardButtons(QtWidgets.QMessageBox.Save | QtWidgets.QMessageBox.Discard | QtWidgets.QMessageBox.Cancel)
             msgBox.setDefaultButton(QtWidgets.QMessageBox.Save)
             ret = msgBox.exec_()
             if ret == QtWidgets.QMessageBox.Save:
-                self.ui.saveConfigButton.click()
-                event.accept()
-                self.close()
+                self.ui.actionsave.trigger()
+                return True
 
             elif ret == QtWidgets.QMessageBox.Discard:
-                event.accept()
-                self.close()
+                return True
             else:
-                event.ignore()
+                return False
         else:
+            return True
+
+    def closeEvent(self, event) -> typing.NoReturn:
+        '''Save stuffs before closing
+        '''
+        # Ask for save, that returns a boolean that concern the event processing
+        if self.saveIfNeeded():
             event.accept()
             self.close()
+        else:
+            event.ignore()
 
     ## #############################################################
     # Switch tab
@@ -229,27 +244,32 @@ class MGPMainWindow(QtWidgets.QMainWindow):
     def onNewConfigTriggered(self) -> typing.NoReturn:
         '''Trigger the new configuration
         '''
-        self.reset()
-        self.onSaveConfigAsTriggered()
+        if self.saveIfNeeded():
+            self.reset()
+            self.onSaveConfigAsTriggered()
 
     def onOpenConfigTriggered(self) -> typing.NoReturn:
         '''Pick and trigger the open configuration
         '''
-        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
-        dir = settings.value("last_file_directory", QtCore.QDir.homePath())
-        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open config file", dir, "*.mgc")
-        if file:
-            self.open(file)
-            settings.setValue("last_file_directory", os.path.dirname(file))
+        if self.saveIfNeeded():
+            settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
+            dir = settings.value("last_file_directory", QtCore.QDir.homePath())
+            file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open config file", dir, "*.mgc")
+            if file:
+                self.open(file)
+                settings.setValue("last_file_directory", os.path.dirname(file))
+                self.showMessage("Project opened")
 
     def onOpenMostRecentConfigTriggered(self) -> typing.NoReturn:
         '''Pick and trigger the open configuration
         '''
-        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
-        lastOpened = settings.value("last_config_file")
-        if lastOpened:
-            self.open(lastOpened)
-            settings.setValue("last_file_directory", os.path.dirname(lastOpened))
+        if self.saveIfNeeded():
+            settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
+            lastOpened = settings.value("last_config_file")
+            if lastOpened:
+                self.open(lastOpened)
+                settings.setValue("last_file_directory", os.path.dirname(lastOpened))
+                self.showMessage("Project opened")
 
     def open(self, fileMGC: str) -> typing.NoReturn:
         '''Open the configuration passed as an argument
@@ -276,6 +296,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             writer = mgp_config_writer(self.fileMGC, self)
             writer.writeConfig()
             self.updateSaveStatus(False)
+            self.showMessage("Project saved")
 
     def onSaveConfigAsTriggered(self):
         '''Pick a file and save the project to it
@@ -291,6 +312,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             settings.setValue("last_file_directory", os.path.dirname(file))
             settings.setValue("last_config_file", file)
             self.updateSaveStatus(False)
+            self.showMessage("Project saved")
 
     # #############################################################
     # Output directory
