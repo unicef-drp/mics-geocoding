@@ -209,7 +209,7 @@ class CovariatesProcesser():
                                     pt = cluster_ft.geometry().centroid().asPoint()
                                     contains = geom.contains(pt)
                                     if contains:
-                                        isInsideFeature = False
+                                        isInsideFeature = True
                                 if not isInsideFeature:
                                     cswc = min(
                                         [(
