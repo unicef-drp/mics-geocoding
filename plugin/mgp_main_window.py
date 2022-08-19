@@ -252,6 +252,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             if file:
                 self.open(file)
                 settings.setValue("last_file_directory", os.path.dirname(file))
+                Logger.logSuccess("Project " + QtCore.QFileInfo(self.fileMGC).fileName() + " opened")
 
     def onOpenMostRecentConfigTriggered(self) -> typing.NoReturn:
         '''Pick and trigger the open configuration
@@ -262,6 +263,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             if lastOpened:
                 self.open(lastOpened)
                 settings.setValue("last_file_directory", os.path.dirname(lastOpened))
+                Logger.logSuccess("Project " + QtCore.QFileInfo(self.fileMGC).fileName() + " opened")
 
     def open(self, fileMGC: str) -> typing.NoReturn:
         '''Open the configuration passed as an argument
@@ -288,6 +290,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             writer = mgp_config_writer(self.fileMGC, self)
             writer.writeConfig()
             self.updateSaveStatus(False)
+            Logger.logSuccess("Project " + QtCore.QFileInfo(self.fileMGC).fileName() + " saved")
 
     def onSaveConfigAsTriggered(self):
         '''Pick a file and save the project to it
@@ -303,6 +306,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             settings.setValue("last_file_directory", os.path.dirname(file))
             settings.setValue("last_config_file", file)
             self.updateSaveStatus(False)
+            Logger.logSuccess("Project " + QtCore.QFileInfo(self.fileMGC).fileName() + " saved")
 
     # #############################################################
     # Output directory
