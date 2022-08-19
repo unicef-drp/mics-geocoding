@@ -60,7 +60,7 @@ set PLUGIN_FILES=%PLUGIN_FILES%;mgp_main_window_tab3handler.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_config_reader.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_config_writer.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_version.py
-set PLUGIN_FILES=%PLUGIN_FILES%;resources.py
+set PLUGIN_FILES=%PLUGIN_FILES%;resources_rc.py
 
 FOR %%F IN (%PLUGIN_FILES%) DO (
     ROBOCOPY %PLUGIN_SOURCE_DIRECTORY% %PLUGIN_DIRECTORY% %%F /NJH /NJS /NC /NS /NP /NFL /NDL

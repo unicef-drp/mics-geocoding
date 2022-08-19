@@ -57,13 +57,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         self.title = self.windowTitle() + " (" + version + ")"
         self.setWindowTitle(self.title)
 
-        # Down-right logo. Here file szes and label sizes are the same, no need for scaling
-        # Label size: 177 x 35
-        # Could be more flexible, with an horizontal spacer or halignment settings.
-        # But this level of complexity was not needed at that the time.
-        pixmap = QtGui.QPixmap(":/plugins/MGP/logo_wo-unicef.png")
-        self.ui.labelLogo.setPixmap(pixmap)
-
         # Add a validator to basename
         # see: https://doc.qt.io/qt-5/qregexpvalidator.html
         # alternative: https://doc.qt.io/qt-5/qregularexpressionvalidator.html
@@ -148,7 +141,8 @@ class MGPMainWindow(QtWidgets.QMainWindow):
     ## #############################################################
     def showMessage(self, msg: str, timeout: int = 5000) -> typing.NoReturn:
         # Update status bar
-        self.statusBar().showMessage(msg, timeout)
+        # self.statusBar().showMessage(msg, timeout)
+        Logger.logInfo("")
 
     ## #############################################################
     # update save status

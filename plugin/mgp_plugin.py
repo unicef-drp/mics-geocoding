@@ -25,7 +25,7 @@ import os.path
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from .resources import *
+from .resources_rc import *
 from .mgp_main_window import MGPMainWindow
 from .mgp_version import mgp_VERSION
 
