@@ -286,7 +286,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
                 self.ui.covrefLayerLineEdit.text())
 
             covariatesProcesser.computeCovariates()
-            Logger.logSuccess("[CovariatesProcesser] Covariates succcessfully processed at {}".format(datetime.now()))
+            Logger.logSuccess("[CovariatesProcesser] Covariates succcessfully processed")
 
         except BaseException as e:
             Logger.logException("[CovariatesProcesser] A problem occured while processing covariates.", e)

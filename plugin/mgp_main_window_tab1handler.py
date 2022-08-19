@@ -190,30 +190,30 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         '''Load centroids
         '''
         if not self.ui.centroidsSourceFileLineEdit.text():
-            Logger.logWarning("[CentroidsLoader] A valid centroid source file must be provided")
+            Logger.logWarning("[Generate] A valid cluster source file must be provided")
             return
         else:
             if self.ui.longitudeFieldComboBox.isEnabled() and not self.ui.longitudeFieldComboBox.currentText():
-                Logger.logWarning("[CentroidsLoader] A valid longitude field must be provided")
+                Logger.logWarning("[Generate] A valid longitude field must be provided")
                 return
 
             if self.ui.latitudeFieldComboBox.isEnabled() and not self.ui.latitudeFieldComboBox.currentText():
-                Logger.logWarning("[CentroidsLoader] A valid latitude field must be provided")
+                Logger.logWarning("[Generate] A valid latitude field must be provided")
                 return
 
             if self.ui.numeroFieldComboBox.isEnabled() and not self.ui.numeroFieldComboBox.currentText():
-                Logger.logWarning("[CentroidsLoader] A valid numero field must be provided")
+                Logger.logWarning("[Generate] A valid numero field must be provided")
                 return
 
             if self.ui.typeFieldComboBox.isEnabled() and not self.ui.typeFieldComboBox.currentText():
-                Logger.logWarning("[CentroidsLoader] A valid latitude field must be provided")
+                Logger.logWarning("[Generate] A valid type field must be provided")
                 return
 
             if self.ui.adminBoundariesFieldComboBox.isEnabled() and not self.ui.adminBoundariesFieldComboBox.currentText():
-                Logger.logWarning("[CentroidsLoader] A valid admin boundaries field must be provided")
+                Logger.logWarning("[Generate] A valid admin boundaries field must be provided")
                 return
 
-            Logger.logWarning("[CentroidsLoader] A problem occured while loading centroids")
+            Logger.logWarning("[Generate] A problem occured while loading centroids")
 
         try:
             loader = Loader.CentroidsLoader()
@@ -227,9 +227,10 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
             loader.admin_boundaries_field = self.ui.adminBoundariesFieldComboBox.currentText()
 
             loader.loadCentroids()
-            Logger.logSuccess("[CentroidsLoader] Centroids succcessfully loaded at {}".format(datetime.now()))
+
+            Logger.logSuccess("[Generate] Centroids succcessfully generated")
 
             self.centroidsLoaded.emit()
 
         except BaseException as e:
-            Logger.logException("[CentroidsLoader] A problem occured while loading centroids.", e)
+            Logger.logException("[Generate] A problem occured while generating centroids.", e)

@@ -259,41 +259,41 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         '''Displace centroids
         '''
         if not self.ui.centroidsLayerLineEdit.text():
-            Logger.logWarning("[CentroidsDisplacer] A valid centroid source file must be provided")
+            Logger.logWarning("[Displace] A valid centroid source file must be provided")
             return
 
         if not self.ui.referenceLayerLineEdit.text():
-            Logger.logWarning("[CentroidsDisplacer] A valid reference source file must be provided")
+            Logger.logWarning("[Displace] A valid reference source file must be provided")
             return
 
-        # try:
-        self.maxDistancesPerBufferId = None
+        try:
+            self.maxDistancesPerBufferId = None
 
-        displacer = Displacer.CentroidsDisplacer()
+            displacer = Displacer.CentroidsDisplacer()
 
-        # Centroid Layer
-        centroidsLayerName = Utils.LayersName.layerName(Utils.LayersType.CENTROIDS)
-        Utils.removeLayerIfExistsByName(centroidsLayerName)
-        displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
-        QgsProject.instance().addMapLayer(displacer.centroidLayer)
+            # Centroid Layer
+            centroidsLayerName = Utils.LayersName.layerName(Utils.LayersType.CENTROIDS)
+            Utils.removeLayerIfExistsByName(centroidsLayerName)
+            displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
+            QgsProject.instance().addMapLayer(displacer.centroidLayer)
 
-        displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
+            displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
 
-        displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
+            displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
 
-        displacer.displaceCentroids()
+            displacer.displaceCentroids()
 
-        Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)
+            Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)
 
-        Utils.reloadLayerFromDiskToAvoidMemoryFlag(Utils.LayersType.CENTROIDS)
+            Utils.reloadLayerFromDiskToAvoidMemoryFlag(Utils.LayersType.CENTROIDS)
 
-        Logger.logSuccess("[CentroidsDisplacer] Centroids succcessfully displaced at {}".format(datetime.now()))
+            Logger.logSuccess("[Displace] Centroids succcessfully displaced")
 
-        self.maxDistancesPerBufferId = displacer.maxDistances
+            self.maxDistancesPerBufferId = displacer.maxDistances
 
-        self.centroidsDisplaced.emit()
-        # except:
-        #     Logger.logWarning("[CentroidsDisplacer] A problem occured while displacing centroids")
+            self.centroidsDisplaced.emit()
+        except:
+            Logger.logWarning("[Displace] A problem occured while displacing centroids")
 
     def onExportDisplacedCentroidsButtonClicked(self) -> typing.NoReturn:
         '''Displace centroids
@@ -312,18 +312,18 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
                             "{:.6f}".format(ft.geometry().asPoint().x()),
                             "{:.6f}".format(ft.geometry().asPoint().y())
                         ])
-                Logger.logSuccess("[CentroidsDisplacer] Displaced Anonymised Centroids successfully saved as CSV: {}".format(Utils.LayersName.fileName(Utils.LayersType.DISPLACEDANON, "csv")))
+                Logger.logSuccess("[Displace] Displaced Anonymised Centroids successfully saved as CSV: {}".format(Utils.LayersName.fileName(Utils.LayersType.DISPLACEDANON, "csv")))
         except:
-            Logger.logWarning("[CentroidsDisplacer] A problem occured while saving displaced anonymised centroids")
+            Logger.logWarning("[Displace] A problem occured while saving displaced anonymised centroids")
 
     def onGenerateCentroidBuffersButtonCLicked(self) -> typing.NoReturn:
-        Logger.logInfo("[CentroidsDisplacer] About to generate")
+        Logger.logInfo("[Displace] About to generate")
         if not self.maxDistancesPerBufferId:
-            Logger.logWarning("[CentroidsDisplacer] The displacement has not been computed. The centroids buffer layer can't be generated.")
+            Logger.logWarning("[Displace] The displacement has not been computed. The centroids buffer layer can't be generated.")
             return
 
         if not self.ui.centroidsLayerLineEdit.text():
-            Logger.logWarning("[CentroidsDisplacer] A valid centroid source file must be provided")
+            Logger.logWarning("[Displace] A valid centroid source file must be provided")
             return
 
         try:
@@ -332,4 +332,4 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
             bufferer.writerCentroidBuffersLayer()
 
         except:
-            Logger.logWarning("[CentroidsDisplacer] A problem occured while generating centroids buffer.")
+            Logger.logWarning("[Displace] A problem occured while generating centroids buffer.")

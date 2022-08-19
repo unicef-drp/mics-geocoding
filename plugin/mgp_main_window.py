@@ -52,6 +52,9 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MGPDialog()
         self.ui.setupUi(self)
 
+        # Init Logger
+        Logger.widget = self.ui.l_status
+
         # Initiate ui properties
         self.setFixedSize(self.width(), self.height())
         self.title = self.windowTitle() + " (" + version + ")"
@@ -113,7 +116,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################
 
-        self.ui.basenameLineEdit.setToolTip("Basename of layers and file generation. Only alphanumerical characters.")
+        self.ui.basenameLineEdit.setToolTip("Basename of layers and file generation. Only alphanumerical characters")
 
         self.ui.outputDirLineEdit.setToolTip("Output directory for shapefiles generation")
         self.ui.outputDirToolButton.setToolTip("Browse for output directory on the disk")
@@ -131,18 +134,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         # Show
         self.show()
 
-        # Update status bar
-        self.showMessage("Ready")
-
         self.updateSaveStatus(False)
-
-    ## #############################################################
-    # show message
-    ## #############################################################
-    def showMessage(self, msg: str, timeout: int = 5000) -> typing.NoReturn:
-        # Update status bar
-        # self.statusBar().showMessage(msg, timeout)
-        Logger.logInfo("")
 
     ## #############################################################
     # update save status
@@ -194,7 +186,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         # Ask for save
         if self.needsSave:
             msgBox = QtWidgets.QMessageBox()
-            msgBox.setText("The current project has been modified.")
+            msgBox.setText("The current project has been modified")
             msgBox.setInformativeText("Do you want to save your changes?")
             msgBox.setStandardButtons(QtWidgets.QMessageBox.Save | QtWidgets.QMessageBox.Discard | QtWidgets.QMessageBox.Cancel)
             msgBox.setDefaultButton(QtWidgets.QMessageBox.Save)
@@ -260,7 +252,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             if file:
                 self.open(file)
                 settings.setValue("last_file_directory", os.path.dirname(file))
-                self.showMessage("Project opened")
 
     def onOpenMostRecentConfigTriggered(self) -> typing.NoReturn:
         '''Pick and trigger the open configuration
@@ -271,7 +262,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             if lastOpened:
                 self.open(lastOpened)
                 settings.setValue("last_file_directory", os.path.dirname(lastOpened))
-                self.showMessage("Project opened")
 
     def open(self, fileMGC: str) -> typing.NoReturn:
         '''Open the configuration passed as an argument
@@ -298,7 +288,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             writer = mgp_config_writer(self.fileMGC, self)
             writer.writeConfig()
             self.updateSaveStatus(False)
-            self.showMessage("Project saved")
 
     def onSaveConfigAsTriggered(self):
         '''Pick a file and save the project to it
@@ -314,7 +303,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             settings.setValue("last_file_directory", os.path.dirname(file))
             settings.setValue("last_config_file", file)
             self.updateSaveStatus(False)
-            self.showMessage("Project saved")
 
     # #############################################################
     # Output directory
@@ -362,7 +350,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             else:
                 msgBox = QtWidgets.QMessageBox()
                 msgBox.setText("Invalid basename")
-                msgBox.setInformativeText("The basename " + self.ui.basenameLineEdit.text() + " is not valid.")
+                msgBox.setInformativeText("The basename " + self.ui.basenameLineEdit.text() + " is not valid")
                 msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
                 msgBox.setDefaultButton(QtWidgets.QMessageBox.Ok)
                 _ = msgBox.exec_()
