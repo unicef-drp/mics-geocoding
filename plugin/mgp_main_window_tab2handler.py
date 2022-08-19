@@ -35,12 +35,11 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
     # Define a signal called 'centroidsLoaded'
     centroidsDisplaced = QtCore.pyqtSignal()
 
-    def __init__(self, ui):
+    def __init__(self, mainwindow):
         """Interface initialisation : display interface and define events"""
         super().__init__()
-
-        self.ui = ui
-        self.needsSave = False
+        self.mainwindow = mainwindow
+        self.ui = self.mainwindow.ui
 
         # Values are stored after the centroids displacement
         # --> Used for generating buffer around original buffer
@@ -135,14 +134,6 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.toggleShowMoreButton.setIcon(self.showMoreIcon)
 
     ## #############################################################
-    # update save status
-    ## #############################################################
-
-    def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
-        self.needsSave = needsSave
-        self.ui.actionsave.setEnabled(self.needsSave)
-
-    ## #############################################################
     # show hide the more section
     ## #############################################################
 
@@ -212,17 +203,17 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
                 self.ui.centroidsLayerNumeroFieldComboBox.setCurrentIndex(fields.index(item))
                 break
 
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def onCentroidsLayerNumeroFieldChanged(self) -> typing.NoReturn:
         '''Update numero field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def onCentroidsLayerTypeFieldChanged(self) -> typing.NoReturn:
         '''Update type field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     # #############################################################
     # Reference Layer
@@ -243,7 +234,7 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         '''
         self.ui.referenceLayerFieldCombobox.clear()
         self.updateReferenceLayerCombobox()
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def updateReferenceLayerCombobox(self):
         # retrieve field and update combobox
@@ -258,7 +249,7 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
     def onReferenceLayerFieldComboboxTextChanged(self) -> typing.NoReturn:
         '''handle reference field changed
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     ## #############################################################
     # Main action

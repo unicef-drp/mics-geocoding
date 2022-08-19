@@ -29,12 +29,11 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
     '''The actual window that is displayed in the qgis interface
     '''
 
-    def __init__(self, ui):
+    def __init__(self, mainwindow):
         """Interface initialisation : display interface and define events"""
         super().__init__()
-
-        self.ui = ui
-        self.needsSave = False
+        self.mainwindow = mainwindow
+        self.ui = self.mainwindow.ui
 
         ## ####################################################################
         # Init signal slots connection
@@ -86,14 +85,6 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.covrefLayerLineEdit.clear()
 
     ## #############################################################
-    # update save status
-    ## #############################################################
-
-    def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
-        self.needsSave = needsSave
-        self.ui.actionsave.setEnabled(self.needsSave)
-
-    ## #############################################################
     # Load covref from step2
     ## #############################################################
 
@@ -105,8 +96,9 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON))
         if layers:
             layer = layers[0]
-        self.ui.covrefLayerLineEdit.setText(file)
-
+            self.ui.covrefLayerLineEdit.setText(file)
+        else:
+            self.ui.covrefLayerLineEdit.clear()
     # #############################################################
     # Covinputs Source
     # #############################################################
@@ -125,7 +117,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         '''Handle new covinput file
         '''
         self.updateCovinputsComboBoxes()
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def updateCovinputsComboBoxes(self):
         # Retrieve fieldlist and populate comboboxes
@@ -182,22 +174,22 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
     def onFilenameFieldChanged(self) -> typing.NoReturn:
         '''Update Filename field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def onFileformatFieldChanged(self) -> typing.NoReturn:
         '''Update File Format field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def onSumstatFieldChanged(self) -> typing.NoReturn:
         '''Update Summary statistic field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def onColumnnameFieldChanged(self) -> typing.NoReturn:
         '''Update Column name field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     # #############################################################
     # Images directory
@@ -216,10 +208,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
     def onImagesSourceFileChanged(self) -> typing.NoReturn:
         '''Manage update of images directory
         '''
-        dir = QtCore.QDir(self.ui.imagesSourceFileLineEdit.text())
-
-        if dir.exists():
-            self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     # #############################################################
     # Covref layer
@@ -238,7 +227,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
     def onCovrefLayerFileChanged(self) -> typing.NoReturn:
         '''handle reference layer changed
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     ## #############################################################
     # Main action

@@ -75,9 +75,9 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         # Init various members - might be overriden with config
         ## ####################################################################
 
-        self.loadCentroidsHandler = MGPMainWindowTab1Handler(self.ui)
-        self.displaceCentroidsHandler = MGPMainWindowTab2Handler(self.ui)
-        self.covariatesHandler = MGPMainWindowTab3Handler(self.ui)
+        self.loadCentroidsHandler = MGPMainWindowTab1Handler(self)
+        self.displaceCentroidsHandler = MGPMainWindowTab2Handler(self)
+        self.covariatesHandler = MGPMainWindowTab3Handler(self)
 
         ## ####################################################################
         # handle menubar
@@ -141,6 +141,8 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         # Update status bar
         self.showMessage("Ready")
 
+        self.updateSaveStatus(False)
+
     ## #############################################################
     # show message
     ## #############################################################
@@ -154,6 +156,10 @@ class MGPMainWindow(QtWidgets.QMainWindow):
 
     def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
         self.needsSave = needsSave
+        if self.needsSave:
+            self.setWindowTitle(self.title + " * ")
+        else:
+            self.setWindowTitle(self.title)
 
     # #############################################################
     # Reset
@@ -161,7 +167,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
 
     def reset(self) -> typing.NoReturn:
         # Hold the save button status
-        self.needsSave = False
         self.fileMGC = None
 
         # Hold the basename values. Made to avoid too many 'editingFinished' signal issue
@@ -180,6 +185,9 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         self.loadCentroidsHandler.reset()
         self.displaceCentroidsHandler.reset()
         self.covariatesHandler.reset()
+
+        # update save status
+        self.updateSaveStatus(False)
 
     ## #############################################################
     # Close event
@@ -338,7 +346,8 @@ class MGPMainWindow(QtWidgets.QMainWindow):
 
         if dir.exists():
             Utils.LayersName.outputDirectory = self.ui.outputDirLineEdit.text()
-            self.updateSaveStatus(True)
+
+        self.updateSaveStatus(True)
 
     # #############################################################
     # Basename
@@ -356,7 +365,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             if self.ui.basenameLineEdit.hasAcceptableInput():
                 Utils.LayersName.basename = self.ui.basenameLineEdit.text()
                 # self.covariatesProcesser.setBasename(self.ui.basenameLineEdit.text())
-                self.updateSaveStatus(True)
             else:
                 msgBox = QtWidgets.QMessageBox()
                 msgBox.setText("Invalid basename")
@@ -364,3 +372,5 @@ class MGPMainWindow(QtWidgets.QMainWindow):
                 msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok)
                 msgBox.setDefaultButton(QtWidgets.QMessageBox.Ok)
                 _ = msgBox.exec_()
+
+        self.updateSaveStatus(True)

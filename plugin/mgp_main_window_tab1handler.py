@@ -32,12 +32,11 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
     # Define a signal called 'centroidsLoaded'
     centroidsLoaded = QtCore.pyqtSignal()
 
-    def __init__(self, ui):
+    def __init__(self, mainwindow):
         """Interface initialisation : display interface and define events"""
         super().__init__()
-
-        self.ui = ui
-        self.needsSave = False
+        self.mainwindow = mainwindow
+        self.ui = self.mainwindow.ui
 
         ## ####################################################################
         # Init signal slots connection
@@ -76,14 +75,6 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
     def reset(self) -> typing.NoReturn:
         self.ui.centroidsSourceFileLineEdit.clear()
 
-    ## #############################################################
-    # update save status
-    ## #############################################################
-
-    def updateSaveStatus(self, needsSave: bool) -> typing.NoReturn:
-        self.needsSave = needsSave
-        self.ui.actionsave.setEnabled(self.needsSave)
-
     # #############################################################
     # Centroids Source
     # #############################################################
@@ -104,7 +95,7 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         '''
         # Update manager
         self.updateCentroidCombobox()
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def updateCentroidCombobox(self):
         # Retrieve fieldlist and populate comboboxes
@@ -169,27 +160,27 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
     def onLongitudeFieldChanged(self) -> typing.NoReturn:
         '''Update longitude field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def onLatitudeFieldChanged(self) -> typing.NoReturn:
         '''Update latitude field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def onNumeroFieldChanged(self) -> typing.NoReturn:
         '''Update numero field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def onTypeFieldChanged(self) -> typing.NoReturn:
         '''Update type field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     def onAdminBoundariesFieldChanged(self) -> typing.NoReturn:
         '''Update longitude field
         '''
-        self.updateSaveStatus(True)
+        self.mainwindow.updateSaveStatus(True)
 
     ## #############################################################
     # Main actions
