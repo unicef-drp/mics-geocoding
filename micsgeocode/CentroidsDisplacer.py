@@ -331,6 +331,20 @@ class CentroidsDisplacer():
         # add displaced centroid
         feat_disp_centroid = QgsFeature()
         feat_disp_centroid.setGeometry(displaced_point_wgs)
+
+        remark = Errors.ErrorDisplayString[Errors.ErrorCode.NONE]
+        if not cluster_centroid_ft['cluster']:
+            remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_NUMBER_MISSING]
+        if not cluster_centroid_ft['type']:
+            remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_AREA_MISSING]
+        if not cluster_centroid_ft['admin']:
+            remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_ADMIN_MISSING]
+        if ref_id_before == "None" or ref_id_after == "None":
+            remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_CLUSTER_OUTSIDE_BOUNDARY]
+        if cluster_centroid_ft['admin'] != ref_id_before or ref_id_before == ref_id_after:
+            remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_CLUSTER_DISPLACED_OUTSIDE_GEODOMAIN]
+
+        #
         feat_disp_centroid.setAttributes([
             cluster_centroid_ft['cluster'],
             cluster_centroid_ft['type'],
@@ -345,7 +359,7 @@ class CentroidsDisplacer():
             ref_id_before,
             ref_id_after,
             iterations,
-            Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_1]
+            remark
         ])
         self.__generatedLayers[Utils.LayersType.DISPLACED].dataProvider().addFeatures([feat_disp_centroid])
 
