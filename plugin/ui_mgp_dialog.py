@@ -482,7 +482,7 @@ class Ui_MGPDialog(object):
 
     def retranslateUi(self, MGPDialog):
         _translate = QtCore.QCoreApplication.translate
-        MGPDialog.setWindowTitle(_translate("MGPDialog", "MainWindow"))
+        MGPDialog.setWindowTitle(_translate("MGPDialog", "MICS Geocode Plugin"))
         self.groupBoxOutConfig.setTitle(_translate("MGPDialog", "Outputs"))
         self.label.setText(_translate("MGPDialog", "Directory for outputs: "))
         self.outputDirToolButton.setText(_translate("MGPDialog", "..."))
