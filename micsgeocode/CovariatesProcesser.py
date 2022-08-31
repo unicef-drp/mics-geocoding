@@ -72,6 +72,8 @@ class CovariatesProcesser():
         self.input_csv_field_sumstat = ''
         self.input_csv_field_columnname = ''
 
+        self.input_yesno = ""
+
         self.images_directory = Path(self.input_csv).parent
 
         self.__ref_layer = None
@@ -103,6 +105,8 @@ class CovariatesProcesser():
         Logger.logInfo("[STEP02 MANAGER] input_csv_field_fileformat:  " + self.input_csv_field_fileformat)
         Logger.logInfo("[STEP02 MANAGER] input_csv_field_sumstat   :  " + self.input_csv_field_sumstat)
         Logger.logInfo("[STEP02 MANAGER] input_csv_field_columnname:  " + self.input_csv_field_columnname)
+
+        shortest_distance_basename = ""
 
         # read input list of covariates
         with open(self.input_csv, "r", encoding='utf-8-sig') as f:
@@ -170,7 +174,8 @@ class CovariatesProcesser():
                     # search_gdf = gpd.read_file(file_path)
                     if sum_stat == 'distance_to_nearest':
                         # create layer for shortest distance
-                        shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(file_name), 'memory')
+                        shortest_distance_basename = file_name
+                        shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(shortest_distance_basename), 'memory')
                         shortest_dist_prov = shortest_dist_lyr.dataProvider()
                         shortest_dist_prov.addAttributes([
                             QgsField("cluster", QtCore.QVariant.Int),
@@ -250,6 +255,10 @@ class CovariatesProcesser():
 
                 c = c + 1
 
+            # Compute the optional yes / no field
+            if self.input_yesno:
+                Utils.loadRasterLayer(Utils.LayersType.YESNO, self.input_yesno)
+
             # iterating the columns
             selected_columns = []
             excluded_columns = ["fid"]
@@ -265,21 +274,22 @@ class CovariatesProcesser():
                 columns=selected_columns
             )
 
-            # Rewrite the layer on disk -> no memory flag
-            layerName = 'Shortest distance to {}'.format(file_name)
-            layers = QgsProject.instance().mapLayersByName(layerName)
-            if layers:
-                filename = Utils.LayersName.customfileName(layerName)
-                options = QgsVectorFileWriter.SaveVectorOptions()
-                options.driverName = "ESRI Shapefile"
-                writer = QgsVectorFileWriter.writeAsVectorFormatV2(
-                    layers[0],
-                    filename,
-                    QgsCoordinateTransformContext(),
-                    options)
-                Utils.removeLayerIfExistsByName(layerName)
-                layer = QgsVectorLayer(filename, layerName)
-                QgsProject.instance().addMapLayer(layer)
+            if shortest_distance_basename:
+                # Rewrite the layer on disk -> no memory flag
+                layerName = 'Shortest distance to {}'.format(shortest_distance_basename)
+                layers = QgsProject.instance().mapLayersByName(layerName)
+                if layers:
+                    filename = Utils.LayersName.customfileName(layerName)
+                    options = QgsVectorFileWriter.SaveVectorOptions()
+                    options.driverName = "ESRI Shapefile"
+                    writer = QgsVectorFileWriter.writeAsVectorFormatV2(
+                        layers[0],
+                        filename,
+                        QgsCoordinateTransformContext(),
+                        options)
+                    Utils.removeLayerIfExistsByName(layerName)
+                    layer = QgsVectorLayer(filename, layerName)
+                    QgsProject.instance().addMapLayer(layer)
 
         Logger.logInfo("Output file saved to {}".format(output_file))
         Logger.logInfo("Successfully completed at {}".format(datetime.now()))

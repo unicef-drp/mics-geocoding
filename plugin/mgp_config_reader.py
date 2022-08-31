@@ -54,7 +54,6 @@ class mgp_config_reader:
                         self.mainWindow.ui.referenceLayerLineEdit.clear()
                 if 'fileReferenceLayerField' in configReader['ReferenceLayer']:
                     self.mainWindow.ui.referenceLayerFieldCombobox.setCurrentIndex(int(configReader['ReferenceLayer']['fileReferenceLayerField']))
-
             if 'CentroidsSource' in configReader:
                 if 'file' in configReader['CentroidsSource']:
                     try:
@@ -98,5 +97,11 @@ class mgp_config_reader:
                         self.mainWindow.ui.covrefLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['buffer'])))
                     except:
                         self.mainWindow.ui.covrefLayerLineEdit.clear()
+
+                if 'yesno' in configReader['CovariatesInputs']:
+                    try:
+                        self.mainWindow.ui.yesnoLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['yesno'])))
+                    except:
+                        self.mainWindow.ui.yesnoLayerLineEdit.clear()
         except BaseException as e:
             Logger.logException("[ConfigReader] A problem occured while loading the project from :  " + self.fileMGC, e)

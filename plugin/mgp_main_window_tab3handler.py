@@ -53,6 +53,9 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.covrefLayerToolButton.clicked.connect(self.onCovrefLayerToolButtonClicked)
         self.ui.covrefLayerLineEdit.textChanged.connect(self.onCovrefLayerFileChanged)
 
+        self.ui.yesnoLayerToolButton.clicked.connect(self.onYesnoLayerToolButtonClicked)
+        self.ui.yesnoLayerLineEdit.textChanged.connect(self.onYesnoLayerFileChanged)
+
         self.ui.computeCovariatesButton.clicked.connect(self.onComputeCovariatesButtonClicked)
 
         ## ####################################################################
@@ -72,6 +75,9 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
         self.ui.covrefLayerToolButton.setToolTip("Browse for the anonymised cluster buffer shapefile on the computer. It was generated to phase of cluster displacement (Displace).")
         self.ui.covrefLayerLineEdit.setToolTip("Anonymised cluster buffer shapefile on the computer.")
+
+        self.ui.yesnoLayerToolButton.setToolTip("Browse for the yes no layer.")
+        self.ui.yesnoLayerLineEdit.setToolTip("Yes no raster data on the computer.")
 
         self.ui.computeCovariatesButton.setToolTip("Compute covariates. QGIS generates additional layers depending on inputs and a CSV file with the outputs.")
 
@@ -229,6 +235,21 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         '''
         self.mainwindow.updateSaveStatus(True)
 
+    def onYesnoLayerToolButtonClicked(self) -> typing.NoReturn:
+        '''handle browse for covref layer clicked
+        '''
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
+        dir = settings.value("last_file_directory", QtCore.QDir.homePath())
+        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open yes no raster layer", dir, "*")
+        if file:
+            self.ui.yesnoLayerLineEdit.setText(os.path.normpath(file))
+            settings.setValue("last_file_directory", os.path.dirname(file))
+
+    def onYesnoLayerFileChanged(self) -> typing.NoReturn:
+        '''handle reference layer changed
+        '''
+        self.mainwindow.updateSaveStatus(True)
+
     ## #############################################################
     # Main action
     ## #############################################################
@@ -275,6 +296,8 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             covariatesProcesser.input_csv_field_fileformat = self.ui.fileformatFieldComboBox.currentText()
 
             covariatesProcesser.images_directory = self.ui.imagesSourceFileLineEdit.text()
+
+            covariatesProcesser.input_yesno = self.ui.yesnoLayerLineEdit.text()
 
             bufferAnonLayerName = Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON)
             Utils.removeLayerIfExistsByName(bufferAnonLayerName)

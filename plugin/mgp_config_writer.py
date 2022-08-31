@@ -93,7 +93,8 @@ class mgp_config_writer:
                 'sumstatIndex': str(self.mainWindow.ui.sumstatFieldComboBox.currentIndex()),
                 'columnnameIndex': str(self.mainWindow.ui.columnnameFieldComboBox.currentIndex()),
                 'imagesDir': images_dir,
-                'buffer': self.mainWindow.ui.covrefLayerLineEdit.text()
+                'buffer': self.mainWindow.ui.covrefLayerLineEdit.text(),
+                'yesno':  self.mainWindow.ui.yesnoLayerLineEdit.text()
             }
 
             with open(self.fileMGC, 'w') as file:
