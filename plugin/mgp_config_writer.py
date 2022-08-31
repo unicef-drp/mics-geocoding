@@ -45,6 +45,11 @@ class mgp_config_writer:
                 centroid_file = ""
 
             try:
+                centroid_layer_file = os.path.relpath(self.mainWindow.ui.centroidsLayerLineEdit.text(), project_root_path)
+            except:
+                centroid_layer_file = ""
+
+            try:
                 covinputs_file = os.path.relpath(self.mainWindow.ui.covinputsSourceFileLineEdit.text(), project_root_path)
             except:
                 covinputs_file = ""
@@ -60,9 +65,14 @@ class mgp_config_writer:
                 images_dir = ""
 
             try:
-                images_dir = os.path.relpath(self.mainWindow.ui.imagesSourceFileLineEdit.text(), project_root_path)
+                buffer_file = os.path.relpath(self.mainWindow.ui.covrefLayerLineEdit.text(), project_root_path)
             except:
-                images_dir = ""
+                buffer_file = ""
+
+            try:
+                yesno_file = os.path.relpath(self.mainWindow.ui.yesnoLayerLineEdit.text(), project_root_path)
+            except:
+                yesno_file = ""
 
             configWriter['program'] = {'name': 'MICS GIS PLUGIN', 'version': '0.0.1'}
 
@@ -86,6 +96,12 @@ class mgp_config_writer:
                 'adminBoundariesIndex': str(self.mainWindow.ui.adminBoundariesFieldComboBox.currentIndex())
             }
 
+            configWriter['CentroidsLayer'] = {
+                'file': centroid_layer_file,
+                'numeroIndex': str(self.mainWindow.ui.centroidsLayerNumeroFieldComboBox.currentIndex()),
+                'typeIndex': str(self.mainWindow.ui.centroidsLayerTypeFieldComboBox.currentIndex())
+            }
+
             configWriter['CovariatesInputs'] = {
                 'file': covinputs_file,
                 'filenameIndex': str(self.mainWindow.ui.filenameFieldComboBox.currentIndex()),
@@ -93,8 +109,8 @@ class mgp_config_writer:
                 'sumstatIndex': str(self.mainWindow.ui.sumstatFieldComboBox.currentIndex()),
                 'columnnameIndex': str(self.mainWindow.ui.columnnameFieldComboBox.currentIndex()),
                 'imagesDir': images_dir,
-                'buffer': self.mainWindow.ui.covrefLayerLineEdit.text(),
-                'yesno':  self.mainWindow.ui.yesnoLayerLineEdit.text()
+                'buffer': buffer_file,
+                'yesno':  yesno_file
             }
 
             with open(self.fileMGC, 'w') as file:

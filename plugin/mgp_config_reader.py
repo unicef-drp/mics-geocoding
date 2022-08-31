@@ -40,25 +40,41 @@ class mgp_config_reader:
                     self.mainWindow.ui.basenameLineEdit.setText(configReader['global']['basename'])
                 if 'outputDir' in configReader['global']:
                     try:
-                        self.mainWindow.ui.outputDirLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['global']['outputDir'])))
+                        if configReader['global']['outputDir']:
+                            self.mainWindow.ui.outputDirLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['global']['outputDir'])))
                     except:
                         self.mainWindow.ui.outputDirLineEdit.clear()
                 if 'tabindex' in configReader['global']:
                     self.mainWindow.ui.tabWidget.setCurrentIndex(int(configReader['global']['tabindex']))
 
+            if 'CentroidsLayer' in configReader:
+                if 'file' in configReader['CentroidsLayer']:
+                    try:
+                        if configReader['CentroidsLayer']['file']:
+                            self.mainWindow.ui.centroidsLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CentroidsLayer']['file'])))
+                    except:
+                        self.mainWindow.ui.centroidsLayerLineEdit.clear()
+                if 'numeroIndex' in configReader['CentroidsLayer']:
+                    self.mainWindow.ui.centroidsLayerNumeroFieldComboBox.setCurrentIndex(int(configReader['CentroidsLayer']['numeroIndex']))
+                if 'typeIndex' in configReader['CentroidsLayer']:
+                    self.mainWindow.ui.centroidsLayerTypeFieldComboBox.setCurrentIndex(int(configReader['CentroidsLayer']['typeIndex']))
+
             if 'ReferenceLayer' in configReader:
                 if 'fileReferenceLayer' in configReader['ReferenceLayer']:
                     try:
-                        self.mainWindow.ui.referenceLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['ReferenceLayer']['fileReferenceLayer'])))
+                        if configReader['ReferenceLayer']['fileReferenceLayer']:
+                            self.mainWindow.ui.referenceLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['ReferenceLayer']['fileReferenceLayer'])))
                     except:
                         self.mainWindow.ui.referenceLayerLineEdit.clear()
                 if 'fileReferenceLayerField' in configReader['ReferenceLayer']:
                     self.mainWindow.ui.referenceLayerFieldCombobox.setCurrentIndex(int(configReader['ReferenceLayer']['fileReferenceLayerField']))
+
             if 'CentroidsSource' in configReader:
                 if 'file' in configReader['CentroidsSource']:
                     try:
-                        # Construt absolute path path from relative path
-                        self.mainWindow.ui.centroidsSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CentroidsSource']['file'])))
+                        if configReader['CentroidsSource']['file']:
+                            # Construt absolute path path from relative path
+                            self.mainWindow.ui.centroidsSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CentroidsSource']['file'])))
                     except:
                         self.mainWindow.ui.centroidsSourceFileLineEdit.clear()
                 if 'numeroIndex' in configReader['CentroidsSource']:
@@ -75,8 +91,9 @@ class mgp_config_reader:
             if 'CovariatesInputs' in configReader:
                 if 'file' in configReader['CovariatesInputs']:
                     try:
-                        # Construt absolute path path from relative path
-                        self.mainWindow.ui.covinputsSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['file'])))
+                        if configReader['CovariatesInputs']['file']:
+                            # Construt absolute path path from relative path
+                            self.mainWindow.ui.covinputsSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['file'])))
                     except:
                         self.mainWindow.ui.covinputsSourceFileLineEdit.clear()
                 if 'filenameIndex' in configReader['CovariatesInputs']:
@@ -89,18 +106,21 @@ class mgp_config_reader:
                     self.mainWindow.ui.columnnameFieldComboBox.setCurrentIndex(int(configReader['CovariatesInputs']['columnnameIndex']))
                 if 'imagesDir' in configReader['CovariatesInputs']:
                     try:
-                        self.mainWindow.ui.imagesSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['imagesDir'])))
+                        if configReader['CovariatesInputs']['imagesDir']:
+                            self.mainWindow.ui.imagesSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['imagesDir'])))
                     except:
                         self.mainWindow.ui.imagesSourceFileLineEdit.clear()
                 if 'buffer' in configReader['CovariatesInputs']:
                     try:
-                        self.mainWindow.ui.covrefLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['buffer'])))
+                        if configReader['CovariatesInputs']['buffer']:
+                            self.mainWindow.ui.covrefLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['buffer'])))
                     except:
                         self.mainWindow.ui.covrefLayerLineEdit.clear()
 
                 if 'yesno' in configReader['CovariatesInputs']:
                     try:
-                        self.mainWindow.ui.yesnoLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['yesno'])))
+                        if configReader['CovariatesInputs']['yesno']:
+                            self.mainWindow.ui.yesnoLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['yesno'])))
                     except:
                         self.mainWindow.ui.yesnoLayerLineEdit.clear()
         except BaseException as e:
