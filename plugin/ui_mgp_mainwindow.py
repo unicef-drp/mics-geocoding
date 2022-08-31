@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\Etienne\Documents\devel\unicef-mics\mics-geocoding\plugin\mgp_mainwindow.ui'
+# Form implementation generated from reading ui file 'c:\Users\Etienne\Documents\devel\unicef-mics\mics-geocoding\plugin\mgp_mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.2
 #
@@ -571,4 +571,4 @@ class Ui_MGPDialog(object):
         self.actionopenmostrecent.setShortcut(_translate("MGPDialog", "Ctrl+Shift+O"))
         self.actionrun.setText(_translate("MGPDialog", "Run"))
         self.actionrun.setShortcut(_translate("MGPDialog", "Ctrl+R"))
-from . import resources_rc
+import resources_rc

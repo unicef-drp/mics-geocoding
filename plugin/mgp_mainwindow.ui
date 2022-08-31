@@ -1072,6 +1072,8 @@
     <addaction name="actionopenmostrecent"/>
     <addaction name="actionsave"/>
     <addaction name="actionsaveas"/>
+    <addaction name="separator"/>
+    <addaction name="actionrun"/>
    </widget>
    <widget class="QMenu" name="menuHome">
     <property name="title">
@@ -1149,6 +1151,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+O</string>
+   </property>
+  </action>
+  <action name="actionrun">
+   <property name="text">
+    <string>Run</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

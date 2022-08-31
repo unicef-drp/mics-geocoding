@@ -91,11 +91,17 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton"))
         )
 
+        self.ui.actionrun.setIcon(
+            self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_MediaPlay"))
+        )
+
         self.ui.actionnew.triggered.connect(self.onNewConfigTriggered)
         self.ui.actionopen.triggered.connect(self.onOpenConfigTriggered)
         self.ui.actionopenmostrecent.triggered.connect(self.onOpenMostRecentConfigTriggered)
         self.ui.actionsave.triggered.connect(self.onSaveConfigTriggered)
         self.ui.actionsaveas.triggered.connect(self.onSaveConfigAsTriggered)
+
+        self.ui.actionrun.triggered.connect(self.onRunTriggered)
 
         self.ui.actionGenerate.triggered.connect(self.onFocusOnGenerateTriggered)
         self.ui.actionDisplace.triggered.connect(self.onFocusOnDisplaceTriggered)
@@ -211,6 +217,18 @@ class MGPMainWindow(QtWidgets.QMainWindow):
             self.close()
         else:
             event.ignore()
+
+    ## #############################################################
+    # Run current tab
+    ## #############################################################
+
+    def onRunTriggered(self):
+        if self.ui.tabWidget.currentIndex() == 0:
+            self.ui.loadCentroidsButton.click()
+        elif self.ui.tabWidget.currentIndex() == 1:
+            self.ui.displaceCentroidsButton.click()
+        elif self.ui.tabWidget.currentIndex() == 2:
+            self.ui.computeCovariatesButton.click()
 
     ## #############################################################
     # Switch tab
