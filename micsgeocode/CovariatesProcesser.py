@@ -23,7 +23,7 @@ import re
 import typing
 
 
-from qgis.core import QgsVectorLayer, QgsGeometry, QgsPoint, QgsPointXY, QgsField, QgsFeature, QgsVectorFileWriter, QgsProject, QgsCoordinateTransformContext  # QGIS3
+from qgis.core import QgsVectorLayer, QgsGeometry, QgsPoint, QgsPointXY, QgsField, QgsFeature, QgsVectorFileWriter, QgsProject, QgsCoordinateTransformContext, QgsRaster  # QGIS3
 from PyQt5 import QtCore
 from pathlib import Path
 from datetime import datetime
@@ -258,6 +258,8 @@ class CovariatesProcesser():
             # Compute the optional yes / no field
             if self.input_yesno:
                 Utils.loadRasterLayer(Utils.LayersType.YESNO, self.input_yesno)
+                yesno = self.compute_yesno()
+                summary_df["yesno"] = yesno
 
             # iterating the columns
             selected_columns = []
@@ -295,8 +297,28 @@ class CovariatesProcesser():
         Logger.logInfo("Successfully completed at {}".format(datetime.now()))
 
 ####################################################################
-# Utilitity method
+# Compute yes / no
 ####################################################################
+    def compute_yesno(self):
+        yesno_layer = Utils.getLayerIfExists(Utils.LayersType.YESNO)
+        results = []
+        # identify(self, point: QgsPointXY, format: QgsRaster.IdentifyFormat, boundingBox: QgsRectangle=QgsRectangle(), width: int=0, height: int=0, dpi: int=96) → QgsRasterIdentifyResult
+        for feature in self.__ref_layer.getFeatures():
+            fid = feature["cluster"]
+            geom = QgsGeometry(feature.geometry())
+            point = geom.asPoint()
+            qry = yesno_layer.dataProvider().identify(point, QgsRaster.IdentifyFormatValue)
+            value = "No"
+            if qry.isValid():
+                if qry.results()[1]:
+                    value = "Yes"
+            results.append(value)
+        return results
+
+    ####################################################################
+    # Utilitity method
+    ####################################################################
+
     def bbox_to_pixel_offsets(self, gt, bbox):
         '''Compute bboc to pixel offsets
         '''
