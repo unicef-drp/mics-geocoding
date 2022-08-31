@@ -292,8 +292,8 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
             self.maxDistancesPerBufferId = displacer.maxDistances
 
             self.centroidsDisplaced.emit()
-        except:
-            Logger.logWarning("[Displace] A problem occured while displacing centroids")
+        except BaseException as e:
+            Logger.logException("[Displace] A problem occured while displacing centroids", e)
 
     def onExportDisplacedCentroidsButtonClicked(self) -> typing.NoReturn:
         '''Displace centroids
@@ -312,9 +312,8 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
                             "{:.6f}".format(ft.geometry().asPoint().x()),
                             "{:.6f}".format(ft.geometry().asPoint().y())
                         ])
-                Logger.logSuccess("[Displace] Displaced Anonymised Centroids successfully saved as CSV: {}".format(Utils.LayersName.fileName(Utils.LayersType.DISPLACEDANON, "csv")))
-        except:
-            Logger.logWarning("[Displace] A problem occured while saving displaced anonymised centroids")
+        except BaseException as e:
+            Logger.logException("[Displace] A problem occured while saving displaced anonymised centroids", e)
 
     def onGenerateCentroidBuffersButtonCLicked(self) -> typing.NoReturn:
         Logger.logInfo("[Displace] About to generate")

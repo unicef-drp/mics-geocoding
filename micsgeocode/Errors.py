@@ -6,6 +6,9 @@ class ErrorCode(Enum):
     SUCCESS = 0
     NONE = auto()
 
+    # Generate
+    ERROR_MISSING_INPUT = auto()
+
     # Displacer
     ERROR_DISPLACER_ADMIN_MISSING = auto()
     ERROR_DISPLACER_AREA_MISSING = auto()
