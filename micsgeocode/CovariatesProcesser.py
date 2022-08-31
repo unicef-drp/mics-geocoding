@@ -260,6 +260,11 @@ class CovariatesProcesser():
                 Utils.loadRasterLayer(Utils.LayersType.YESNO, self.input_yesno)
                 yesno = self.compute_yesno()
                 summary_df["yesno"] = yesno
+                Utils.putLayerOnTopIfExists(Utils.LayersType.BUFFERSANON)
+                Utils.putLayerOnTopIfExists(Utils.LayersType.LINKS)
+                Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)  # fix z order
+                Utils.putLayerOnTopIfExists(Utils.LayersType.DISPLACED)
+                Utils.putLayerOnTopIfExists(Utils.LayersType.DISPLACEDANON)
 
             # iterating the columns
             selected_columns = []
