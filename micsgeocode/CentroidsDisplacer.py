@@ -271,11 +271,11 @@ class CentroidsDisplacer():
             QgsField("cluster", QVariant.Int),
             QgsField("type", QVariant.String),
             QgsField("count", QVariant.Int),
-            QgsField("lon_orig", QVariant.Double, "", 0, 6),
-            QgsField("lat_orig", QVariant.Double, "", 0, 6),
-            QgsField("lon_disp", QVariant.Double, "", 0, 6),
-            QgsField("lat_disp", QVariant.Double, "", 0, 6),
-            QgsField("disp_dist", QVariant.Double, "", 0, 2),
+            QgsField("lon_orig", QVariant.Double, "double", 15, 6),
+            QgsField("lat_orig", QVariant.Double, "double", 15, 6),
+            QgsField("lon_disp", QVariant.Double, "double", 15, 6),
+            QgsField("lat_disp", QVariant.Double, "double", 15, 6),
+            QgsField("disp_dist", QVariant.Double, "double", 15, 2),
             QgsField("disp_angle", QVariant.Int),
             QgsField("ref_cl_src", QVariant.String),
             QgsField("ref_orig", QVariant.String),
@@ -288,11 +288,11 @@ class CentroidsDisplacer():
             QgsField("cluster", QVariant.Int),
             QgsField("type", QVariant.String),
             QgsField("count", QVariant.Int),
-            QgsField("lon_orig", QVariant.Double, "", 0, 6),
-            QgsField("lat_orig", QVariant.Double, "", 0, 6),
-            QgsField("lon_disp", QVariant.Double, "", 0, 6),
-            QgsField("lat_disp", QVariant.Double, "", 0, 6),
-            QgsField("disp_dist", QVariant.Double, "", 0, 2),
+            QgsField("lon_orig", QVariant.Double, "double", 15, 6),
+            QgsField("lat_orig", QVariant.Double, "double", 15, 6),
+            QgsField("lon_disp", QVariant.Double, "double", 15, 6),
+            QgsField("lat_disp", QVariant.Double, "double", 15, 6),
+            QgsField("disp_dist", QVariant.Double, "double", 15, 2),
             QgsField("disp_angle", QVariant.Int),
             QgsField("ref_cl_src", QVariant.String),
             QgsField("ref_orig", QVariant.String),
@@ -304,8 +304,8 @@ class CentroidsDisplacer():
         # create layer for anonymised displaced centroids
         self.__generatedLayers[Utils.LayersType.DISPLACEDANON] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.DISPLACEDANON, [
             QgsField("cluster", QVariant.Int),
-            QgsField("lon_disp", QVariant.Double, "", 0, 6),
-            QgsField("lat_disp", QVariant.Double, "", 0, 6)
+            QgsField("lon_disp", QVariant.Double, "double", 15, 6),
+            QgsField("lat_disp", QVariant.Double, "double", 15, 6)
         ])
 
         # add layers to project following correct z order
