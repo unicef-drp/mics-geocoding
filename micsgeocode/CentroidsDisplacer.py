@@ -31,19 +31,18 @@
 import math
 import random
 import typing
+from datetime import datetime
 
 from qgis.core import *  # QGIS3
 from qgis.PyQt.QtCore import QVariant
-from datetime import datetime
 
+from . import CentroidBuffersMaxDistanceComputer as Radier
 from . import CentroidsLoader as CentroidsLoader
+from . import Errors
 from . import ReferenceLayer as ReferenceLayer
 from . import Utils
-from . import Errors
-from . import CentroidBuffersMaxDistanceComputer as Radier
-
-from .Transforms import Transforms
 from .Logger import Logger
+from .Transforms import Transforms
 
 ## #############################################################
 # Centroids Displacer
@@ -184,18 +183,18 @@ class CentroidsDisplacer():
             displaced_point_mercator = QgsPointXY(new_x, new_y)
 
             # copy geometry of a displaced centroid
-            displaced_point_wgs = QgsGeometry.fromPointXY(displaced_point_mercator)
+            displaced_geom_wgs = QgsGeometry.fromPointXY(displaced_point_mercator)
 
             # transform copy of geometry of a displaced centroid into WGS84
-            displaced_point_wgs.transform(Transforms.tr_back)
+            displaced_geom_wgs.transform(Transforms.tr_back)
             # displaced_point_wgs
 
             # get subnational ID for the cluster
-            subnational_ids_after = self.referenceLayer.ref_fts_index.intersects(displaced_point_wgs.boundingBox())
+            subnational_ids_after = self.referenceLayer.ref_fts_index.intersects(displaced_geom_wgs.boundingBox())
             intersecting_fts_after = []
             for s in subnational_ids_after:
                 ft = self.referenceLayer.layer.getFeature(s)
-                if ft.geometry().intersects(displaced_point_wgs):
+                if ft.geometry().intersects(displaced_geom_wgs):
                     intersecting_fts_after.append(ft)
             if len(intersecting_fts_after) == 0:
                 ref_id_after = 'None'
@@ -213,7 +212,7 @@ class CentroidsDisplacer():
 
         self.__updateOutputsMemoryLayer(
             cluster_centroid_ft,
-            displaced_point_wgs,
+            displaced_geom_wgs,
             distance,
             angle_degree,
             ref_id_before,
