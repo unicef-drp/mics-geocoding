@@ -6,7 +6,7 @@
 name=MICS GIS PLUGIN
 qgisMinimumVersion=3.0
 description=MICS GIS PLUGIN
-version=0.15.rc1
+version=0.15.rc2
 author=e
 email=e
 
