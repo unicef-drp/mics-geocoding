@@ -69,11 +69,6 @@ class mgp_config_writer:
             except:
                 buffer_file = ""
 
-            try:
-                yesno_file = os.path.relpath(self.mainWindow.ui.yesnoLayerLineEdit.text(), project_root_path)
-            except:
-                yesno_file = ""
-
             configWriter['program'] = {'name': 'MICS GIS PLUGIN', 'version': '0.0.1'}
 
             configWriter['global'] = {
@@ -109,8 +104,7 @@ class mgp_config_writer:
                 'sumstatIndex': str(self.mainWindow.ui.sumstatFieldComboBox.currentIndex()),
                 'columnnameIndex': str(self.mainWindow.ui.columnnameFieldComboBox.currentIndex()),
                 'imagesDir': images_dir,
-                'buffer': buffer_file,
-                'yesno':  yesno_file
+                'buffer': buffer_file
             }
 
             with open(self.fileMGC, 'w') as file:

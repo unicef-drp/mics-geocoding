@@ -36,7 +36,6 @@ class LayersType(str, Enum):
     LINKS = "LINKS"
     DISPLACED = "DISPLACED"
     DISPLACEDANON = "DISPLACEDANON"
-    YESNO = "YESNO"
 
 
 class LayersName():
@@ -53,7 +52,6 @@ class LayersName():
         LayersType.LINKS: "cluster_displacement_links",
         LayersType.DISPLACED: "cluster_unanonymised_displaced_centroids",
         LayersType.DISPLACEDANON: "cluster_anonymised_displaced_centroids",
-        LayersType.YESNO: "yes_no_reference"
     }
 
     @staticmethod
@@ -141,17 +139,6 @@ def reloadLayerFromDiskToAvoidMemoryFlag(layerType: LayersType) -> typing.NoRetu
     removeLayerIfExists(layerType)
 
     layer = QgsVectorLayer(filename, layerName)
-    QgsProject.instance().addMapLayer(layer)
-
-
-def loadRasterLayer(layerType: LayersType, filename: str):
-    """ Open the raster layer
-    """
-    layerName = LayersName.layerName(layerType)
-
-    removeLayerIfExists(layerType)
-
-    layer = QgsRasterLayer(filename, layerName)
     QgsProject.instance().addMapLayer(layer)
 
 

@@ -72,12 +72,12 @@ class CovariatesProcesser():
         self.input_csv_field_sumstat = ''
         self.input_csv_field_columnname = ''
 
-        self.input_yesno = ""
-
         self.images_directory = Path(self.input_csv).parent
 
         self.__ref_layer = None
         self.__ref_layer_shp = ""
+
+        self.output_file = ''
 
 ####################################################################
 # setters
@@ -98,7 +98,7 @@ class CovariatesProcesser():
         if Utils.LayersName.basename:
             output_filename = Utils.LayersName.basename + '_' + CovariatesProcesser.OUTPUT_SUFFIX_BASENAME
 
-        output_file = os.path.join(Utils.LayersName.outputDirectory, output_filename)
+        self.output_file = os.path.join(Utils.LayersName.outputDirectory, output_filename)
 
         Logger.logInfo("[STEP02 MANAGER] input_file:  " + self.input_csv)
         Logger.logInfo("[STEP02 MANAGER] input_csv_field_filename  :  " + self.input_csv_field_filename)
@@ -110,7 +110,7 @@ class CovariatesProcesser():
 
         # read input list of covariates
         with open(self.input_csv, "r", encoding='utf-8-sig') as f:
-            c = 0
+            rowIndex = 0
             inputs = []
 
             registry = QgsProject.instance()
@@ -127,13 +127,13 @@ class CovariatesProcesser():
 
             # read all input covariates
             for i in f:
-                if c == 0:
+                if rowIndex == 0:
                     line = re.split(',', i.strip())
                     input_file_id = line.index(self.input_csv_field_filename)
                     input_fileformat_id = line.index(self.input_csv_field_fileformat)
                     input_field_sumstat_id = line.index(self.input_csv_field_sumstat)
                     input_field_columnname_id = line.index(self.input_csv_field_columnname)
-                if c != 0:
+                if rowIndex != 0:
                     line = re.split(',', i.strip())
                     inputs.append({
                         'file': line[input_file_id],
@@ -141,8 +141,8 @@ class CovariatesProcesser():
                         'sum_stat': line[input_field_sumstat_id],
                         'column': line[input_field_columnname_id]
                     })
-                c = c + 1
-            c = 1
+                rowIndex = rowIndex + 1
+            rowIndex = 1
 
             # loop through all covariates
             for input_row in inputs:
@@ -151,28 +151,11 @@ class CovariatesProcesser():
                 file_format = input_row['file_format']
                 sum_stat = input_row['sum_stat']
                 column_name = input_row['column']
-                Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(c, file_name, file_format, sum_stat, column_name))
+                Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(rowIndex, file_name, file_format, sum_stat, column_name))
 
-                if file_format == 'GeoTIFF':
-                    stats = self.zonal_stats(
-                        self.__ref_layer_shp,
-                        file_path,
-                        CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
-                        -99999
-                    )
-
-                    results_df = pd.DataFrame(stats)[[sum_stat, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]]
-                    results_df.columns = [column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]
-                    summary_df = pd.merge(
-                        summary_df,
-                        results_df[[column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]],
-                        on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
-                        how='inner'
-                    )
-
-                if file_format == 'Shapefile':
-                    # search_gdf = gpd.read_file(file_path)
-                    if sum_stat == 'distance_to_nearest':
+                # Compute distance to nearest
+                if sum_stat == 'distance_to_nearest':
+                    if file_format == 'Shapefile':
                         # create layer for shortest distance
                         shortest_distance_basename = file_name
                         shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(shortest_distance_basename), 'memory')
@@ -253,18 +236,25 @@ class CovariatesProcesser():
                         search_shp_df = pd.DataFrame(search_fts)
                         summary_df = pd.merge(summary_df, search_shp_df[[column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]], on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME, how='inner')
 
-                c = c + 1
+                # Compute zonal stat and geotiff
+                elif file_format == 'GeoTIFF':
+                    stats = self.zonal_stats(
+                        self.__ref_layer_shp,
+                        file_path,
+                        CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
+                        nodata_value=-9999.
+                    )
 
-            # Compute the optional yes / no field
-            if self.input_yesno:
-                Utils.loadRasterLayer(Utils.LayersType.YESNO, self.input_yesno)
-                yesno = self.compute_yesno()
-                summary_df["yesno"] = yesno
-                Utils.putLayerOnTopIfExists(Utils.LayersType.BUFFERSANON)
-                Utils.putLayerOnTopIfExists(Utils.LayersType.LINKS)
-                Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)  # fix z order
-                Utils.putLayerOnTopIfExists(Utils.LayersType.DISPLACED)
-                Utils.putLayerOnTopIfExists(Utils.LayersType.DISPLACEDANON)
+                    results_df = pd.DataFrame(stats)[[sum_stat, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]]
+                    results_df.columns = [column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]
+                    summary_df = pd.merge(
+                        summary_df,  # merge destination
+                        results_df[[column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]],
+                        on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
+                        how='inner'
+                    )
+
+                rowIndex = rowIndex + 1
 
             # iterating the columns
             selected_columns = []
@@ -274,7 +264,7 @@ class CovariatesProcesser():
                     selected_columns.append(col)
 
             summary_df.to_csv(
-                output_file,
+                self.output_file,
                 sep=',',
                 encoding='utf-8',
                 index=False,
@@ -298,27 +288,8 @@ class CovariatesProcesser():
                     layer = QgsVectorLayer(filename, layerName)
                     QgsProject.instance().addMapLayer(layer)
 
-        Logger.logInfo("Output file saved to {}".format(output_file))
+        Logger.logInfo("Output file saved to {}".format(self.output_file))
         Logger.logInfo("Successfully completed at {}".format(datetime.now()))
-
-####################################################################
-# Compute yes / no
-####################################################################
-    def compute_yesno(self):
-        yesno_layer = Utils.getLayerIfExists(Utils.LayersType.YESNO)
-        results = []
-        # identify(self, point: QgsPointXY, format: QgsRaster.IdentifyFormat, boundingBox: QgsRectangle=QgsRectangle(), width: int=0, height: int=0, dpi: int=96) → QgsRasterIdentifyResult
-        for feature in self.__ref_layer.getFeatures():
-            fid = feature["cluster"]
-            geom = QgsGeometry(feature.geometry())
-            point = geom.asPoint()
-            qry = yesno_layer.dataProvider().identify(point, QgsRaster.IdentifyFormatValue)
-            value = "No"
-            if qry.isValid():
-                if qry.results()[1]:
-                    value = "Yes"
-            results.append(value)
-        return results
 
     ####################################################################
     # Utilitity method
@@ -341,7 +312,12 @@ class CovariatesProcesser():
         ysize = y2 - y1
         return x1, y1, xsize, ysize
 
-    def zonal_stats(self, vector_path, raster_path, cluster_no_field, nodata_value=None, global_src_extent=False):
+    def zonal_stats(self,
+                    vector_path,
+                    raster_path,
+                    cluster_no_field,
+                    nodata_value,
+                    global_src_extent=False):
         '''Compute zonal statistic
         '''
         rds = gdal.Open(raster_path, GA_ReadOnly)
@@ -447,7 +423,8 @@ class CovariatesProcesser():
                 'sum': float(masked.sum()),
                 'count': int(masked.count()),
                 'cluster': feat[cluster_no_field],
-                'fid': int(feat.GetFID())
+                'fid': int(feat.GetFID()),
+                'yes_or_no': "Yes"
             }
 
             # get the actual pixel value for all stats if mask is returning null (e.g. pixel size is too large)
@@ -472,7 +449,9 @@ class CovariatesProcesser():
                     'sum': float(intval),
                     'count': int(intval),
                     'cluster': feat[cluster_no_field],
-                    'fid': int(feat.GetFID())}
+                    'fid': int(feat.GetFID()),
+                    'yes_or_no': "No"
+                }
 
             stats.append(feature_stats)
 
