@@ -10,17 +10,10 @@
 ## ###########################################################################
 
 import os
-
-from PyQt5 import QtWidgets, QtCore, QtGui
-from pathlib import Path
-from datetime import datetime
-import subprocess
-import os
-import platform
-import re
+from PyQt5 import QtWidgets, QtCore
 import typing
 
-from .ui_mgp_dialog import Ui_MGPDialog
+from .mgp_file import openFile as MGP_OPEN_FILE
 from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
@@ -36,6 +29,9 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         super().__init__()
         self.mainwindow = mainwindow
         self.ui = self.mainwindow.ui
+        self.covoutputs_file = None
+        self.ui.covoutputsOpenFileToolButton.setEnabled(False)
+        self.ui.covinputsOpenSourceFileToolButton.setEnabled(False)
 
         ## ####################################################################
         # Init signal slots connection
@@ -43,6 +39,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
         self.ui.covinputsSourceFileToolButton.clicked.connect(self.onCovinputsSourceFileToolButtonClicked)
         self.ui.covinputsSourceFileLineEdit.textChanged.connect(self.onCovinputsSourceFileChanged)
+        self.ui.covinputsOpenSourceFileToolButton.clicked.connect(self.onCovinputsOpenSourceFileToolButtonClicked)
 
         self.ui.imagesSourceFileToolButton.clicked.connect(self.onImagesSourceFileToolButtonClicked)
         self.ui.imagesSourceFileLineEdit.textChanged.connect(self.onImagesSourceFileChanged)
@@ -63,6 +60,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
         self.ui.covinputsSourceFileToolButton.setToolTip("Browse for covariates input file on the computer. Must be CSV file.")
         self.ui.covinputsSourceFileLineEdit.setToolTip("Covariates input file on the computer.")
+        self.ui.covinputsOpenSourceFileToolButton.setToolTip("Open covariates input file.")
 
         self.ui.imagesSourceFileToolButton.setToolTip("Browse for covariates input folder on the computer. Must contain image files listed in the “Covariates Input File”.")
         self.ui.imagesSourceFileLineEdit.setToolTip("Covariates input folder on the computer.")
@@ -77,6 +75,17 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
         self.ui.computeCovariatesButton.setToolTip("Compute covariates. QGIS generates additional layers depending on inputs and a CSV file with the outputs.")
 
+        ## ####################################################################
+        # Init icons
+        ## ####################################################################
+
+        self.ui.covinputsOpenSourceFileToolButton.setIcon(
+            self.ui.covinputsOpenSourceFileToolButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirOpenIcon"))
+        )
+        self.ui.covoutputsOpenFileToolButton.setIcon(
+            self.ui.covoutputsOpenFileToolButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirOpenIcon"))
+        )
+
     ## #############################################################
     # reset
     ## #############################################################
@@ -85,6 +94,8 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.covinputsSourceFileLineEdit.clear()
         self.ui.imagesSourceFileLineEdit.clear()
         self.ui.covrefLayerLineEdit.clear()
+        self.ui.covoutputsOpenFileToolButton.setEnabled(False)
+        self.covoutputs_file = None
 
     ## #############################################################
     # Load covref from step2
@@ -120,6 +131,16 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         '''
         self.updateCovinputsComboBoxes()
         self.mainwindow.updateSaveStatus(True)
+        if self.ui.covinputsSourceFileLineEdit.text():
+            self.ui.covinputsOpenSourceFileToolButton.setEnabled(True)
+        else:
+            self.ui.covinputsOpenSourceFileToolButton.setEnabled(False)
+
+    def onCovinputsOpenSourceFileToolButtonClicked(self) -> typing.NoReturn:
+        '''Open covinput file on disk
+        '''
+        if self.ui.covinputsSourceFileLineEdit.text():
+            MGP_OPEN_FILE(self.ui.covinputsSourceFileLineEdit.text())
 
     def updateCovinputsComboBoxes(self):
         # Retrieve fieldlist and populate comboboxes
@@ -235,6 +256,14 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
     # Main action
     ## #############################################################
 
+    def onCovoutputsOpenFileToolButtonClicked(self) -> typing.NoReturn:
+        if self.covoutputs_file:
+            MGP_OPEN_FILE(self.covoutputs_file)
+
+        ## #############################################################
+        # Main action
+        ## #############################################################
+
     def onComputeCovariatesButtonClicked(self) -> typing.NoReturn:
         '''ComputeCovariates computeCovariatesButton
         '''
@@ -288,13 +317,12 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
                 self.ui.covrefLayerLineEdit.text())
 
             covariatesProcesser.computeCovariates()
+            self.covoutputs_file = covariatesProcesser.output_file
+            if self.covoutputs_file:
+                self.ui.covoutputsOpenFileToolButton.setEnabled(True)
+            else:
+                self.ui.covoutputsOpenFileToolButton.setEnabled(False)
 
-            if platform.system() == 'Darwin':       # macOS
-                subprocess.call(('open', covariatesProcesser.output_file))
-            elif platform.system() == 'Windows':    # Windows
-                os.startfile(covariatesProcesser.output_file)
-            else:                                   # linux variants
-                subprocess.call(('xdg-open', covariatesProcesser.output_file))
             Logger.logSuccess("[CovariatesProcesser] Covariates succcessfully processed")
 
         except BaseException as e:

@@ -59,6 +59,7 @@ set PLUGIN_FILES=%PLUGIN_FILES%;mgp_main_window_tab2handler.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_main_window_tab3handler.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_config_reader.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_config_writer.py
+set PLUGIN_FILES=%PLUGIN_FILES%;mgp_file.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_version.py
 set PLUGIN_FILES=%PLUGIN_FILES%;resources_rc.py
 
