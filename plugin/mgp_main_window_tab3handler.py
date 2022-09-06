@@ -53,6 +53,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.covrefLayerLineEdit.textChanged.connect(self.onCovrefLayerFileChanged)
 
         self.ui.computeCovariatesButton.clicked.connect(self.onComputeCovariatesButtonClicked)
+        self.ui.covoutputsOpenFileToolButton.clicked.connect(self.onCovoutputsOpenFileToolButtonClicked)
 
         ## ####################################################################
         # Init Tooltips - easier than in qtdesigner
