@@ -105,13 +105,12 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         '''handle reference layer changed
         '''
         file = Utils.LayersName.fileName(Utils.LayersType.BUFFERSANON)
-        layer = None
         layers = QgsProject.instance().mapLayersByName(Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON))
         if layers:
-            layer = layers[0]
             self.ui.covrefLayerLineEdit.setText(file)
         else:
             self.ui.covrefLayerLineEdit.clear()
+
     # #############################################################
     # Covinputs Source
     # #############################################################
