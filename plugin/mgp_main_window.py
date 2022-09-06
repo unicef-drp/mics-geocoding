@@ -160,6 +160,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
     def reset(self) -> typing.NoReturn:
         # Hold the save button status
         self.fileMGC = None
+        self.ui.configFileLineEdit.clear()
 
         # Hold the basename values. Made to avoid too many 'editingFinished' signal issue
         self.basename = ""
