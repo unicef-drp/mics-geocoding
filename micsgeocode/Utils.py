@@ -190,7 +190,7 @@ def getFieldsListAsStrArray(file: str) -> typing.List[str]:
             fieldList = [f.name() for f in layer.fields()]
     elif extension == "csv":
         with open(file, "r") as f:
-            fieldList = f.readline().strip().split(',')
+            fieldList = [s.strip() for s in f.readline().strip().split(',')]
     elif extension == "txt":
         with open(file, "r") as f:
             line = f.readline()

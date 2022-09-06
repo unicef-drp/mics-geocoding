@@ -128,13 +128,13 @@ class CovariatesProcesser():
             # read all input covariates
             for i in f:
                 if rowIndex == 0:
-                    line = re.split(',', i.strip())
+                    line = [s.strip() for s in re.split(',', i.strip())]
                     input_file_id = line.index(self.input_csv_field_filename)
                     input_fileformat_id = line.index(self.input_csv_field_fileformat)
                     input_field_sumstat_id = line.index(self.input_csv_field_sumstat)
                     input_field_columnname_id = line.index(self.input_csv_field_columnname)
                 if rowIndex != 0:
-                    line = re.split(',', i.strip())
+                    line = [s.strip() for s in re.split(',', i.strip())]
                     inputs.append({
                         'file': line[input_file_id],
                         'file_format': line[input_fileformat_id],
