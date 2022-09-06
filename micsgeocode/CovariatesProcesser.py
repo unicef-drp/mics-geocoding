@@ -152,6 +152,7 @@ class CovariatesProcesser():
                 sum_stat = input_row['sum_stat']
                 column_name = input_row['column']
                 Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(rowIndex, file_name, file_format, sum_stat, column_name))
+                rowIndex = rowIndex + 1
 
                 # Compute distance to nearest
                 if sum_stat == 'distance_to_nearest':
@@ -197,7 +198,10 @@ class CovariatesProcesser():
                                     pt = cluster_ft.geometry().centroid().asPoint()
                                     contains = geom.contains(pt)
                                     if contains:
+                                        minDistFtId = tmp_ft.id()
                                         isInsideFeature = True
+                                        break
+
                                 if not isInsideFeature:
                                     cswc = min(
                                         [(
@@ -209,21 +213,26 @@ class CovariatesProcesser():
                                     minDistFtId = cswc[0]  # line id of nearest point
                                     # endPt = QgsPoint(minDistPoint[0], minDistPoint[1])
                                     endGeom = QgsGeometry.fromPointXY(QgsPointXY(minDistPoint[0], minDistPoint[1]))
+                                else:
+                                    endGeom = startGeom
 
-                            if minDistFtId > -1:
-                                line = QgsGeometry.fromPolyline([
-                                    QgsPoint(startGeom.asPoint()),
-                                    QgsPoint(endGeom.asPoint())
-                                ])
-                                # creating line between point and nearest point
-                                feat.setGeometry(line)
+                            line = QgsGeometry.fromPolyline([
+                                QgsPoint(startGeom.asPoint()),
+                                QgsPoint(endGeom.asPoint())
+                            ])
+                            # creating line between point and nearest point
+                            feat.setGeometry(line)
 
-                                # get distance in meters - transform to Web Mercator
-                                line_merc = QgsGeometry(line)
-                                line_merc.transform(Transforms.tr)
+                            # get distance in meters - transform to Web Mercator
+                            line_merc = QgsGeometry(line)
+                            line_merc.transform(Transforms.tr)
 
-                                feat.setAttributes([cluster_ft[CovariatesProcesser.CLUSTER_N0_FIELD_NAME], minDistFtId, line_merc.length()])
-                                shortest_dist_prov.addFeatures([feat])
+                            feat.setAttributes([
+                                cluster_ft[CovariatesProcesser.CLUSTER_N0_FIELD_NAME],
+                                minDistFtId,
+                                line_merc.length()
+                            ])
+                            shortest_dist_prov.addFeatures([feat])
 
                         # Update extent of the layer
                         shortest_dist_lyr.updateExtents()
@@ -234,7 +243,12 @@ class CovariatesProcesser():
                                       shortest_dist_lyr.getFeatures()]
                         # Convert the dictionary into DataFrame
                         search_shp_df = pd.DataFrame(search_fts)
-                        summary_df = pd.merge(summary_df, search_shp_df[[column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]], on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME, how='inner')
+                        summary_df = pd.merge(
+                            summary_df,
+                            search_shp_df[[column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]],
+                            on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
+                            how='inner'
+                        )
 
                 # Compute zonal stat and geotiff
                 elif file_format == 'GeoTIFF':
@@ -253,8 +267,6 @@ class CovariatesProcesser():
                         on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
                         how='inner'
                     )
-
-                rowIndex = rowIndex + 1
 
             # iterating the columns
             selected_columns = []
