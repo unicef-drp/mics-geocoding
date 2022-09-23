@@ -97,10 +97,6 @@ class CentroidsLoader():
     def writeLayers(self) -> typing.NoReturn:
         """ Write all the layers handle by this class to files
         """
-        # Utils.writeLayerIfExists(Utils.LayersType.GPS)
-        # Utils.writeLayerIfExists(Utils.LayersType.MULTIPLT)
-        # Utils.writeLayerIfExists(Utils.LayersType.CONVEXHULL)
-        # Utils.writeLayerIfExists(Utils.LayersType.POLYGONS)
         Utils.writeLayerIfExists(Utils.LayersType.CENTROIDS)
 
         Logger.logInfo("[CentroidsLoader] Layers written to disk")
@@ -109,11 +105,6 @@ class CentroidsLoader():
         """ Write all the layers handle by this class to files
         """
         Utils.reloadLayerFromDiskToAvoidMemoryFlag(Utils.LayersType.CENTROIDS)
-        # Utils.writeLayerIfExists(Utils.LayersType.GPS)
-        # Utils.writeLayerIfExists(Utils.LayersType.MULTIPLT)
-        # Utils.writeLayerIfExists(Utils.LayersType.CONVEXHULL)
-        # Utils.writeLayerIfExists(Utils.LayersType.POLYGONS)
-
         Logger.logInfo("[CentroidsLoader] Layers written to disk")
 
 ## ###########################################################################
@@ -220,16 +211,26 @@ class CentroidsLoader():
         Logger.logInfo("[CentroidsLoader] Cluster Latitude field: " + self.lat_field)
         Logger.logInfo("[CentroidsLoader] Admin Boundaries field: " + self.admin_boundaries_field)
 
-        self.__initLayer(Utils.LayersType.GPS)
         self.__initLayer(Utils.LayersType.MULTIPLT)
         self.__initLayer(Utils.LayersType.CONVEXHULL)
 
         gps_coords = self.__csv2gps()
-        self.__addGpsLayer(gps_coords)
+
         self.__computeCentroidsfromGPSCoords(gps_coords)
-        QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.GPS])
-        QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.MULTIPLT])
-        QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.CONVEXHULL])
+
+        isMultiPoint = self.layers[Utils.LayersType.MULTIPLT].featureCount() > 0
+        if isMultiPoint:
+            self.__initLayer(Utils.LayersType.GPS)
+            self.__addGpsLayer(gps_coords)
+            QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.GPS])
+
+            QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.MULTIPLT])
+            QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.CONVEXHULL])
+        else:
+            Utils.removeLayerIfExists(Utils.LayersType.MULTIPLT)
+            self.layers[Utils.LayersType.MULTIPLT] = None
+            Utils.removeLayerIfExists(Utils.LayersType.CONVEXHULL)
+            self.layers[Utils.LayersType.CONVEXHULL] = None
 
     def __layer2gps(self, layer) -> typing.List:
         gps_coords = []
@@ -296,16 +297,21 @@ class CentroidsLoader():
             self.__computeCentroid(cl, [val for val in gps_coords if val['cluster'] == cl[0]])
 
     def __computeCentroid(self, cluster, gps_coords_per_cluster: typing.List) -> typing.NoReturn:
-        # compute gps coords list
-        cluster_multipt_ft, gps_coords_list = self.__computeMultiptFeature(cluster, gps_coords_per_cluster)
-
-        # compute convexhull
-        cluster_convexhull_ft = self.__computeConvexhullFeature(cluster, gps_coords_list)
-
-        # compute centroid
         cluster_centroid_ft = QgsFeature()
-        cluster_centroid_ft.setAttributes([cluster[0], cluster[1], len(gps_coords_list), gps_coords_per_cluster[0]['admin']])
-        self.__computeCentroidGeometry(cluster_centroid_ft, cluster_multipt_ft, cluster_convexhull_ft)
+
+        if len(gps_coords_per_cluster) == 1:
+            point = QgsPointXY(gps_coords_per_cluster[0]['lon'], gps_coords_per_cluster[0]['lat'])
+            cluster_centroid_ft.setGeometry(QgsGeometry.fromPointXY(point))
+            cluster_centroid_ft.setAttributes([cluster[0], cluster[1], 1, gps_coords_per_cluster[0]['admin']])
+        else:
+            # compute gps coords list
+            cluster_multipt_ft, gps_coords_list = self.__computeMultiptFeature(cluster, gps_coords_per_cluster)
+            # compute convexhull
+            cluster_convexhull_ft = self.__computeConvexhullFeature(cluster, gps_coords_list)
+            # compute centroid
+            cluster_centroid_ft.setAttributes([cluster[0], cluster[1], len(gps_coords_list), gps_coords_per_cluster[0]['admin']])
+            self.__computeCentroidGeometry(cluster_centroid_ft, cluster_multipt_ft, cluster_convexhull_ft)
+
         self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
 
     def __computeMultiptFeature(self, cluster, gps_coords_per_cluster: typing.List) -> typing.Tuple[QgsFeature, typing.List]:
