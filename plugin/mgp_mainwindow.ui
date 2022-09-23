@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>509</width>
-    <height>650</height>
+    <height>681</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
       <x>10</x>
       <y>0</y>
       <width>491</width>
-      <height>621</height>
+      <height>651</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -959,14 +959,14 @@
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>50</height>
+         <height>75</height>
         </size>
        </property>
        <widget class="QLabel" name="labelLogo">
         <property name="geometry">
          <rect>
           <x>310</x>
-          <y>9</y>
+          <y>20</y>
           <width>177</width>
           <height>35</height>
          </rect>
@@ -1008,7 +1008,7 @@
           <x>0</x>
           <y>0</y>
           <width>301</width>
-          <height>50</height>
+          <height>75</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -1020,7 +1020,7 @@
         <property name="minimumSize">
          <size>
           <width>90</width>
-          <height>50</height>
+          <height>75</height>
          </size>
         </property>
         <property name="maximumSize">

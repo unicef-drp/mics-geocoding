@@ -39,7 +39,7 @@ class Logger():
     def logException(message: str, e: BaseException) -> None:
         messageException = "Error: {0}. Arguments: {1!r}".format(type(e).__name__, e.args)
         QgsMessageLog.logMessage(message + '\n' + messageException, Logger.CATEGORY, Qgis.Warning)
-        Logger.logNotification("ERROR\n" + message + '\n' + messageException)
+        Logger.logNotification("ERROR\n" + message)
 
     @staticmethod
     def logError(message: str) -> None:
