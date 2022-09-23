@@ -122,10 +122,10 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################
 
-        self.ui.basenameLineEdit.setToolTip("Basename of layers and file generation. Only alphanumerical characters")
+        self.ui.basenameLineEdit.setToolTip("Basename of layers and file generation. Only alphanumerical characters.")
 
-        self.ui.outputDirLineEdit.setToolTip("Output directory for shapefiles generation")
-        self.ui.outputDirToolButton.setToolTip("Browse for output directory on the disk")
+        self.ui.outputDirLineEdit.setToolTip("Output directory for shapefiles generation.")
+        self.ui.outputDirToolButton.setToolTip("Browse for output directory on the disk.")
 
         ## ####################################################################
         # init all var
