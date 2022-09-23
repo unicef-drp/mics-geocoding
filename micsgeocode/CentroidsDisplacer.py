@@ -331,7 +331,7 @@ class CentroidsDisplacer():
         feat_disp_centroid = QgsFeature()
         feat_disp_centroid.setGeometry(displaced_point_wgs)
 
-        remark = Errors.ErrorDisplayString[Errors.ErrorCode.NONE]
+        remark = Errors.ErrorDisplayString[Errors.ErrorCode.SUCCESS]
         if not cluster_centroid_ft['cluster']:
             remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_NUMBER_MISSING]
         if not cluster_centroid_ft['type']:
@@ -340,7 +340,7 @@ class CentroidsDisplacer():
             remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_ADMIN_MISSING]
         if ref_id_before == "None" or ref_id_after == "None":
             remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_CLUSTER_OUTSIDE_BOUNDARY]
-        if cluster_centroid_ft['admin'] != ref_id_before or ref_id_before == ref_id_after:
+        if cluster_centroid_ft['admin'] != ref_id_before or ref_id_before != ref_id_after:
             remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_CLUSTER_DISPLACED_OUTSIDE_GEODOMAIN]
 
         #
