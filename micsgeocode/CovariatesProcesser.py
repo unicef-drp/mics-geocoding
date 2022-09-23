@@ -451,6 +451,9 @@ class CovariatesProcesser():
 
                 intval = rb.ReadAsArray(px, py, 1, 1)
 
+                yes_or_no = "Yes"
+                if intval == nodata_value:
+                    yes_or_no = "No"
                 feature_stats = {
                     'min': float(intval),
                     'mean': float(intval),
@@ -462,7 +465,7 @@ class CovariatesProcesser():
                     'count': int(intval),
                     'cluster': feat[cluster_no_field],
                     'fid': int(feat.GetFID()),
-                    'yes_or_no': "No"
+                    'yes_or_no': yes_or_no
                 }
 
             stats.append(feature_stats)
