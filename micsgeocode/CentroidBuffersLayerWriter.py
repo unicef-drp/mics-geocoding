@@ -9,25 +9,6 @@
 ##
 ## ###########################################################################
 
-
-# ToDo: for buffers crossing antimeridian, use a modified CS: "GEOGCRS["WGS 84",
-#     DATUM["World Geodetic System 1984",
-#         ELLIPSOID["WGS 84",6378137,298.257223563,
-#             LENGTHUNIT["metre",1]]],
-#     PRIMEM["Greenwich",180,
-#         ANGLEUNIT["degree",0.0174532925199433]],
-#     CS[ellipsoidal,2],
-#         AXIS["geodetic latitude (Lat)",north,
-#             ORDER[1],
-#             ANGLEUNIT["degree",0.0174532925199433]],
-#         AXIS["geodetic longitude (Lon)",east,
-#             ORDER[2],
-#             ANGLEUNIT["degree",0.0174532925199433]],
-#     USAGE[
-#         SCOPE["unknown"],
-#         AREA["World"],
-#         BBOX[-90,-180,90,180]]]"
-
 import math
 import random
 import typing
@@ -47,8 +28,7 @@ from .Logger import Logger
 
 
 class CentroidBuffersLayerWriter():
-    """ Handle the centroids displacement.
-        The existing centroids are available through a map layer.
+    """ Facade that handle the writing of centroid buffers layer.
     """
 
     def __init__(self):
@@ -57,7 +37,7 @@ class CentroidBuffersLayerWriter():
         self.maxDistances = None
 
     def writerCentroidBuffersLayer(self) -> typing.NoReturn:
-        """ Facade method that handle all the centroids displacement.
+        """ Facade method that creates the new buffer, and gather the different field values
         """
         Logger.logInfo("[CentroidBuffersLayerWriter] Centroids displacement starts at {}".format(datetime.now()))
 

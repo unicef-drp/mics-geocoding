@@ -112,6 +112,8 @@ class CentroidsLoader():
 ## ###########################################################################
 
     def __initLayer(self, type: Utils.LayersType):
+        """ Init all layers
+        """
         if type == Utils.LayersType.GPS:
             self.layers[Utils.LayersType.GPS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.GPS, [
                 QgsField("cluster", QVariant.Int),
@@ -193,6 +195,8 @@ class CentroidsLoader():
             QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.POLYGONS])
 
     def __layer2gps(self, layer) -> typing.List:
+        """ extract from a layer a gps_coord list
+        """
         gps_coords = []
         for feature in layer.getFeatures():
             geom = feature.geometry()
@@ -225,6 +229,8 @@ class CentroidsLoader():
         self.__loadCentroidsFromGPSCoords(gps_coords)
 
     def __csv2gps(self) -> typing.List:
+        """ Extract from a csv a gps_coord list
+        """
         gps_coords = []
         with open(self.input_file, "r", encoding='utf-8-sig') as f:
             c = 0
@@ -254,6 +260,8 @@ class CentroidsLoader():
 ## ###########################################################################
 
     def __addGpsLayer(self, gps_coords: typing.List) -> typing.NoReturn:
+        """ Add a gps layer absed on gps_coords list
+        """
         # add gps points to a layer
         for gps in gps_coords:
             point = QgsPointXY(gps['lon'], gps['lat'])
@@ -268,6 +276,8 @@ class CentroidsLoader():
             self.layers[Utils.LayersType.GPS].dataProvider().addFeatures([gps_coords_ft])
 
     def __loadCentroidsFromGPSCoords(self, gps_coords: typing.List) -> typing.NoReturn:
+        """ Load centroids from gps coords
+        """
         self.__initLayer(Utils.LayersType.MULTIPLT)
         self.__initLayer(Utils.LayersType.CONVEXHULL)
         self.__computeCentroidsfromGPSCoords(gps_coords)
@@ -287,6 +297,8 @@ class CentroidsLoader():
             self.layers[Utils.LayersType.CONVEXHULL] = None
 
     def __computeCentroidsfromGPSCoords(self, gps_coords: typing.List) -> typing.NoReturn:
+        """ Compute centroids from gps coords
+        """
         unique_clusters = set(val['cluster'] for val in gps_coords)
         unique_clusters_with_type = []
         for unique_cluster in unique_clusters:
@@ -315,6 +327,8 @@ class CentroidsLoader():
         self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
 
     def __computeMultiptFeature(self, cluster, gps_coords_per_cluster: typing.List) -> typing.Tuple[QgsFeature, typing.List]:
+        """ Compute multi point feature from a set of gps coords
+        """
         gps_coords_list = []
         for p in gps_coords_per_cluster:
             point = QgsPointXY(p['lon'], p['lat'])
@@ -327,6 +341,8 @@ class CentroidsLoader():
         return cluster_multipt_ft, gps_coords_list
 
     def __computeConvexhullFeature(self, cluster, gps_coords_list: typing.List) -> QgsFeature:
+        """ Compute convex hull from a set of gps coords
+        """
         # compute convexhull
         cluster_convexhull_ft = QgsFeature()
         cluster_convexhull_ft.setGeometry(QgsGeometry.fromPolygonXY([gps_coords_list]).convexHull())
@@ -356,6 +372,8 @@ class CentroidsLoader():
         return cluster_convexhull_ft
 
     def __computeCentroidGeometry(self, cluster_centroid_ft: QgsFeature, cluster_multipt_ft: QgsFeature, cluster_convexhull_ft: QgsFeature) -> typing.NoReturn:
+        """ Compute the centroid geometry for a given centroid feature, the multi point and the convexhull
+        """
         # determine if pole of inaccessibility can be determined
         if cluster_convexhull_ft.geometry().poleOfInaccessibility(100)[0].isNull():
             cluster_centroid_ft.setGeometry(cluster_multipt_ft.geometry().centroid())

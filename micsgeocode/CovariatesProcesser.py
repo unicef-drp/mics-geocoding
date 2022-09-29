@@ -92,7 +92,8 @@ class CovariatesProcesser():
 ####################################################################
 
     def computeCovariates(self) -> typing.NoReturn:
-
+        """ Facade that handle the covariates computation
+        """
         # Generate output name
         output_filename = CovariatesProcesser.OUTPUT_SUFFIX_BASENAME
         if Utils.LayersName.basename:
