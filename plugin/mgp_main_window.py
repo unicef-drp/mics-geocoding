@@ -259,7 +259,6 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         '''
         if self.saveIfNeeded():
             self.reset()
-            self.onSaveConfigAsTriggered()
 
     def onOpenConfigTriggered(self) -> typing.NoReturn:
         '''Pick and trigger the open configuration
