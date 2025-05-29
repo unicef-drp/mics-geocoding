@@ -5,6 +5,10 @@
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
 ##
+# Updated: Nazim Gashi
+# Time: 06/05/2024 13:00:00 (Edits/adds done between 60-88)
+# Time: 08/01/2025 15:00:00
+##
 # Description:
 ##
 ## ###########################################################################
@@ -57,7 +61,15 @@ class CentroidBuffersLayerWriter():
         # Displace points
         for centroid_ft in centroidLayer.getFeatures():
             id = centroid_ft['cluster']
-            dist = self.maxDistances[id]
+            area_type = centroid_ft['type']
+
+            # set the buffer distance based on the area type
+            if area_type == Utils.FieldAreaType.URBAN:
+                dist = 2000
+            elif area_type == Utils.FieldAreaType.RURAL:
+                dist = 5000
+            else:
+                dist = 5000
 
             buffer_geom_tmp = QgsGeometry(centroid_ft.geometry())        # transform copy of the centroid into Web Mercator
             buffer_geom_tmp.transform(Transforms.tr)

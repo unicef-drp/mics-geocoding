@@ -5,6 +5,10 @@
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
 ##
+# Updated: Nazim Gashi
+# Time: 06/05/2024 13:00:00
+# Time: 08/01/2025 15:00:00 (lines 316 and 319 added) (updates done between in 312 and 315)
+##
 # Description:
 ##
 ## ###########################################################################
@@ -305,12 +309,14 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
                 filename = Utils.LayersName.fileName(Utils.LayersType.DISPLACEDANON, "csv")
                 with open(filename, 'w', encoding="UTF8", newline="") as csvfile:
                     writer = csv.writer(csvfile)
-                    writer.writerow(["Cluster Number", "Longitude", "Latitude"])
+                    writer.writerow(["HH1", "HH6", "Longitude", "Latitude", "MICSGEO"])
                     for ft in layer.getFeatures():
                         writer.writerow([
-                            str(ft['cluster']),
+                            str(ft['HH1']),
+                            ft['HH6'],
                             "{:.6f}".format(ft.geometry().asPoint().x()),
-                            "{:.6f}".format(ft.geometry().asPoint().y())
+                            "{:.6f}".format(ft.geometry().asPoint().y()),
+                            ft['MICSGEO']
                         ])
         except BaseException as e:
             Logger.logException("[Displace] A problem occured while saving displaced anonymised centroids", e)

@@ -5,6 +5,10 @@
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
 ##
+# Updated: Nazim Gashi
+# Time: 06/05/2024 13:00:00 (Edits/adds done between 405-429)
+# Time: 08/01/2025 15:00:00 (lines (307 and 310) & (372 and 375) added) (updates done between 231-253; also 306, 308, and 309)
+##
 # Description:
 ##
 ## ###########################################################################
@@ -223,7 +227,7 @@ class CentroidsDisplacer():
 ####################################################################
 # DisplacePoint
 ####################################################################
-
+        
     def __displacepoint(self, x: float, y: float, max_distance: float = 5000) -> typing.Tuple[float, float, float, int]:
         """ Compute a point displacement
         """
@@ -241,10 +245,6 @@ class CentroidsDisplacer():
         # the other sides
         x_offset = math.sin(angle_radian) * distance_internal
         y_offset = math.cos(angle_radian) * distance_internal
-        if 90 < angle_degree_internal <= 270:
-            x_offset *= -1
-        if angle_degree_internal > 180:
-            y_offset *= -1
 
         # Add the offset to the original coordinate (in meters)
         new_x_internal = x + x_offset
@@ -303,9 +303,11 @@ class CentroidsDisplacer():
 
         # create layer for anonymised displaced centroids
         self.__generatedLayers[Utils.LayersType.DISPLACEDANON] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.DISPLACEDANON, [
-            QgsField("cluster", QVariant.Int),
-            QgsField("lon_disp", QVariant.Double, "double", 15, 6),
-            QgsField("lat_disp", QVariant.Double, "double", 15, 6)
+            QgsField("HH1", QVariant.Int),
+            QgsField("HH6", QVariant.String),
+            QgsField("Longitude", QVariant.Double, "double", 15, 6),
+            QgsField("Latitude", QVariant.Double, "double", 15, 6),  
+            QgsField("MICSGEO", QVariant.String)
         ])
 
         # add layers to project following correct z order
@@ -367,8 +369,10 @@ class CentroidsDisplacer():
         feat_anonym_disp_centroid.setGeometry(displaced_point_wgs)
         feat_anonym_disp_centroid.setAttributes([
             cluster_centroid_ft['cluster'],
+            cluster_centroid_ft['type'],
             displaced_point_wgs.asPoint().x(),
-            displaced_point_wgs.asPoint().y()
+            displaced_point_wgs.asPoint().y(),
+            cluster_centroid_ft['admin']
         ])
         self.__generatedLayers[Utils.LayersType.DISPLACEDANON].dataProvider().addFeatures([feat_anonym_disp_centroid])
 
@@ -397,8 +401,20 @@ class CentroidsDisplacer():
 
         # transform copy of the centroid into Web Mercator
         displaced_feat_centroid_mercator.transform(Transforms.tr)
+
+        # get the area type
+        area_type = cluster_centroid_ft['type']
+
+        # set the buffer radius based on the area type
+        if area_type == Utils.FieldAreaType.URBAN:
+            buffer_radius = 2000
+        elif area_type == Utils.FieldAreaType.RURAL:
+            buffer_radius = 5000
+        else:
+            buffer_radius = 5000
+
         # create buffers around displaced centroids
-        disp_centroid_buff_geom = displaced_feat_centroid_mercator.buffer(max_displace_distance, 20)
+        disp_centroid_buff_geom = displaced_feat_centroid_mercator.buffer(buffer_radius, 20)
 
         disp_centroid_buff_geom.transform(Transforms.tr_back)
 
@@ -408,6 +424,6 @@ class CentroidsDisplacer():
         disp_anonym_centroid_buff_ft.setAttributes([
             cluster_centroid_ft['cluster'],
             cluster_centroid_ft['type'],
-            max_displace_distance
+            buffer_radius
         ])
         self.__generatedLayers[Utils.LayersType.BUFFERSANON].dataProvider().addFeatures([disp_anonym_centroid_buff_ft])
