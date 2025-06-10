@@ -71,7 +71,7 @@ FOR %%F IN (%PLUGIN_FILES%) DO (
 @REM copy mcis geocode INSIDE plugin directory
 @REM ##########################################################################
 
-set MICS_SOURCE_DIRECTORY=%PROJECT_SOURCE_DIRECTORY%\micsgeocode
+set MICS_SOURCE_DIRECTORY=%PROJECT_SOURCE_DIRECTORY%\plugin\micsgeocode
 
 ROBOCOPY %MICS_SOURCE_DIRECTORY% %PLUGIN_DIRECTORY%\micsgeocode /S /E /NJH /NJS /NC /NS /NP /NFL /NDL
 
