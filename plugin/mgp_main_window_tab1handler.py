@@ -5,6 +5,10 @@
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
 ##
+# Updated: Nazim Gashi
+# Time: 06/05/2024 13:00:00
+# Time: 08/01/2025 15:00:00 (line 117, 125, and 158 added)
+##
 # Description:
 ##
 ## ###########################################################################
@@ -110,7 +114,7 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
 
         # init type combobox and look for a default value
         self.ui.typeFieldComboBox.addItems(fields)
-        candidates = ["Type", "type", "TYPE"]
+        candidates = ["Type", "type", "TYPE", "Area", "HH6"]
         for item in candidates:
             if item in fields:
                 self.ui.typeFieldComboBox.setCurrentIndex(fields.index(item))
@@ -118,7 +122,7 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
 
         # init cluster combobox and look for a default value
         self.ui.numeroFieldComboBox.addItems(fields)
-        candidates = ["clusterno", "ClusterNo", "CLUSTERNO"]
+        candidates = ["clusterno", "ClusterNo", "CLUSTERNO", "HH1","Cluster", "CLUSTER", "cluster"]
         for item in candidates:
             if item in fields:
                 self.ui.numeroFieldComboBox.setCurrentIndex(fields.index(item))
@@ -151,7 +155,7 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
 
         # init cluster combobox and look for a default value
         self.ui.adminBoundariesFieldComboBox.addItems(fields)
-        candidates = ["adminBoundaries", "AdminBoundaries", "ADMINBOUNDARIES", "region", "Region", "REGION"]
+        candidates = ["HH7A", "District", "DISTRICT","district", "LGA","admin", "Admin", "ADMIN", "region", "Region", "REGION", "HH7", "GEONAMET", "GEONAMES", "GEONAME", "GEOCODET", "GEOCODES", "GEOCODE", "MICSGEO"]
         for item in candidates:
             if item in fields:
                 self.ui.adminBoundariesFieldComboBox.setCurrentIndex(fields.index(item))
