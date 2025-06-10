@@ -17,7 +17,7 @@ from pathlib import Path
 import re
 import typing
 
-from .ui_mgp_dialog import Ui_MGPDialog
+from .ui_mgp_mainwindow import Ui_MGPDialog
 from .mgp_config_writer import mgp_config_writer
 from .mgp_config_reader import mgp_config_reader
 from .mgp_main_window_tab1handler import MGPMainWindowTab1Handler

@@ -24,7 +24,7 @@ from datetime import datetime
 import re
 import typing
 
-from .ui_mgp_dialog import Ui_MGPDialog
+from .ui_mgp_mainwindow import Ui_MGPDialog
 from .micsgeocode import CentroidsDisplacer as Displacer
 from .micsgeocode import CentroidBuffersMaxDistanceComputer as Radier
 from .micsgeocode import CentroidBuffersLayerWriter as BufferWriter

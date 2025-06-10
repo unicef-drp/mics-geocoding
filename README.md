@@ -55,13 +55,12 @@ Here’s the directory structure the plugin:
 ├───mgp_config_reader.py
 ├───mgp_config_writer.py
 ├───mgp.py
-├───mgp_dialog.py
-├───mgp_dialog.ui
+├───mgp_mainwindow.ui
 ├───mgp_main_window.py
 ├───mgp_version.py
 ├───resources.py
 ├───resources.qrc
-├───ui_mgp_dialog.py
+├───ui_mgp_mainwindow.py
 ├───WIN_build.bat
 ├───__init__.py
 └───test
@@ -73,8 +72,8 @@ Here’s the directory structure the plugin:
 - `metadata.txt` Contains general info, version, name and some other metadata used by plugins website and plugin infrastructure
 - `resources.qrc` The .xml document created by Qt Designer. Contains relative paths to resources of the forms.
 - `resources.py` The translation of the .qrc file described above to Python.
-- `mgp_dialog.ui` The GUI created by Qt Designer
-- `ui_mgp_dialog.py` The translation of the form.ui described above to Python
+- `mgp_mainwindow.ui` The GUI created by Qt Designer
+- `ui_mgp_mainwindow.py` The translation of the *.ui described above to Python
 - `mgp.py` The main working code of the plugin. Contains all the information about the actions of the plugin and the main code.
 - `mgp_xxx.py` those are the code base behind the plugin. If some modifications needs to be developped on the plugin, those are the files to focus on
 - `WIN_build.bat`: This helper scripts do the transciprtion from ui to py file, and qrc to py.

@@ -23,7 +23,7 @@ from datetime import datetime
 import re
 import typing
 
-from .ui_mgp_dialog import Ui_MGPDialog
+from .ui_mgp_mainwindow import Ui_MGPDialog
 from .micsgeocode import CentroidsLoader as Loader
 from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
