@@ -13,29 +13,31 @@ from .Logger import Logger
 from .Transforms import Transforms
 from . import Utils
 
-import numpy as np
+#import numpy as np
 
-from osgeo.gdalconst import GA_ReadOnly
-from osgeo import gdal, ogr
+#from osgeo.gdalconst import GA_ReadOnly
+from osgeo import gdal#, ogr
 import os
 import re
 import typing
 
 
-from qgis.core import QgsVectorLayer, QgsGeometry, QgsPoint, QgsPointXY, QgsField, QgsFeature, QgsVectorFileWriter, QgsProject, QgsCoordinateTransformContext, QgsRaster  # QGIS3
+from qgis.core import QgsVectorLayer, QgsGeometry, QgsPoint, QgsPointXY, QgsField, QgsFeature, QgsVectorFileWriter, QgsProject, QgsCoordinateTransformContext #, QgsRaster  # QGIS3
+from qgis import processing
+
 from PyQt5 import QtCore
+
+
 from pathlib import Path
 from datetime import datetime
 from operator import itemgetter
-
 
 import pandas as pd
 
 # to avoid GEOS errors! see: https://stackoverflow.com/questions/62075847/using-qgis-and-shaply-error-geosgeom-createlinearring-r-returned-a-null-pointer
 # This might be useless - I tried without it an it worked fine
-from shapely import speedups
-
-speedups.disable()
+#from shapely import speedups
+#speedups.disable()
 
 """
 Zonal Statistics
@@ -155,8 +157,8 @@ class CovariatesProcesser():
                 rowIndex = rowIndex + 1
 
                 # Compute distance to nearest
-                if sum_stat == 'distance_to_nearest':
-                    if file_format == 'Shapefile':
+                if file_format == 'Shapefile':
+                    if sum_stat == 'distance_to_nearest':
                         # create layer for shortest distance
                         shortest_distance_basename = file_name
                         shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(shortest_distance_basename), 'memory')
@@ -252,14 +254,18 @@ class CovariatesProcesser():
 
                 # Compute zonal stat and geotiff
                 elif file_format == 'GeoTIFF':
-                    stats = self.zonal_stats(
-                        self.__ref_layer_shp,
-                        file_path,
-                        CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
-                        nodata_value=-9999.
+                    column_prefix = '_'
+                    #raster_nodata_value = -200 # TODO: set as user input
+                    stats = self.zonal_stat(
+                        stat=sum_stat,
+                        vector_path=self.__ref_layer_shp,
+                        raster_path=file_path,
+                        raster_band=1,
+                        #raster_nodata_value = raster_nodata_value,
+                        column_prefix=column_prefix
                     )
-
-                    results_df = pd.DataFrame(stats)[[sum_stat, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]]
+                    
+                    results_df = stats[[f'{column_prefix}{sum_stat}', CovariatesProcesser.CLUSTER_N0_FIELD_NAME]]
                     results_df.columns = [column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]
                     summary_df = pd.merge(
                         summary_df,  # merge destination
@@ -307,164 +313,86 @@ class CovariatesProcesser():
     # Utilitity method
     ####################################################################
 
-    def bbox_to_pixel_offsets(self, gt, bbox):
-        '''Compute bboc to pixel offsets
-        '''
-        origin_x = gt[0]
-        origin_y = gt[3]
-        pixel_width = gt[1]
-        pixel_height = gt[5]
-        x1 = int((bbox[0] - origin_x) / pixel_width)
-        x2 = int((bbox[1] - origin_x) / pixel_width) + 1
-
-        y1 = int((bbox[3] - origin_y) / pixel_height)
-        y2 = int((bbox[2] - origin_y) / pixel_height) + 1
-
-        xsize = x2 - x1
-        ysize = y2 - y1
-        return x1, y1, xsize, ysize
-
-    def zonal_stats(self,
-                    vector_path,
-                    raster_path,
-                    cluster_no_field,
-                    nodata_value,
-                    global_src_extent=False):
+    def zonal_stat(self,
+            stat,
+            vector_path,
+            raster_path,
+            raster_band=1,
+            #raster_nodata_value = -9999,
+            column_prefix='_',
+            ):
         '''Compute zonal statistic
         '''
-        rds = gdal.Open(raster_path, GA_ReadOnly)
-        assert rds
 
-        rb = rds.GetRasterBand(1)
-        rgt = rds.GetGeoTransform()
+        stat_dict = {
+            '0' : 'count',
+            '1' : 'sum',
+            '2' : 'mean',
+            '3' : 'median',
+            '4' : 'std',
+            '5' : 'min',
+            '6' : 'max',
+            '7' : 'range',
+            '8' : 'minority',
+            '9' : 'majority',
+            '10': 'variety',
+            '11': 'variance'
+        }
 
-        if nodata_value:
-            nodata_value = float(nodata_value)
-            rb.SetNoDataValue(nodata_value)
+        def get_stat_id(stat_name):
+            """Get the stat id from the stat name
+            """
+            for key, value in stat_dict.items():
+                if value == stat_name:
+                    return int(key)
+            raise ValueError(f"Unknown statistic name: {stat_name}")
 
-        vds = ogr.Open(vector_path, GA_ReadOnly)  # TODO maybe open update if we want to write stats
-        # assert vds
-        if not vds:
-            Logger.logInfo("[ZonalStat] vds is missing")
+        if not os.path.isfile(vector_path):
+            Logger.logInfo("[ZonalStat] vector dataset is missing")
             Logger.logInfo("[ZonalStat] vector_path path was: " + vector_path)
 
-        vlyr = vds.GetLayer(0)
+        if not os.path.isfile(raster_path):
+            Logger.logInfo("[ZonalStat] raster dataset is missing")
+            Logger.logInfo("[ZonalStat] raster_path path was: " + raster_path)     
 
-        # create an in-memory numpy array of the source raster data
-        # covering the whole extent of the vector layer
-        if global_src_extent:
-            # use global source extent
-            # useful only when disk IO or raster scanning inefficiencies are your limiting factor
-            # advantage: reads raster data in one pass
-            # disadvantage: large vector extents may have big memory requirements
-            src_offset = self.bbox_to_pixel_offsets(rgt, vlyr.GetExtent())
-            src_array = rb.ReadAsArray(*src_offset)
+        # Set new nodata value for the raster
+        #processing.run("gdal:translate", {
+        #    'INPUT':raster_path,
+        #    'TARGET_CRS':None,
+        #    'NODATA':raster_nodata_value,
+        #    'COPY_SUBDATASETS':False,
+        #    'OPTIONS':None,
+        #    'EXTRA':'',
+        #    'DATA_TYPE':0,
+        #    'OUTPUT':'TEMPORARY_OUTPUT'
+        #})
 
-            # calculate new geotransform of the layer subset
-            new_gt = (
-                (rgt[0] + (src_offset[0] * rgt[1])),
-                rgt[1],
-                0.0,
-                (rgt[3] + (src_offset[1] * rgt[5])),
-                0.0,
-                rgt[5]
-            )
+        result = processing.run("native:zonalstatisticsfb", {
+            'INPUT': vector_path,
+            'INPUT_RASTER': raster_path,
+            'RASTER_BAND': raster_band,
+            'COLUMN_PREFIX': column_prefix,
+            'STATISTICS': [get_stat_id(stat)],
+            'OUTPUT': 'memory:' #'TEMPORARY_OUTPUT'
+        })
+        layer = result['OUTPUT']
 
-        mem_drv = ogr.GetDriverByName('Memory')
-        driver = gdal.GetDriverByName('MEM')
+        # In case we want to load the layer on the map:
+        #layer.setName("output_covariates" + output)        
+        #QgsProject.instance().addMapLayer(layer)
 
-        # Loop through vectors
-        stats = []
-        feat = vlyr.GetNextFeature()
-        while feat is not None:
+        # `layer` contains a table with the stat (column) for each feature (row)
+        # cluster | buf_dist | mean
 
-            if not global_src_extent:
-                # use local source extent
-                # fastest option when you have fast disks and well indexed raster (ie tiled Geotiff)
-                # advantage: each feature uses the smallest raster chunk
-                # disadvantage: lots of reads on the source raster
-                src_offset = self.bbox_to_pixel_offsets(rgt, feat.geometry().GetEnvelope())
-                src_array = rb.ReadAsArray(*src_offset)
+        # Get a list of field names
+        fieldnames = [field.name() for field in layer.fields()] # to define dataframe columns
 
-                # calculate new geotransform of the feature subset
-                new_gt = (
-                    (rgt[0] + (src_offset[0] * rgt[1])),
-                    rgt[1],
-                    0.0,
-                    (rgt[3] + (src_offset[1] * rgt[5])),
-                    0.0,
-                    rgt[5]
-                )
+        # Get a list of attributes for each selected feature
+        data = [f.attributes() for f in layer.getFeatures()]
+        
+        # Create a Pandas DataFrame
+        df = pd.DataFrame(data, columns=fieldnames)
 
-            # Create a temporary vector layer in memory
-            mem_ds = mem_drv.CreateDataSource('out')
-            mem_layer = mem_ds.CreateLayer('poly', None, ogr.wkbPolygon)
-            mem_layer.CreateFeature(feat.Clone())
+        # Return a dataframe, unlike the original zonal_stats function (caution)
+        return df
 
-            # Rasterize it
-            rvds = driver.Create('', src_offset[2], src_offset[3], 1, gdal.GDT_Byte)
-            rvds.SetGeoTransform(new_gt)
-            gdal.RasterizeLayer(rvds, [1], mem_layer, burn_values=[1])
-            rv_array = rvds.ReadAsArray()
-
-            # Mask the source data array with our current feature
-            # we take the logical_not to flip 0<->1 to get the correct mask effect
-            # we also mask out nodata values explictly
-            masked = np.ma.MaskedArray(
-                src_array,
-                mask=np.logical_or(
-                    src_array == nodata_value,
-                    np.logical_not(rv_array)
-                )
-            )
-
-            feature_stats = {
-                'min': float(masked.min()),
-                'mean': float(masked.mean()),
-                'max': float(masked.max()),
-                'median': float(np.ma.median(masked)),
-                'std': float(masked.std()),
-                'sum': float(masked.sum()),
-                'count': int(masked.count()),
-                'cluster': feat[cluster_no_field],
-                'fid': int(feat.GetFID()),
-                'yes_or_no': "Yes"
-            }
-
-            # get the actual pixel value for all stats if mask is returning null (e.g. pixel size is too large)
-            if not masked.min():
-                geom = feat.geometry()
-                mx, my = geom.Centroid().GetX(), geom.Centroid().GetY()  # coord in map units
-
-                # Convert from map to pixel coordinates.
-                # Only works for geotransforms with no rotation.
-                px = int((mx - rgt[0]) / rgt[1])  # x pixel
-                py = int((my - rgt[3]) / rgt[5])  # y pixel
-
-                intval = rb.ReadAsArray(px, py, 1, 1)
-
-                yes_or_no = "Yes"
-                if intval == nodata_value:
-                    yes_or_no = "No"
-                feature_stats = {
-                    'min': float(intval),
-                    'mean': float(intval),
-                    'max': float(intval),
-                    'median': float(intval),
-                    'std': float(intval),
-                    'sum': float(intval),
-                    'count': int(intval),
-                    'cluster': feat[cluster_no_field],
-                    'fid': int(feat.GetFID()),
-                    'yes_or_no': yes_or_no
-                }
-
-            stats.append(feature_stats)
-
-            rvds = None
-            mem_ds = None
-            feat = vlyr.GetNextFeature()
-
-        vds = None
-        rds = None
-        return stats
