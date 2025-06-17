@@ -9,30 +9,24 @@
 ##
 ## ###########################################################################
 
-from .Logger import Logger
-from .Transforms import Transforms
-from . import Utils
+from qgis.core import (QgsVectorLayer, QgsRasterLayer, QgsGeometry, QgsPoint, QgsPointXY, QgsField, QgsFeature, QgsVectorFileWriter, QgsProject, QgsCoordinateTransformContext) #, QgsRaster  # QGIS3
+from qgis import processing
+from PyQt5 import QtCore
 
-#import numpy as np
-
-#from osgeo.gdalconst import GA_ReadOnly
-from osgeo import gdal#, ogr
+from osgeo.gdalconst import GA_ReadOnly
+from osgeo import gdal, ogr
 import os
 import re
 import typing
-
-
-from qgis.core import QgsVectorLayer, QgsGeometry, QgsPoint, QgsPointXY, QgsField, QgsFeature, QgsVectorFileWriter, QgsProject, QgsCoordinateTransformContext #, QgsRaster  # QGIS3
-from qgis import processing
-
-from PyQt5 import QtCore
-
-
 from pathlib import Path
 from datetime import datetime
 from operator import itemgetter
-
+import numpy as np
 import pandas as pd
+
+from .Logger import Logger
+from .Transforms import Transforms
+from . import Utils
 
 # to avoid GEOS errors! see: https://stackoverflow.com/questions/62075847/using-qgis-and-shaply-error-geosgeom-createlinearring-r-returned-a-null-pointer
 # This might be useless - I tried without it an it worked fine
@@ -255,6 +249,7 @@ class CovariatesProcesser():
                 # Compute zonal stat and geotiff
                 elif file_format == 'GeoTIFF':
                     column_prefix = '_'
+                    # https://mapscaping.com/nodata-values-in-rasters-with-qgis/
                     #raster_nodata_value = -200 # TODO: set as user input
                     stats = self.zonal_stat(
                         stat=sum_stat,
@@ -262,7 +257,8 @@ class CovariatesProcesser():
                         raster_path=file_path,
                         raster_band=1,
                         #raster_nodata_value = raster_nodata_value,
-                        column_prefix=column_prefix
+                        column_prefix=column_prefix,
+                        cluster_no_field=CovariatesProcesser.CLUSTER_N0_FIELD_NAME
                     )
                     
                     results_df = stats[[f'{column_prefix}{sum_stat}', CovariatesProcesser.CLUSTER_N0_FIELD_NAME]]
@@ -313,6 +309,23 @@ class CovariatesProcesser():
     # Utilitity method
     ####################################################################
 
+    def bbox_to_pixel_offsets(self, gt, bbox):
+        '''Compute bboc to pixel offsets
+        '''
+        origin_x = gt[0]
+        origin_y = gt[3]
+        pixel_width = gt[1]
+        pixel_height = gt[5]
+        x1 = int((bbox[0] - origin_x) / pixel_width)
+        x2 = int((bbox[1] - origin_x) / pixel_width) + 1
+
+        y1 = int((bbox[3] - origin_y) / pixel_height)
+        y2 = int((bbox[2] - origin_y) / pixel_height) + 1
+
+        xsize = x2 - x1
+        ysize = y2 - y1
+        return x1, y1, xsize, ysize
+    
     def zonal_stat(self,
             stat,
             vector_path,
@@ -320,32 +333,14 @@ class CovariatesProcesser():
             raster_band=1,
             #raster_nodata_value = -9999,
             column_prefix='_',
+            cluster_no_field=CLUSTER_N0_FIELD_NAME,
+            global_src_extent=False
             ):
         '''Compute zonal statistic
         '''
+        print(f"[ZonalStat] computing: {stat}")
 
-        stat_dict = {
-            '0' : 'count',
-            '1' : 'sum',
-            '2' : 'mean',
-            '3' : 'median',
-            '4' : 'std',
-            '5' : 'min',
-            '6' : 'max',
-            '7' : 'range',
-            '8' : 'minority',
-            '9' : 'majority',
-            '10': 'variety',
-            '11': 'variance'
-        }
-
-        def get_stat_id(stat_name):
-            """Get the stat id from the stat name
-            """
-            for key, value in stat_dict.items():
-                if value == stat_name:
-                    return int(key)
-            raise ValueError(f"Unknown statistic name: {stat_name}")
+        DEFAULT_RASTER_NODATA_VALUE = -9999
 
         if not os.path.isfile(vector_path):
             Logger.logInfo("[ZonalStat] vector dataset is missing")
@@ -355,44 +350,181 @@ class CovariatesProcesser():
             Logger.logInfo("[ZonalStat] raster dataset is missing")
             Logger.logInfo("[ZonalStat] raster_path path was: " + raster_path)     
 
-        # Set new nodata value for the raster
-        #processing.run("gdal:translate", {
-        #    'INPUT':raster_path,
-        #    'TARGET_CRS':None,
-        #    'NODATA':raster_nodata_value,
-        #    'COPY_SUBDATASETS':False,
-        #    'OPTIONS':None,
-        #    'EXTRA':'',
-        #    'DATA_TYPE':0,
-        #    'OUTPUT':'TEMPORARY_OUTPUT'
-        #})
+        if stat == 'yes_or_no':
 
-        result = processing.run("native:zonalstatisticsfb", {
-            'INPUT': vector_path,
-            'INPUT_RASTER': raster_path,
-            'RASTER_BAND': raster_band,
-            'COLUMN_PREFIX': column_prefix,
-            'STATISTICS': [get_stat_id(stat)],
-            'OUTPUT': 'memory:' #'TEMPORARY_OUTPUT'
-        })
-        layer = result['OUTPUT']
+            yes_or_no_field = f'{column_prefix}yes_or_no'
 
-        # In case we want to load the layer on the map:
-        #layer.setName("output_covariates" + output)        
-        #QgsProject.instance().addMapLayer(layer)
+            rds = gdal.Open(raster_path, GA_ReadOnly)
+            assert rds
 
-        # `layer` contains a table with the stat (column) for each feature (row)
-        # cluster | buf_dist | mean
+            rb = rds.GetRasterBand(1)
+            rgt = rds.GetGeoTransform()
 
-        # Get a list of field names
-        fieldnames = [field.name() for field in layer.fields()] # to define dataframe columns
+            raster_nodata_value = rb.GetNoDataValue()
 
-        # Get a list of attributes for each selected feature
-        data = [f.attributes() for f in layer.getFeatures()]
-        
-        # Create a Pandas DataFrame
-        df = pd.DataFrame(data, columns=fieldnames)
+            if raster_nodata_value is None:
+                raster_nodata_value = float(DEFAULT_RASTER_NODATA_VALUE)
+                rb.SetNoDataValue(raster_nodata_value)
 
-        # Return a dataframe, unlike the original zonal_stats function (caution)
-        return df
+            vds = ogr.Open(vector_path, GA_ReadOnly)  # TODO maybe open update if we want to write stats
+            if not vds:
+                Logger.logInfo("[ZonalStat] vds is missing")
+                Logger.logInfo("[ZonalStat] vector_path path was: " + vector_path)
+
+            vlyr = vds.GetLayer(0)
+
+            mem_drv = ogr.GetDriverByName('Memory')
+            driver = gdal.GetDriverByName('MEM')
+
+            # Loop through vectors
+            stats = []
+            feat = vlyr.GetNextFeature()
+
+            while feat is not None:
+
+                if not global_src_extent:
+                    # use local source extent
+                    # fastest option when you have fast disks and well indexed raster (ie tiled Geotiff)
+                    # advantage: each feature uses the smallest raster chunk
+                    # disadvantage: lots of reads on the source raster
+                    src_offset = self.bbox_to_pixel_offsets(rgt, feat.geometry().GetEnvelope())
+                    src_array = rb.ReadAsArray(*src_offset)
+
+                    # calculate new geotransform of the feature subset
+                    new_gt = (
+                        (rgt[0] + (src_offset[0] * rgt[1])),
+                        rgt[1],
+                        0.0,
+                        (rgt[3] + (src_offset[1] * rgt[5])),
+                        0.0,
+                        rgt[5]
+                    )
+
+                # Create a temporary vector layer in memory
+                mem_ds = mem_drv.CreateDataSource('out')
+                mem_layer = mem_ds.CreateLayer('poly', None, ogr.wkbPolygon)
+                mem_layer.CreateFeature(feat.Clone())
+
+                # Rasterize it
+                rvds = driver.Create('', src_offset[2], src_offset[3], 1, gdal.GDT_Byte)
+                rvds.SetGeoTransform(new_gt)
+                gdal.RasterizeLayer(rvds, [1], mem_layer, burn_values=[1])
+                rv_array = rvds.ReadAsArray()
+
+                # Mask the source data array with our current feature
+                # we take the logical_not to flip 0<->1 to get the correct mask effect
+                # we also mask out nodata values explictly
+                masked = np.ma.MaskedArray(
+                    src_array,
+                    mask=np.logical_or(
+                        src_array == raster_nodata_value,
+                        np.logical_not(rv_array)
+                    )
+                )
+
+                feature_stats = {
+                    cluster_no_field: feat[cluster_no_field],
+                    #'fid': int(feat.GetFID()),
+                    yes_or_no_field: "Yes"
+                }
+
+                # get the actual pixel value for all stats if mask is returning null (e.g. pixel size is too large)
+                if not masked.min():
+                    geom = feat.geometry()
+                    mx, my = geom.Centroid().GetX(), geom.Centroid().GetY()  # coord in map units
+
+                    # Convert from map to pixel coordinates.
+                    # Only works for geotransforms with no rotation.
+                    px = int((mx - rgt[0]) / rgt[1])  # x pixel
+                    py = int((my - rgt[3]) / rgt[5])  # y pixel
+
+                    intval = rb.ReadAsArray(px, py, 1, 1)
+
+                    yes_or_no = "Yes"
+                    if intval == raster_nodata_value:
+                        yes_or_no = "No"
+
+                    feature_stats = {
+                        cluster_no_field: feat[cluster_no_field],
+                        #'fid': int(feat.GetFID()),
+                        yes_or_no_field: yes_or_no
+                    }
+
+                stats.append(feature_stats)
+
+                rvds = None
+                mem_ds = None
+                feat = vlyr.GetNextFeature()
+
+            vds = None
+            rds = None
+
+            results_df = pd.DataFrame(stats)[[yes_or_no_field, cluster_no_field]]
+
+            return results_df                
+
+        else:
+            stat_dict = {
+                '0' : 'count',
+                '1' : 'sum',
+                '2' : 'mean',
+                '3' : 'median',
+                '4' : 'std',
+                '5' : 'min',
+                '6' : 'max',
+                '7' : 'range',
+                '8' : 'minority',
+                '9' : 'majority',
+                '10': 'variety',
+                '11': 'variance'
+            }
+
+            def get_stat_id(stat_name):
+                """Get the stat id from the stat name
+                """
+                for key, value in stat_dict.items():
+                    if value == stat_name:
+                        return int(key)
+                raise ValueError(f"Unknown statistic name: {stat_name}")
+
+            # Set new nodata value for the raster
+            #processing.run("gdal:translate", {
+            #    'INPUT':raster_path,
+            #    'TARGET_CRS':None,
+            #    'NODATA':raster_nodata_value,
+            #    'COPY_SUBDATASETS':False,
+            #    'OPTIONS':None,
+            #    'EXTRA':'',
+            #    'DATA_TYPE':0,
+            #    'OUTPUT':'TEMPORARY_OUTPUT'
+            #})
+
+            result = processing.run("native:zonalstatisticsfb", {
+                'INPUT': vector_path,
+                'INPUT_RASTER': raster_path,
+                'RASTER_BAND': raster_band,
+                'COLUMN_PREFIX': column_prefix,
+                'STATISTICS': [get_stat_id(stat)],
+                'OUTPUT': 'memory:' #'TEMPORARY_OUTPUT'
+            })
+            layer = result['OUTPUT']
+
+            # In case we want to load the layer on the map:
+            #layer.setName("output_covariates" + output)        
+            #QgsProject.instance().addMapLayer(layer)
+
+            # `layer` contains a table with the stat (column) for each feature (row)
+            # cluster | buf_dist | mean
+
+            # Get a list of field names
+            fieldnames = [field.name() for field in layer.fields()] # to define dataframe columns
+
+            # Get a list of attributes for each selected feature
+            data = [f.attributes() for f in layer.getFeatures()]
+            
+            # Create a Pandas DataFrame
+            df = pd.DataFrame(data, columns=fieldnames)
+
+            # Return a dataframe, unlike the original zonal_stats function (caution)
+            return df
 
