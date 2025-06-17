@@ -166,12 +166,18 @@ class CovariatesProcesser():
 
                         layer = QgsVectorLayer(file_path, file_name, "ogr")
                         search_features = [feature for feature in layer.getFeatures()]
+                        crs_transformation = None
                         for cluster_ft in self.__ref_layer.getFeatures():
                             feat = QgsFeature()
                             # startPt = QgsPoint(cluster_ft.geometry().centroid().asPoint())
                             startGeom = cluster_ft.geometry().centroid()
                             # endPt = QgsPoint(QgsPointXY(0, 0))
                             endGeom = QgsGeometry.fromPointXY(QgsPointXY(0, 0))
+
+                            if not crs_transformation:
+                                # obtain the target transformation
+                                pt = startGeom.asPoint() # QgsPointXY
+                                crs_transformation = Transforms(pt.y(), pt.x())
 
                             minDistFtId = -1
 
@@ -221,7 +227,7 @@ class CovariatesProcesser():
 
                             # get distance in meters - transform to Web Mercator
                             line_merc = QgsGeometry(line)
-                            line_merc.transform(Transforms.tr)
+                            line_merc.transform(crs_transformation.tr)
 
                             feat.setAttributes([
                                 cluster_ft[CovariatesProcesser.CLUSTER_N0_FIELD_NAME],

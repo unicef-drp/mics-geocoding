@@ -1,6 +1,6 @@
 ## ###########################################################################
 ##
-# CentroidsDisplacer.py
+# CentroidBuffersLayerWriter.py
 ##
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
@@ -23,7 +23,7 @@ from datetime import datetime
 
 from . import Utils
 
-from .Transforms import Transforms
+from .Transforms import Transforms, CRS
 from .Logger import Logger
 
 ## #############################################################
@@ -53,10 +53,12 @@ class CentroidBuffersLayerWriter():
         centroidLayer = Utils.getLayerIfExists(Utils.LayersType.CENTROIDS)
 
         # create layer for anonymised buffers
-        self.__generatedLayers[Utils.LayersType.CENTROIDS_BUFFERS] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.CENTROIDS_BUFFERS, [
+        self.__generatedLayers[Utils.LayersType.CENTROIDS_BUFFERS] = Utils.createLayer('Polygon?crs='+CRS.WGS84, Utils.LayersType.CENTROIDS_BUFFERS, [
             QgsField("cluster", QVariant.Int),
             QgsField("buf_dist", QVariant.Int)
         ])
+
+        crs_transformation = None
 
         # Displace points
         for centroid_ft in centroidLayer.getFeatures():
@@ -72,12 +74,18 @@ class CentroidBuffersLayerWriter():
                 dist = 5000
 
             buffer_geom_tmp = QgsGeometry(centroid_ft.geometry())        # transform copy of the centroid into Web Mercator
-            buffer_geom_tmp.transform(Transforms.tr)
+            
+            if not crs_transformation:
+                # obtain the target transformation
+                pt = buffer_geom_tmp.asPoint() # QgsPointXY
+                crs_transformation = Transforms(pt.y(), pt.x())
+
+            buffer_geom_tmp.transform(crs_transformation.tr)
 
             # create buffers around centroids
             buffer_geom = buffer_geom_tmp.buffer(dist, 20)
 
-            buffer_geom.transform(Transforms.tr_back)
+            buffer_geom.transform(crs_transformation.tr_back)
 
             centroid_buffer_ft = QgsFeature()
             centroid_buffer_ft.setGeometry(buffer_geom)

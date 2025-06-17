@@ -20,8 +20,6 @@ from datetime import datetime
 from . import CentroidsLoader as CentroidsLoader
 from . import ReferenceLayer as ReferenceLayer
 from . import Utils
-from .Transforms import Transforms
-from .Logger import Logger
 
 ## #############################################################
 # Centroids Displacer

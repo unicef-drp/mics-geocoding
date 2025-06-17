@@ -46,7 +46,7 @@ from . import Errors
 from . import ReferenceLayer as ReferenceLayer
 from . import Utils
 from .Logger import Logger
-from .Transforms import Transforms
+from .Transforms import Transforms, CRS
 
 ## #############################################################
 # Centroids Displacer
@@ -85,8 +85,14 @@ class CentroidsDisplacer():
         self.__createOutputsMemoryLayer()
 
         # Displace points
+        crs_transformation = None
         for cluster_centroid_ft in self.centroidLayer.getFeatures():
-            self.__displaceCentroid(cluster_centroid_ft)
+            if not crs_transformation:
+                # obtain the target transformation
+                pt = QgsGeometry(cluster_centroid_ft.geometry()).asPoint() 
+                crs_transformation = Transforms(pt.y(), pt.x())
+
+            self.__displaceCentroid(cluster_centroid_ft, crs_transformation)
 
         self.writeLayers()
 
@@ -145,13 +151,13 @@ class CentroidsDisplacer():
 # DisplaceCentroids
 ####################################################################
 
-    def __displaceCentroid(self, cluster_centroid_ft: QgsFeature) -> typing.NoReturn:
+    def __displaceCentroid(self, cluster_centroid_ft: QgsFeature, crs_transformation: Transforms) -> typing.NoReturn:
         """ Displace a centroid identify by a qgsfeature object
         """
         # copy geometry of centroid
         cluster_centroid_ft_geom_merc = QgsGeometry(cluster_centroid_ft.geometry())
         # transform copy of the centroid into Web Mercator
-        cluster_centroid_ft_geom_merc.transform(Transforms.tr)
+        cluster_centroid_ft_geom_merc.transform(crs_transformation.tr)
         # cluster_centroid_ft_geom_merc
 
         # cluster centroid coordinates in Web Mercator
@@ -190,7 +196,7 @@ class CentroidsDisplacer():
             displaced_geom_wgs = QgsGeometry.fromPointXY(displaced_point_mercator)
 
             # transform copy of geometry of a displaced centroid into WGS84
-            displaced_geom_wgs.transform(Transforms.tr_back)
+            displaced_geom_wgs.transform(crs_transformation.tr_back)
             # displaced_point_wgs
 
             # get subnational ID for the cluster
@@ -222,7 +228,8 @@ class CentroidsDisplacer():
             ref_id_before,
             max_displace_distance,
             ref_id_after,
-            iterations)
+            iterations,
+            crs_transformation)
 
 ####################################################################
 # DisplacePoint
@@ -260,14 +267,14 @@ class CentroidsDisplacer():
         """ generate output memory layer
         """
         # create layer for anonymised buffers
-        self.__generatedLayers[Utils.LayersType.BUFFERSANON] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.BUFFERSANON, [
+        self.__generatedLayers[Utils.LayersType.BUFFERSANON] = Utils.createLayer('Polygon?crs='+CRS.WGS84, Utils.LayersType.BUFFERSANON, [
             QgsField("cluster", QVariant.Int),
             QgsField("type", QVariant.String),
             QgsField("buf_dist", QVariant.Int)
         ])
 
         # create layer for displacement links
-        self.__generatedLayers[Utils.LayersType.LINKS] = Utils.createLayer('LineString?crs='+Transforms.layer_proj, Utils.LayersType.LINKS, [
+        self.__generatedLayers[Utils.LayersType.LINKS] = Utils.createLayer('LineString?crs='+CRS.WGS84, Utils.LayersType.LINKS, [
             QgsField("cluster", QVariant.Int),
             QgsField("type", QVariant.String),
             QgsField("count", QVariant.Int),
@@ -284,7 +291,7 @@ class CentroidsDisplacer():
         ])
 
         # create layer for displaced centroids
-        self.__generatedLayers[Utils.LayersType.DISPLACED] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.DISPLACED, [
+        self.__generatedLayers[Utils.LayersType.DISPLACED] = Utils.createLayer('Point?crs='+CRS.WGS84, Utils.LayersType.DISPLACED, [
             QgsField("cluster", QVariant.Int),
             QgsField("type", QVariant.String),
             QgsField("count", QVariant.Int),
@@ -302,7 +309,7 @@ class CentroidsDisplacer():
         ])
 
         # create layer for anonymised displaced centroids
-        self.__generatedLayers[Utils.LayersType.DISPLACEDANON] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.DISPLACEDANON, [
+        self.__generatedLayers[Utils.LayersType.DISPLACEDANON] = Utils.createLayer('Point?crs='+CRS.WGS84, Utils.LayersType.DISPLACEDANON, [
             QgsField("HH1", QVariant.Int),
             QgsField("HH6", QVariant.String),
             QgsField("Longitude", QVariant.Double, "double", 15, 6),
@@ -325,7 +332,8 @@ class CentroidsDisplacer():
                                    ref_id_before: str,
                                    max_displace_distance: float,
                                    ref_id_after: str,
-                                   iterations) -> typing.NoReturn:
+                                   iterations,
+                                   crs_transformation: Transforms) -> typing.NoReturn:
         """ updates all the outputs layer
         """
 
@@ -400,7 +408,7 @@ class CentroidsDisplacer():
         displaced_feat_centroid_mercator = QgsGeometry(feat_disp_centroid.geometry())
 
         # transform copy of the centroid into Web Mercator
-        displaced_feat_centroid_mercator.transform(Transforms.tr)
+        displaced_feat_centroid_mercator.transform(crs_transformation.tr)
 
         # get the area type
         area_type = cluster_centroid_ft['type']
@@ -416,7 +424,7 @@ class CentroidsDisplacer():
         # create buffers around displaced centroids
         disp_centroid_buff_geom = displaced_feat_centroid_mercator.buffer(buffer_radius, 20)
 
-        disp_centroid_buff_geom.transform(Transforms.tr_back)
+        disp_centroid_buff_geom.transform(crs_transformation.tr_back)
 
         # create buffers around displaced centroids
         disp_anonym_centroid_buff_ft = QgsFeature()

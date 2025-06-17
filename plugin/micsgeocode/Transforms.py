@@ -11,67 +11,77 @@
 
 from qgis.core import *
 
-
-class Transforms():
-    """ Holds the transformations ofr the plugin
-                Acts asa static class, with static attributes
-        It is helpful to encapsulate the values of this transformations
+class CRS():
+    """ 
+        Holds the CRS definitions.
+        Acts asa static class, with static attributes.
     """
     proj4_4326 = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-    # sourceCrs = QgsCoordinateReferenceSystem("EPSG:4326")
-
-    sourceCrs = QgsCoordinateReferenceSystem("PROJ4:"+proj4_4326)
-
-    # web mercator, keeps angle, but not distance
-    # the difference is computed by qgis, ans is OK. 5km at ecuador and 500m at the poles.
-    # this is not really an issue -> the computation are good.
-    destCrs = QgsCoordinateReferenceSystem("EPSG:3857")
-
-    # voir avec Carto ? -> Benjamin, Gilles, Stephane.
-
-    # projection sphérique ?
-    # destCrs = QgsCoordinateReferenceSystem("EPSG:3857")
-
-    # projection ECEF ? 4978 ? Nope
-    # destCrs = QgsCoordinateReferenceSystem("EPSG:4978")
-
-    # projection Custom ?
-    # destCrs = QgsCoordinateReferenceSystem("PROJ4:"+proj4_custom)
-    # proj4_custom = "+proj=ortho +lat_0=13.5 +lon_0=121.9 +x_0=0 +y_0=0 +a=6371000 +b=6371000 +units=m +no_defs"
-
-    # projection UTM locale ?
-
-    # xxxx, keeps surface, but not angle
-
-    # Current projection --> Nope
-    # Solution: change of projection
-
-    tr = QgsCoordinateTransform(sourceCrs, destCrs, QgsProject.instance())
-    tr_back = QgsCoordinateTransform(destCrs, sourceCrs, QgsProject.instance())
-
-    # layer_proj="epsg:4326"
     layer_proj = "PROJ4:"+proj4_4326
+    WGS84 = "PROJ4:"+proj4_4326
 
+class Transforms():
+    """ Holds the transformations for the plugin
+        It is helpful to encapsulate the values of this transformations
+    """
 
-# def computeEPSGCode(self, longitude, latitude):
-#     zone = 0
-#     if (latitude == 72) and (latitude <= 84):
-#         zone = 32
-#     elif (latitude >= 56) and (latitude < 64) and (longitude >= 3) and (longitude < 12):
-#         zone = 32
-#     elif (latitude >= 72) and (latitude < 84):
-#         if (latitude >= 0) and (latitude < 9):
-#             zone = 31
-#         elif (longitude >= 9) and (longitude < 21):
-#             zone = 33
-#         elif (longitude >= 21) and (longitude < 33):
-#             zone = 35
-#         elif (longitude >= 33) and (longitude < 42):
-#             zone = 37
-#     else:
-#         zone = math.floor((longitude + 180)/6) + 1
+    def __init__(self, lat: float, lon: float):
+        """ Constructor
+        """
+        #self.lat = lat
+        #self.lon = lon
 
-#     if (latitude > 0):
-#         return int(32600 + zone)
-#     else:
-#         return int(32700 + zone)
+        # Define the source CRS as WGS 84 (EPSG:4326)
+        #self.proj4_4326 = "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+        #self.layer_proj = "PROJ4:"+self.proj4_4326
+        self.sourceCrs = QgsCoordinateReferenceSystem(CRS.WGS84)
+        
+        # Define the destination CRS
+        self.destCrs = QgsCoordinateReferenceSystem(f"EPSG:{str(get_epsg_code(lon, lat))}")
+
+        # Define the transformations
+        self.tr = QgsCoordinateTransform(self.sourceCrs, self.destCrs, QgsProject.instance())
+        self.tr_back = QgsCoordinateTransform(self.destCrs, self.sourceCrs, QgsProject.instance())
+
+def get_utm_zone_info(longitude: float, latitude: float) -> tuple:
+    """
+    Returns a dictionary with the UTM zone (e.g. '33U'), the zone number, and the hemisphere ('N' or 'S').
+    Considers the exceptions for Norway and Svalbard.
+    """
+    if not -180 <= longitude <= 180:
+        raise ValueError("Longitude must be between -180 y 180 degrees.")
+    if not -80 <= latitude <= 84:
+        raise ValueError("Latitude must be between -80 y 84 degrees.")
+
+    # Initial zone calculation
+    zone_number = int((longitude + 180) / 6) + 1
+    hemisphere = 'N' if latitude >= 0 else 'S'
+
+    # Exception for Norway
+    if (56.0 <= latitude < 64.0) and (3.0 <= longitude < 12.0):
+        zone_number = 32
+
+    # Exceptions for Svalbard
+    if (72.0 <= latitude <= 84.0):
+        if   (0.0 <= longitude <  9.0):  zone_number = 31
+        elif (9.0 <= longitude < 21.0):  zone_number = 33
+        elif (21.0 <= longitude < 33.0): zone_number = 35
+        elif (33.0 <= longitude < 42.0): zone_number = 37
+
+    # Latitude band letters (omits I y O to avoid confusion with numbers)
+    lat_band_letters = "CDEFGHJKLMNPQRSTUVWX"
+    band_index = int((latitude + 80) / 8)
+    band_letter = lat_band_letters[band_index]
+
+    return {
+        "utm_zone": f"{zone_number}{band_letter}",
+        "zone_number": zone_number,
+        "hemisphere": hemisphere
+    }
+
+def get_epsg_code(longitude: float, latitude: float) -> int:
+    """
+    Returns the EPSG code corresponding to the given coordinates.
+    """
+    utm_zone_info = get_utm_zone_info(longitude, latitude)
+    return 32600 + utm_zone_info['zone_number'] if utm_zone_info['hemisphere'] == 'N' else 32700 + utm_zone_info['zone_number']

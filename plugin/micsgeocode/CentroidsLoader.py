@@ -18,7 +18,7 @@ from qgis.PyQt.QtCore import QVariant
 
 from . import Utils
 from pathlib import Path
-from .Transforms import Transforms
+from .Transforms import Transforms, CRS
 from .Logger import Logger
 
 from . import Errors
@@ -115,7 +115,7 @@ class CentroidsLoader():
         """ Init all layers
         """
         if type == Utils.LayersType.GPS:
-            self.layers[Utils.LayersType.GPS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.GPS, [
+            self.layers[Utils.LayersType.GPS] = Utils.createLayer('Point?crs='+CRS.WGS84, Utils.LayersType.GPS, [
                 QgsField("cluster", QVariant.Int),
                 QgsField("type", QVariant.String),
                 QgsField("lon", QVariant.Double),
@@ -123,14 +123,14 @@ class CentroidsLoader():
             ])
 
         elif type == Utils.LayersType.MULTIPLT:
-            self.layers[Utils.LayersType.MULTIPLT] = Utils.createLayer('MultiPoint?crs='+Transforms.layer_proj, Utils.LayersType.MULTIPLT, [
+            self.layers[Utils.LayersType.MULTIPLT] = Utils.createLayer('MultiPoint?crs='+CRS.WGS84, Utils.LayersType.MULTIPLT, [
                 QgsField("cluster", QVariant.Int),
                 QgsField("type", QVariant.String),
                 QgsField("count", QVariant.Int)
             ])
 
         elif type == Utils.LayersType.CONVEXHULL:
-            self.layers[Utils.LayersType.CONVEXHULL] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.CONVEXHULL, [
+            self.layers[Utils.LayersType.CONVEXHULL] = Utils.createLayer('Polygon?crs='+CRS.WGS84, Utils.LayersType.CONVEXHULL, [
                 QgsField("cluster", QVariant.Int),
                 QgsField("type", QVariant.String),
                 QgsField("count", QVariant.Int),
@@ -140,7 +140,7 @@ class CentroidsLoader():
                 QgsField("height_m", QVariant.Double)
             ])
         elif type == Utils.LayersType.CENTROIDS:
-            self.layers[Utils.LayersType.CENTROIDS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.CENTROIDS, [
+            self.layers[Utils.LayersType.CENTROIDS] = Utils.createLayer('Point?crs='+CRS.WGS84, Utils.LayersType.CENTROIDS, [
                 QgsField("cluster", QVariant.Int),
                 QgsField("type", QVariant.String),
                 QgsField("count", QVariant.Int),
@@ -349,7 +349,10 @@ class CentroidsLoader():
 
         # calculate convex hull geometry params
         cluster_convexhull_geom_merc = QgsGeometry(cluster_convexhull_ft.geometry())
-        cluster_convexhull_geom_merc.transform(Transforms.tr)
+        #print(cluster_convexhull_geom_merc)
+        pt = cluster_convexhull_geom_merc.asPoint() # QgsPointXY
+        crs_transformation = Transforms(pt.y(), pt.x())
+        cluster_convexhull_geom_merc.transform(crs_transformation.tr)
         cluster_convexhull_mbb = cluster_convexhull_geom_merc.orientedMinimumBoundingBox()
 
         area_m2 = cluster_convexhull_mbb[1]
