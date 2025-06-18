@@ -372,6 +372,8 @@ class CovariatesProcesser():
                 raster_nodata_value = float(DEFAULT_RASTER_NODATA_VALUE)
                 rb.SetNoDataValue(raster_nodata_value)
 
+            Logger.logInfo(f"[ZonalStat] raster nodata value: {raster_nodata_value}")
+
             vds = ogr.Open(vector_path, GA_ReadOnly)  # TODO maybe open update if we want to write stats
             if not vds:
                 Logger.logInfo("[ZonalStat] vds is missing")
