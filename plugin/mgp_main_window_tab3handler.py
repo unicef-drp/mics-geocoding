@@ -307,14 +307,19 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
             covariatesProcesser.images_directory = self.ui.imagesSourceFileLineEdit.text()
 
-            bufferAnonLayerName = Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON)
-            Utils.removeLayerIfExistsByName(bufferAnonLayerName)
-            bufferAnonLayer = QgsVectorLayer(self.ui.covrefLayerLineEdit.text(), bufferAnonLayerName)
-            QgsProject.instance().addMapLayer(bufferAnonLayer)
+            # Read the name of the buffer shapefile used for the covariate calculation
+            bufferShpPath = self.ui.covrefLayerLineEdit.text()
+            # Extract its name without extension and set is as layer name
+            bufferLayerName, extension = os.path.splitext(os.path.basename(bufferShpPath))
+            #bufferLayerName = Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON)
+            # Remove the layer is if it already exists and load the new one
+            Utils.removeLayerIfExistsByName(bufferLayerName)
+            bufferLayer = QgsVectorLayer(bufferShpPath, bufferLayerName)
+            QgsProject.instance().addMapLayer(bufferLayer)
 
             covariatesProcesser.setReferenceLayer(
-                bufferAnonLayer,
-                self.ui.covrefLayerLineEdit.text())
+                bufferLayer,
+                bufferShpPath)
 
             covariatesProcesser.computeCovariates()
             self.covoutputs_file = covariatesProcesser.output_file

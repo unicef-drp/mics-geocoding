@@ -79,6 +79,7 @@ class CovariatesProcesser():
 ####################################################################
 
     def setReferenceLayer(self, layer: QgsVectorLayer, layer_file: str) -> typing.NoReturn:
+        # TODO: could we extact the shp file from the layer properties and simplify parameters of the method? (provider.dataSourceUri()?)
         self.__ref_layer = layer
         self.__ref_layer_shp = layer_file
 
