@@ -167,7 +167,7 @@ class CovariatesProcesser():
 
                         layer = QgsVectorLayer(file_path, file_name, "ogr")
                         search_features = [feature for feature in layer.getFeatures()]
-                        crs_transformation = None
+                        #crs_transformation = None
                         for cluster_ft in self.__ref_layer.getFeatures():
                             feat = QgsFeature()
                             # startPt = QgsPoint(cluster_ft.geometry().centroid().asPoint())
@@ -175,10 +175,10 @@ class CovariatesProcesser():
                             # endPt = QgsPoint(QgsPointXY(0, 0))
                             endGeom = QgsGeometry.fromPointXY(QgsPointXY(0, 0))
 
-                            if not crs_transformation:
-                                # obtain the target transformation
-                                pt = startGeom.asPoint() # QgsPointXY
-                                crs_transformation = Transforms(pt.y(), pt.x())
+                            #if not crs_transformation:
+                            # obtain the target transformation
+                            pt = startGeom.asPoint() # QgsPointXY
+                            crs_transformation = Transforms(pt.y(), pt.x())
 
                             minDistFtId = -1
 

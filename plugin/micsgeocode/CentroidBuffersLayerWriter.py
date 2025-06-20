@@ -58,7 +58,7 @@ class CentroidBuffersLayerWriter():
             QgsField("buf_dist", QVariant.Int)
         ])
 
-        crs_transformation = None
+        #crs_transformation = None
 
         # Displace points
         for centroid_ft in centroidLayer.getFeatures():
@@ -75,10 +75,10 @@ class CentroidBuffersLayerWriter():
 
             buffer_geom_tmp = QgsGeometry(centroid_ft.geometry())        # transform copy of the centroid into Web Mercator
             
-            if not crs_transformation:
-                # obtain the target transformation
-                pt = buffer_geom_tmp.asPoint() # QgsPointXY
-                crs_transformation = Transforms(pt.y(), pt.x())
+            #if not crs_transformation:
+            # obtain the target transformation
+            pt = buffer_geom_tmp.asPoint() # QgsPointXY
+            crs_transformation = Transforms(pt.y(), pt.x())
 
             buffer_geom_tmp.transform(crs_transformation.tr)
 

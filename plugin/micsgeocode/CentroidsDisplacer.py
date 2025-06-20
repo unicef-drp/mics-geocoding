@@ -85,12 +85,13 @@ class CentroidsDisplacer():
         self.__createOutputsMemoryLayer()
 
         # Displace points
-        crs_transformation = None
+        #crs_transformation = None
         for cluster_centroid_ft in self.centroidLayer.getFeatures():
-            if not crs_transformation:
-                # obtain the target transformation
-                pt = QgsGeometry(cluster_centroid_ft.geometry()).asPoint() 
-                crs_transformation = Transforms(pt.y(), pt.x())
+            #if not crs_transformation:
+            # obtain the target transformation
+            pt = QgsGeometry(cluster_centroid_ft.geometry()).asPoint() 
+            crs_transformation = Transforms(pt.y(), pt.x())
+            print(f"[CentroidsDisplacer] Using EPSG {crs_transformation.destEPSG}")
 
             self.__displaceCentroid(cluster_centroid_ft, crs_transformation)
 
