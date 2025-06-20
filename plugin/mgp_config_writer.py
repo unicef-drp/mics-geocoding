@@ -94,7 +94,8 @@ class mgp_config_writer:
             configWriter['CentroidsLayer'] = {
                 'file': centroid_layer_file,
                 'numeroIndex': str(self.mainWindow.ui.centroidsLayerNumeroFieldComboBox.currentIndex()),
-                'typeIndex': str(self.mainWindow.ui.centroidsLayerTypeFieldComboBox.currentIndex())
+                'typeIndex': str(self.mainWindow.ui.centroidsLayerTypeFieldComboBox.currentIndex()),
+                'adminIndex': str(self.mainWindow.ui.centroidsLayerAdminFieldComboBox.currentIndex())
             }
 
             configWriter['CovariatesInputs'] = {

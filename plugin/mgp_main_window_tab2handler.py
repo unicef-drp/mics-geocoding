@@ -86,6 +86,7 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.centroidsLayerLineEdit.textChanged.connect(self.onCentroidsLayerChanged)
         self.ui.centroidsLayerNumeroFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerNumeroFieldChanged)
         self.ui.centroidsLayerTypeFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerTypeFieldChanged)
+        self.ui.centroidsLayerAdminFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerAdminFieldChanged)
 
         self.ui.displaceCentroidsButton.clicked.connect(self.onDisplaceCentroidsButtonClicked)
 
@@ -108,6 +109,7 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.centroidsLayerLineEdit.setToolTip("Cluster centroids file on the computer.")
         self.ui.centroidsLayerNumeroFieldComboBox.setToolTip("Choose the field indicating cluster number variable.")
         self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field indicating cluster area variable.")
+        self.ui.centroidsLayerAdminFieldComboBox.setToolTip("Choose the field indicating cluster admin variable.")
 
         self.ui.displaceCentroidsButton.setToolTip(
             "Displace Centroids. QGIS generates additional layers depending on inputs.\nThe final anonymised displaced cluster file is generated “BASENAME_cluster_anonymised_displaced_centroids”."
@@ -190,6 +192,15 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         fields = Utils.getFieldsListAsStrArray(self.ui.centroidsLayerLineEdit.text())
         self.ui.centroidsLayerTypeFieldComboBox.clear()
         self.ui.centroidsLayerNumeroFieldComboBox.clear()
+        self.ui.centroidsLayerAdminFieldComboBox.clear()
+
+        # init type combobox and look for a default value
+        self.ui.centroidsLayerAdminFieldComboBox.addItems(fields)
+        candidates = ["Admin", "admin", "ADMIN"]
+        for item in candidates:
+            if item in fields:
+                self.ui.centroidsLayerAdminFieldComboBox.setCurrentIndex(fields.index(item))
+                break
 
         # init type combobox and look for a default value
         self.ui.centroidsLayerTypeFieldComboBox.addItems(fields)
@@ -215,6 +226,11 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.mainwindow.updateSaveStatus(True)
 
     def onCentroidsLayerTypeFieldChanged(self) -> typing.NoReturn:
+        '''Update type field
+        '''
+        self.mainwindow.updateSaveStatus(True)
+
+    def onCentroidsLayerAdminFieldChanged(self) -> typing.NoReturn:
         '''Update type field
         '''
         self.mainwindow.updateSaveStatus(True)

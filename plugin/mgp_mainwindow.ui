@@ -152,7 +152,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab_step1">
           <property name="autoFillBackground">
@@ -285,7 +285,7 @@
                <item row="4" column="0">
                 <widget class="QLabel" name="adminBoundariesFieldLabel_2">
                  <property name="text">
-                  <string>Admin boundaries</string>
+                  <string>Admin Identifier</string>
                  </property>
                 </widget>
                </item>
@@ -358,7 +358,7 @@
               <x>0</x>
               <y>23</y>
               <width>461</width>
-              <height>208</height>
+              <height>210</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -422,6 +422,13 @@
                <item row="0" column="1">
                 <widget class="QComboBox" name="centroidsLayerNumeroFieldComboBox"/>
                </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="centroidsLayerAdminFieldLabel">
+                 <property name="text">
+                  <string>Admin Identifier (HH7A)</string>
+                 </property>
+                </widget>
+               </item>
                <item row="1" column="0">
                 <widget class="QLabel" name="centroidsLayerTypeFieldLabel">
                  <property name="text">
@@ -431,6 +438,13 @@
                </item>
                <item row="1" column="1">
                 <widget class="QComboBox" name="centroidsLayerTypeFieldComboBox"/>
+               </item>
+               <item row="2" column="1">
+                <widget class="QComboBox" name="centroidsLayerAdminFieldComboBox">
+                 <property name="editable">
+                  <bool>false</bool>
+                 </property>
+                </widget>
                </item>
               </layout>
              </item>

@@ -58,6 +58,8 @@ class mgp_config_reader:
                     self.mainWindow.ui.centroidsLayerNumeroFieldComboBox.setCurrentIndex(int(configReader['CentroidsLayer']['numeroIndex']))
                 if 'typeIndex' in configReader['CentroidsLayer']:
                     self.mainWindow.ui.centroidsLayerTypeFieldComboBox.setCurrentIndex(int(configReader['CentroidsLayer']['typeIndex']))
+                if 'adminIndex' in configReader['CentroidsLayer']:
+                    self.mainWindow.ui.centroidsLayerAdminFieldComboBox.setCurrentIndex(int(configReader['CentroidsLayer']['adminIndex']))
 
             if 'ReferenceLayer' in configReader:
                 if 'fileReferenceLayer' in configReader['ReferenceLayer']:
