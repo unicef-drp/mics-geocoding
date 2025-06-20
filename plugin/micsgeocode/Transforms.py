@@ -10,6 +10,7 @@
 ## ###########################################################################
 
 from qgis.core import *
+from math import floor
 
 class CRS():
     """ 
@@ -37,7 +38,8 @@ class Transforms():
         self.sourceCrs = QgsCoordinateReferenceSystem(CRS.WGS84)
         
         # Define the destination CRS
-        self.destCrs = QgsCoordinateReferenceSystem(f"EPSG:{str(get_epsg_code(lon, lat))}")
+        self.destEPSG = str(get_epsg_code(lon, lat))
+        self.destCrs = QgsCoordinateReferenceSystem(f"EPSG:{self.destEPSG}")
 
         # Define the transformations
         self.tr = QgsCoordinateTransform(self.sourceCrs, self.destCrs, QgsProject.instance())
@@ -54,7 +56,7 @@ def get_utm_zone_info(longitude: float, latitude: float) -> tuple:
         raise ValueError("Latitude must be between -80 y 84 degrees.")
 
     # Initial zone calculation
-    zone_number = int((longitude + 180) / 6) + 1
+    zone_number = floor((longitude + 180) / 6) + 1
     hemisphere = 'N' if latitude >= 0 else 'S'
 
     # Exception for Norway
@@ -70,9 +72,10 @@ def get_utm_zone_info(longitude: float, latitude: float) -> tuple:
 
     # Latitude band letters (omits I y O to avoid confusion with numbers)
     lat_band_letters = "CDEFGHJKLMNPQRSTUVWX"
-    band_index = int((latitude + 80) / 8)
-    band_letter = lat_band_letters[band_index]
-
+    band_index = floor((latitude + 80) / 8)
+    band_letter = lat_band_letters[band_index] if band_index < len(lat_band_letters) else ''
+    print(f"Zone number: {zone_number}, Band letter: {band_letter}, Hemisphere: {hemisphere}")
+    #print(f"Band letter: {band_letter}")
     return {
         "utm_zone": f"{zone_number}{band_letter}",
         "zone_number": zone_number,
