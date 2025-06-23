@@ -74,7 +74,7 @@ def get_utm_zone_info(longitude: float, latitude: float) -> tuple:
     lat_band_letters = "CDEFGHJKLMNPQRSTUVWX"
     band_index = floor((latitude + 80) / 8)
     band_letter = lat_band_letters[band_index] if band_index < len(lat_band_letters) else ''
-    print(f"Zone number: {zone_number}, Band letter: {band_letter}, Hemisphere: {hemisphere}")
+    #print(f"Zone number: {zone_number}, Band letter: {band_letter}, Hemisphere: {hemisphere}")
     #print(f"Band letter: {band_letter}")
     return {
         "utm_zone": f"{zone_number}{band_letter}",
