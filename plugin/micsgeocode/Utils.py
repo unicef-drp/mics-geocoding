@@ -78,42 +78,42 @@ class LayersName():
             return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + base + "." + ext
         return LayersName.outputDirectory + QtCore.QDir.separator() + base + "." + ext
 
+def getLayerByName(name):
+    """ Find existing layer with the given name.
+    """
+    layerList = QgsProject.instance().mapLayersByName(name)
+    if layerList:
+        return layerList[0]
+    return None
 
 def getLayerIfExists(layerType: LayersType) -> QgsMapLayer:
-    """ Remove existing layer with the same name. Avoid duplication when run multiple times.
+    """ Find existing layer with the given name.
     """
-    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
-    if layers:
-        return layers[0]
-
-    return None
+    return getLayerByName(LayersName.layerName(layerType))
 
 
 def removeLayerIfExistsByName(layerName: str) -> typing.NoReturn:
     """ Remove existing layer with the same name. Avoid duplication when run multiple times.
     """
-    layers = QgsProject.instance().mapLayersByName(layerName)
-    if layers:
-        QgsProject.instance().removeMapLayer(layers[0])
-
+    layer = getLayerByName(layerName)
+    if layer:
+        QgsProject.instance().removeMapLayer(layer)
 
 def removeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
     """ Remove existing layer with the same name. Avoid duplication when run multiple times.
     """
-    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
-    if layers:
-        QgsProject.instance().removeMapLayer(layers[0])
-
+    layer = getLayerByName(LayersName.layerName(layerType))
+    if layer:
+        QgsProject.instance().removeMapLayer(layer)
 
 def putLayerOnTopIfExists(layerType: LayersType) -> typing.NoReturn:
     """ Put layer on top if it exists
     """
-    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
-    if layers:
-        lyr = QgsProject.instance().takeMapLayer(layers[0])
+    layer = getLayerByName(LayersName.layerName(layerType))
+    if layer:
+        lyr = QgsProject.instance().takeMapLayer(layer)
         if lyr:
             QgsProject.instance().addMapLayer(lyr)
-
 
 def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typing.List[QgsField]) -> QgsVectorLayer:
     """ Create layer method, given a type, a name and some attributes
@@ -141,18 +141,17 @@ def reloadLayerFromDiskToAvoidMemoryFlag(layerType: LayersType) -> typing.NoRetu
     layer = QgsVectorLayer(filename, layerName)
     QgsProject.instance().addMapLayer(layer)
 
-
 def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
     """ Write hte layer on disk, if it exists in the project instance
     """
-    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
-    if layers:
+    layer = getLayerByName(LayersName.layerName(layerType))
+    if layer:
         options = QgsVectorFileWriter.SaveVectorOptions()
         options.driverName = "ESRI Shapefile"
 
         # writer = QgsVectorFileWriter( "output_path_and_name.shp", provider.encoding(), provider.fields(), QGis.WKBPolygon, provider.crs() )
         writer = QgsVectorFileWriter.writeAsVectorFormatV2(
-            layers[0],
+            layer,
             LayersName.fileName(layerType),
             QgsCoordinateTransformContext(),
             options)
