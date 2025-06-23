@@ -291,14 +291,23 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
             displacer = Displacer.CentroidsDisplacer()
 
+            # Read the name of the centroid shapefile used for the displacement
+            centroidShpPath = self.ui.centroidsLayerLineEdit.text()
+
             # Centroid Layer
             centroidsLayerName = Utils.LayersName.layerName(Utils.LayersType.CENTROIDS)
+            # Remove the layer is if it already exists and load the new one
             Utils.removeLayerIfExistsByName(centroidsLayerName)
-            displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
+            displacer.centroidLayer = QgsVectorLayer(centroidShpPath, centroidsLayerName)
             QgsProject.instance().addMapLayer(displacer.centroidLayer)
 
-            displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
+            displacer.set_field_mappings(
+                cluster_no_field=self.ui.centroidsLayerNumeroFieldComboBox.currentText(),
+                cluster_type_field=self.ui.centroidsLayerTypeFieldComboBox.currentText(),
+                cluster_admin_field=self.ui.centroidsLayerAdminFieldComboBox.currentText()
+            )
 
+            displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
             displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
 
             displacer.displaceCentroids()

@@ -65,10 +65,27 @@ class CentroidsDisplacer():
         self.ref_id_field = ""
         self.referenceLayer = ReferenceLayer.ReferenceLayer()
         self.centroidLayer = None
-        self.cluster_no_field = ""
-        self.cluster_type_field = ""
+
+        #field mappings
+        self.cluster_no_field = "cluster"
+        self.cluster_type_field = "type"
+        self.cluster_admin_field = "admin"
 
         self.maxDistances = None
+
+    def set_field_mappings(self, cluster_no_field: str, cluster_type_field: str, cluster_admin_field: str) -> typing.NoReturn:
+        """ Set the field mappings for cluster number, type and admin.
+            This is used to access the correct fields in the centroid layer.
+        """
+        self.cluster_no_field = cluster_no_field
+        self.cluster_type_field = cluster_type_field
+        self.cluster_admin_field = cluster_admin_field
+
+        # set reference layer field mapping
+        #self.ref_id_field = Utils.getRefIdFieldName(self.referenceLayer.layer)
+
+        # load centroids layer
+        #self.centroidLayer = CentroidsLoader.CentroidsLoader().loadCentroidsLayer()
 
     def displaceCentroids(self) -> typing.NoReturn:
         """ Facade method that handle all the centroids displacement.
@@ -91,7 +108,7 @@ class CentroidsDisplacer():
             # obtain the target transformation
             pt = QgsGeometry(cluster_centroid_ft.geometry()).asPoint() 
             crs_transformation = Transforms(pt.y(), pt.x())
-            print(f"[CentroidsDisplacer] Using EPSG {crs_transformation.destEPSG}")
+            #print(f"[CentroidsDisplacer] Using EPSG {crs_transformation.destEPSG}")
 
             self.__displaceCentroid(cluster_centroid_ft, crs_transformation)
 
@@ -269,15 +286,15 @@ class CentroidsDisplacer():
         """
         # create layer for anonymised buffers
         self.__generatedLayers[Utils.LayersType.BUFFERSANON] = Utils.createLayer('Polygon?crs='+CRS.WGS84, Utils.LayersType.BUFFERSANON, [
-            QgsField("cluster", QVariant.Int),
-            QgsField("type", QVariant.String),
+            QgsField("cluster", QVariant.Int), # cluster number from centroid layer
+            QgsField("type", QVariant.String), # area type from centroid layer
             QgsField("buf_dist", QVariant.Int)
         ])
 
         # create layer for displacement links
         self.__generatedLayers[Utils.LayersType.LINKS] = Utils.createLayer('LineString?crs='+CRS.WGS84, Utils.LayersType.LINKS, [
-            QgsField("cluster", QVariant.Int),
-            QgsField("type", QVariant.String),
+            QgsField("cluster", QVariant.Int), # cluster number from centroid layer
+            QgsField("type", QVariant.String), # area type from centroid layer  
             QgsField("count", QVariant.Int),
             QgsField("lon_orig", QVariant.Double, "double", 15, 6),
             QgsField("lat_orig", QVariant.Double, "double", 15, 6),
@@ -285,7 +302,7 @@ class CentroidsDisplacer():
             QgsField("lat_disp", QVariant.Double, "double", 15, 6),
             QgsField("disp_dist", QVariant.Double, "double", 15, 2),
             QgsField("disp_angle", QVariant.Int),
-            QgsField("ref_cl_src", QVariant.String),
+            QgsField("ref_cl_src", QVariant.String), # admin from centroid layer
             QgsField("ref_orig", QVariant.String),
             QgsField("ref_disp", QVariant.String),
             QgsField("iter", QVariant.Int)
@@ -293,8 +310,8 @@ class CentroidsDisplacer():
 
         # create layer for displaced centroids
         self.__generatedLayers[Utils.LayersType.DISPLACED] = Utils.createLayer('Point?crs='+CRS.WGS84, Utils.LayersType.DISPLACED, [
-            QgsField("cluster", QVariant.Int),
-            QgsField("type", QVariant.String),
+            QgsField("cluster", QVariant.Int), # cluster number from centroid layer
+            QgsField("type", QVariant.String), # area type from centroid layer
             QgsField("count", QVariant.Int),
             QgsField("lon_orig", QVariant.Double, "double", 15, 6),
             QgsField("lat_orig", QVariant.Double, "double", 15, 6),
@@ -303,7 +320,7 @@ class CentroidsDisplacer():
             QgsField("disp_dist", QVariant.Double, "double", 15, 2),
             QgsField("disp_angle", QVariant.Int),
             QgsField("tr_epsg", QVariant.String),
-            QgsField("ref_cl_src", QVariant.String),
+            QgsField("ref_cl_src", QVariant.String), # admin from centroid layer
             QgsField("ref_orig", QVariant.String),
             QgsField("ref_disp", QVariant.String),
             QgsField("iter", QVariant.Int),
@@ -312,11 +329,11 @@ class CentroidsDisplacer():
 
         # create layer for anonymised displaced centroids
         self.__generatedLayers[Utils.LayersType.DISPLACEDANON] = Utils.createLayer('Point?crs='+CRS.WGS84, Utils.LayersType.DISPLACEDANON, [
-            QgsField("HH1", QVariant.Int),
-            QgsField("HH6", QVariant.String),
+            QgsField("HH1", QVariant.Int), # cluster number from centroid layer
+            QgsField("HH6", QVariant.String), # area type from centroid layer
             QgsField("Longitude", QVariant.Double, "double", 15, 6),
             QgsField("Latitude", QVariant.Double, "double", 15, 6),  
-            QgsField("MICSGEO", QVariant.String)
+            QgsField("MICSGEO", QVariant.String) # admin from centroid layer
         ])
 
         # add layers to project following correct z order
@@ -344,22 +361,22 @@ class CentroidsDisplacer():
         feat_disp_centroid.setGeometry(displaced_point_wgs)
 
         remark = Errors.ErrorDisplayString[Errors.ErrorCode.SUCCESS]
-        if not cluster_centroid_ft['cluster']:
+        if not cluster_centroid_ft[self.cluster_no_field]:
             remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_NUMBER_MISSING]
-        if not cluster_centroid_ft['type']:
+        if not cluster_centroid_ft[self.cluster_type_field]:
             remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_AREA_MISSING]
-        if not cluster_centroid_ft['admin']:
+        if not cluster_centroid_ft[self.cluster_admin_field]:
             remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_ADMIN_MISSING]
         if ref_id_before == "None" or ref_id_after == "None":
             remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_CLUSTER_OUTSIDE_BOUNDARY]
-        if cluster_centroid_ft['admin'] != ref_id_before or ref_id_before != ref_id_after:
+        if cluster_centroid_ft[self.cluster_admin_field] != ref_id_before or ref_id_before != ref_id_after:
             remark = Errors.ErrorDisplayString[Errors.ErrorCode.ERROR_DISPLACER_CLUSTER_DISPLACED_OUTSIDE_GEODOMAIN]
 
-        #
+        # DISPLACED layer
         feat_disp_centroid.setAttributes([
-            cluster_centroid_ft['cluster'],
-            cluster_centroid_ft['type'],
-            cluster_centroid_ft['count'],
+            cluster_centroid_ft[self.cluster_no_field],
+            cluster_centroid_ft[self.cluster_type_field],
+            cluster_centroid_ft['count'] if 'count' in cluster_centroid_ft.fields() else 1,
             cluster_centroid_ft.geometry().asPoint().x(),
             cluster_centroid_ft.geometry().asPoint().y(),
             displaced_point_wgs.asPoint().x(),
@@ -367,7 +384,7 @@ class CentroidsDisplacer():
             distance,
             angle_degree,
             crs_transformation.destEPSG,
-            cluster_centroid_ft['admin'],
+            cluster_centroid_ft[self.cluster_admin_field],
             ref_id_before,
             ref_id_after,
             iterations,
@@ -375,24 +392,24 @@ class CentroidsDisplacer():
         ])
         self.__generatedLayers[Utils.LayersType.DISPLACED].dataProvider().addFeatures([feat_disp_centroid])
 
-        # add anonymised displaced centroid
+        # DISPLACEDANON layer: add anonymised displaced centroid
         feat_anonym_disp_centroid = QgsFeature()
         feat_anonym_disp_centroid.setGeometry(displaced_point_wgs)
         feat_anonym_disp_centroid.setAttributes([
-            cluster_centroid_ft['cluster'],
-            cluster_centroid_ft['type'],
+            cluster_centroid_ft[self.cluster_no_field],
+            cluster_centroid_ft[self.cluster_type_field],
             displaced_point_wgs.asPoint().x(),
             displaced_point_wgs.asPoint().y(),
-            cluster_centroid_ft['admin']
+            cluster_centroid_ft[self.cluster_admin_field]
         ])
         self.__generatedLayers[Utils.LayersType.DISPLACEDANON].dataProvider().addFeatures([feat_anonym_disp_centroid])
 
-        # add displacement links
+        # LINKS layer: add displacement links
         centroid_disp_links_ft = QgsFeature()
         centroid_disp_links_ft.setGeometry(QgsGeometry.fromPolylineXY([cluster_centroid_ft.geometry().asPoint(), feat_disp_centroid.geometry().asPoint()]))
         centroid_disp_links_ft.setAttributes([
-            cluster_centroid_ft['cluster'],
-            cluster_centroid_ft['type'],
+            cluster_centroid_ft[self.cluster_no_field],
+            cluster_centroid_ft[self.cluster_type_field],
             cluster_centroid_ft['count'],
             cluster_centroid_ft.geometry().asPoint().x(),
             cluster_centroid_ft.geometry().asPoint().y(),
@@ -400,7 +417,7 @@ class CentroidsDisplacer():
             displaced_point_wgs.asPoint().y(),
             distance,
             angle_degree,
-            cluster_centroid_ft['admin'],
+            cluster_centroid_ft[self.cluster_admin_field],
             ref_id_before,
             ref_id_after,
             iterations
@@ -414,7 +431,7 @@ class CentroidsDisplacer():
         displaced_feat_centroid_mercator.transform(crs_transformation.tr)
 
         # get the area type
-        area_type = cluster_centroid_ft['type']
+        area_type = cluster_centroid_ft[self.cluster_type_field]
 
         # set the buffer radius based on the area type
         if area_type == Utils.FieldAreaType.URBAN:
@@ -429,12 +446,12 @@ class CentroidsDisplacer():
 
         disp_centroid_buff_geom.transform(crs_transformation.tr_back)
 
-        # create buffers around displaced centroids
+        # BUFFERSANON layer: create buffers around displaced centroids
         disp_anonym_centroid_buff_ft = QgsFeature()
         disp_anonym_centroid_buff_ft.setGeometry(disp_centroid_buff_geom)
         disp_anonym_centroid_buff_ft.setAttributes([
-            cluster_centroid_ft['cluster'],
-            cluster_centroid_ft['type'],
+            cluster_centroid_ft[self.cluster_no_field],
+            cluster_centroid_ft[self.cluster_type_field],
             buffer_radius
         ])
         self.__generatedLayers[Utils.LayersType.BUFFERSANON].dataProvider().addFeatures([disp_anonym_centroid_buff_ft])
