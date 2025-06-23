@@ -133,8 +133,16 @@ def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typ
 def reloadLayerFromDiskToAvoidMemoryFlag(layerType: LayersType) -> typing.NoReturn:
     """ Close the layer, if it exists. Then reopen it, from the file. To avoid the weird 'memory' flag
     """
-    filename = LayersName.fileName(layerType)
     layerName = LayersName.layerName(layerType)
+    layer = getLayerByName(layerName)
+
+    # check if the file name is different from the default one (can happen when skipping steps)
+    filename = ''
+    if layer:
+        filename = layer.source()
+    if not filename.endswith('.shp'):
+        # try default file name
+        filename = LayersName.fileName(layerType)
 
     removeLayerIfExists(layerType)
 
