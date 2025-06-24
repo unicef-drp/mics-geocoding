@@ -150,7 +150,7 @@ def reloadLayerFromDiskToAvoidMemoryFlag(layerType: LayersType) -> typing.NoRetu
     QgsProject.instance().addMapLayer(layer)
 
 def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
-    """ Write hte layer on disk, if it exists in the project instance
+    """ Write the layer on disk, if it exists in the project instance
     """
     layer = getLayerByName(LayersName.layerName(layerType))
     if layer:
