@@ -164,6 +164,7 @@ class MGPMainWindow(QtWidgets.QMainWindow):
 
         # Hold the basename values. Made to avoid too many 'editingFinished' signal issue
         self.basename = ""
+        Utils.LayersName.basename = ""
         self.ui.basenameLineEdit.clear()
 
         # Init output directory with tmpPath
