@@ -95,8 +95,6 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         # Command window
         self.ui.toggleShowMoreButton.clicked.connect(self.onToggleShowMoreButtonClicked)
 
-        self.ui.generateCentroidBuffersButton.clicked.connect(self.onGenerateCentroidBuffersButtonCLicked)
-
         ## ####################################################################
         # Init Tooltips - easier than in qtdesigner
         ## ####################################################################
@@ -113,10 +111,6 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
         self.ui.displaceCentroidsButton.setToolTip(
             "Displace Centroids. QGIS generates additional layers depending on inputs.\nThe final anonymised displaced cluster file is generated “BASENAME_cluster_anonymised_displaced_centroids”."
-        )
-
-        self.ui.generateCentroidBuffersButton.setToolTip(
-            "Generate Buffers. QGIS generates a buffer layer for the original cluster centroids."
         )
 
         self.ui.exportDisplacedCentroidsButton.setToolTip("Export anonymised displaced cluster centroids as a CSV file.")
@@ -345,21 +339,3 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
                         ])
         except BaseException as e:
             Logger.logException("[Displace] A problem occured while saving displaced anonymised centroids", e)
-
-    def onGenerateCentroidBuffersButtonCLicked(self) -> typing.NoReturn:
-        Logger.logInfo("[Displace] About to generate")
-        if not self.maxDistancesPerBufferId:
-            Logger.logWarning("[Displace] The displacement has not been computed. The centroids buffer layer can't be generated.")
-            return
-
-        if not self.ui.centroidsLayerLineEdit.text():
-            Logger.logWarning("[Displace] A valid centroid source file must be provided")
-            return
-
-        try:
-            bufferer = BufferWriter.CentroidBuffersLayerWriter()
-            bufferer.maxDistances = self.maxDistancesPerBufferId
-            bufferer.writerCentroidBuffersLayer()
-
-        except:
-            Logger.logWarning("[Displace] A problem occured while generating centroids buffer.")

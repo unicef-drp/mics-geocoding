@@ -167,7 +167,7 @@
              <x>10</x>
              <y>10</y>
              <width>461</width>
-             <height>331</height>
+             <height>281</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -191,10 +191,10 @@
            <widget class="QWidget" name="verticalLayoutWidget_3">
             <property name="geometry">
              <rect>
-              <x>10</x>
+              <x>0</x>
               <y>20</y>
-              <width>441</width>
-              <height>301</height>
+              <width>461</width>
+              <height>261</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -320,6 +320,19 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QPushButton" name="generateCentroidBuffersButton">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Generate Centroid Buffers</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </widget>
@@ -358,7 +371,7 @@
               <x>0</x>
               <y>23</y>
               <width>461</width>
-              <height>210</height>
+              <height>211</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -597,23 +610,10 @@
               <x>0</x>
               <y>0</y>
               <width>461</width>
-              <height>111</height>
+              <height>41</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_5">
-             <item>
-              <widget class="QPushButton" name="generateCentroidBuffersButton">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Generate Centroid Buffers</string>
-               </property>
-              </widget>
-             </item>
              <item>
               <widget class="QPushButton" name="exportDisplacedCentroidsButton">
                <property name="minimumSize">
@@ -641,7 +641,7 @@
              <x>10</x>
              <y>10</y>
              <width>461</width>
-             <height>331</height>
+             <height>311</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -667,8 +667,8 @@
              <rect>
               <x>0</x>
               <y>20</y>
-              <width>451</width>
-              <height>311</height>
+              <width>461</width>
+              <height>291</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_6">

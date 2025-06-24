@@ -18,16 +18,18 @@ import os
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from pathlib import Path
-from datetime import datetime
+#from datetime import datetime
 
-import re
+#import re
 import typing
 
-from .ui_mgp_mainwindow import Ui_MGPDialog
+#from .ui_mgp_mainwindow import Ui_MGPDialog
+from .micsgeocode import CentroidBuffersMaxDistanceComputer as Radier
+from .micsgeocode import CentroidBuffersLayerWriter as BufferWriter
 from .micsgeocode import CentroidsLoader as Loader
-from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
-from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
+from .micsgeocode.Logger import Logger
+#from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 
 
 class MGPMainWindowTab1Handler(QtCore.QObject):
@@ -56,6 +58,7 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         self.ui.adminBoundariesFieldComboBox.currentTextChanged.connect(self.onAdminBoundariesFieldChanged)
 
         self.ui.loadCentroidsButton.clicked.connect(self.onLoadCentroidsButtonCLicked)
+        self.ui.generateCentroidBuffersButton.clicked.connect(self.onGenerateCentroidBuffersButtonCLicked)
 
         ## ####################################################################
         # Init Tooltips - easier than in qtdesigner
@@ -71,6 +74,9 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         self.ui.adminBoundariesFieldComboBox.setToolTip("Administrative boundaries. Choose the field indicating administrative boundaries variable of displacement level.")
 
         self.ui.loadCentroidsButton.setToolTip("Generate Centroids. QGIS generates layers depending on input.")
+        self.ui.generateCentroidBuffersButton.setToolTip(
+            "Generate Buffers. QGIS generates a buffer layer for the original cluster centroids."
+        )
 
     ## #############################################################
     # reset
@@ -238,3 +244,30 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
 
         except BaseException as e:
             Logger.logException("[Generate] A problem occured while generating centroids.", e)
+
+    def onGenerateCentroidBuffersButtonCLicked(self) -> typing.NoReturn:
+        Logger.logInfo("[Generate] About to generate")
+
+        centroidLayer = Utils.getLayerIfExists(Utils.LayersType.CENTROIDS)
+
+        if not centroidLayer:
+            Logger.logWarning("[Generate] A valid centroid source file must be generated first.")
+            return
+        
+        #Get the max distances per buffer id
+        radier = Radier.CentroidBuffersMaxDistanceComputer()
+        radier.centroidLayer = centroidLayer
+        radier.computeBufferRadiusesCentroids()
+        maxDistances = radier.maxDistance
+
+        if not maxDistances:
+            Logger.logWarning("[Generate] The displacement has not been computed. The centroids buffer layer can't be generated.")
+            return
+
+        try:
+            bufferer = BufferWriter.CentroidBuffersLayerWriter()
+            bufferer.maxDistances = maxDistances
+            bufferer.writerCentroidBuffersLayer()
+
+        except:
+            Logger.logWarning("[Generate] A problem occured while generating centroids buffer.")
