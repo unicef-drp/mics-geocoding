@@ -345,7 +345,6 @@ class CovariatesProcesser():
             ):
         '''Compute zonal statistic
         '''
-        print(f"[ZonalStat] computing: {stat}")
 
         DEFAULT_RASTER_NODATA_VALUE = -9999
 
@@ -478,7 +477,7 @@ class CovariatesProcesser():
                 '1' : 'sum',
                 '2' : 'mean',
                 '3' : 'median',
-                '4' : 'std',
+                '4' : 'stdev',
                 '5' : 'min',
                 '6' : 'max',
                 '7' : 'range',
