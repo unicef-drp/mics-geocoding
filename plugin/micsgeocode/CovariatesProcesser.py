@@ -155,8 +155,8 @@ class CovariatesProcesser():
                 if file_format == 'Shapefile':
                     if sum_stat == 'distance_to_nearest':
                         # create layer for shortest distance
-                        shortest_distance_basename = file_name
-                        shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', 'Shortest distance to {}'.format(shortest_distance_basename), 'memory')
+                        shortest_distance_basename = file_name.split('.')[0]  # remove file extension
+                        shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', f'Shortest distance to {shortest_distance_basename}', 'memory')
                         shortest_dist_prov = shortest_dist_lyr.dataProvider()
                         shortest_dist_prov.addAttributes([
                             QgsField("cluster", QtCore.QVariant.Int),
@@ -291,23 +291,6 @@ class CovariatesProcesser():
                 index=False,
                 columns=selected_columns
             )
-
-            if shortest_distance_basename:
-                # Rewrite the layer on disk -> no memory flag
-                layerName = 'Shortest distance to {}'.format(shortest_distance_basename)
-                layers = QgsProject.instance().mapLayersByName(layerName)
-                if layers:
-                    filename = Utils.LayersName.customfileName(layerName)
-                    options = QgsVectorFileWriter.SaveVectorOptions()
-                    options.driverName = "ESRI Shapefile"
-                    writer = QgsVectorFileWriter.writeAsVectorFormatV2(
-                        layers[0],
-                        filename,
-                        QgsCoordinateTransformContext(),
-                        options)
-                    Utils.removeLayerIfExistsByName(layerName)
-                    layer = QgsVectorLayer(filename, layerName)
-                    QgsProject.instance().addMapLayer(layer)
 
         Logger.logInfo("Output file saved to {}".format(self.output_file))
         Logger.logInfo("Successfully completed at {}".format(datetime.now()))
