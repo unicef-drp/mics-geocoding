@@ -337,5 +337,8 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
                             "{:.6f}".format(ft.geometry().asPoint().y()),
                             ft['MICSGEO']
                         ])
+                
+                Logger.logSuccess("[Displace] Centroids succcessfully exported as CSV")
+
         except BaseException as e:
             Logger.logException("[Displace] A problem occured while saving displaced anonymised centroids", e)
