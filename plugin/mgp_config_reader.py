@@ -112,7 +112,7 @@ class mgp_config_reader:
                             self.mainWindow.ui.imagesSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['imagesDir'])))
                     except:
                         self.mainWindow.ui.imagesSourceFileLineEdit.clear()
-                if 'buffer' in configReader['CovariatesInputs']: # TODO? rename 'buffer' by 'polygon' or similar in 1.3 (breaking change) 
+                if 'buffer' in configReader['CovariatesInputs']: # TODO? rename 'buffer' by 'polygon' or similar in 2.0 (breaking change) 
                     try:
                         if configReader['CovariatesInputs']['buffer']:
                             self.mainWindow.ui.covrefLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['buffer'])))
