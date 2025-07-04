@@ -71,6 +71,7 @@ class CovariatesProcesser():
 
         self.__ref_layer = None
         self.__ref_layer_shp = ""
+        self.__ref_layer_id_field = ""
 
         self.output_file = ''
 
@@ -78,10 +79,11 @@ class CovariatesProcesser():
 # setters
 ####################################################################
 
-    def setReferenceLayer(self, layer: QgsVectorLayer, layer_file: str) -> typing.NoReturn:
+    def setReferenceLayer(self, layer: QgsVectorLayer, layer_file: str, id_field: str = CLUSTER_N0_FIELD_NAME) -> typing.NoReturn:
         # TODO: could we extact the shp file from the layer properties and simplify parameters of the method? (provider.dataSourceUri()?)
         self.__ref_layer = layer
         self.__ref_layer_shp = layer_file
+        self.__ref_layer_id_field = id_field
 
 ####################################################################
 # computation
@@ -103,6 +105,8 @@ class CovariatesProcesser():
         Logger.logInfo("[STEP02 MANAGER] input_csv_field_sumstat   :  " + self.input_csv_field_sumstat)
         Logger.logInfo("[STEP02 MANAGER] input_csv_field_columnname:  " + self.input_csv_field_columnname)
 
+        ref_layer_id_field = self.__ref_layer_id_field
+
         shortest_distance_basename = ""
 
         # read input list of covariates
@@ -115,7 +119,7 @@ class CovariatesProcesser():
             clusters = [
                 {
                     'fid': ft.id(),
-                    CovariatesProcesser.CLUSTER_N0_FIELD_NAME: ft[CovariatesProcesser.CLUSTER_N0_FIELD_NAME]
+                    ref_layer_id_field: ft[ref_layer_id_field]
                 } for ft in self.__ref_layer.getFeatures()
             ]  # TODO: ft.id() is different than ft.GetFID()? !!!!! make sure IDs match - fix required!!!
 
@@ -159,7 +163,7 @@ class CovariatesProcesser():
                         shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', f'Shortest distance to {shortest_distance_basename}', 'memory')
                         shortest_dist_prov = shortest_dist_lyr.dataProvider()
                         shortest_dist_prov.addAttributes([
-                            QgsField("cluster", QtCore.QVariant.Int),
+                            QgsField(ref_layer_id_field, QtCore.QVariant.String),
                             QgsField("nearestfid", QtCore.QVariant.String),
                             QgsField("dist", QtCore.QVariant.Double, 'double', 15, 2)
                         ])
@@ -171,7 +175,7 @@ class CovariatesProcesser():
                         for cluster_ft in self.__ref_layer.getFeatures():
                             feat = QgsFeature()
                             # startPt = QgsPoint(cluster_ft.geometry().centroid().asPoint())
-                            startGeom = cluster_ft.geometry().centroid()
+                            startGeom = cluster_ft.geometry().centroid() #TODO: does this make sense with polygon features?
                             # endPt = QgsPoint(QgsPointXY(0, 0))
                             endGeom = QgsGeometry.fromPointXY(QgsPointXY(0, 0))
 
@@ -198,7 +202,7 @@ class CovariatesProcesser():
                                 isInsideFeature = False
                                 for tmp_ft in search_features:
                                     geom = tmp_ft.geometry()
-                                    pt = cluster_ft.geometry().centroid().asPoint()
+                                    pt = cluster_ft.geometry().centroid().asPoint() # TODO: startGeom.asPoint() ?
                                     contains = geom.contains(pt)
                                     if contains:
                                         minDistFtId = tmp_ft.id()
@@ -208,7 +212,7 @@ class CovariatesProcesser():
                                 if not isInsideFeature:
                                     cswc = min(
                                         [(
-                                            l.id(), l.geometry().closestSegmentWithContext(cluster_ft.geometry().centroid().asPoint())
+                                            l.id(), l.geometry().closestSegmentWithContext(cluster_ft.geometry().centroid().asPoint()) # TODO: startGeom.asPoint() ?
                                         ) for l in search_features],
                                         key=itemgetter(1)
                                     )
@@ -231,7 +235,7 @@ class CovariatesProcesser():
                             line_merc.transform(crs_transformation.tr)
 
                             feat.setAttributes([
-                                cluster_ft[CovariatesProcesser.CLUSTER_N0_FIELD_NAME],
+                                cluster_ft[ref_layer_id_field],
                                 minDistFtId,
                                 line_merc.length()
                             ])
@@ -242,17 +246,17 @@ class CovariatesProcesser():
                         # Add the layer to the Layers panel
                         registry.addMapLayer(shortest_dist_lyr)
 
-                        search_fts = [{CovariatesProcesser.CLUSTER_N0_FIELD_NAME: ft[CovariatesProcesser.CLUSTER_N0_FIELD_NAME], column_name: ft['dist']} for ft in
+                        search_fts = [{ref_layer_id_field: ft[ref_layer_id_field], column_name: ft['dist']} for ft in
                                       shortest_dist_lyr.getFeatures()]
                         # Convert the dictionary into DataFrame
-                        search_shp_df = pd.DataFrame(search_fts)
+                        search_shp_df = pd.DataFrame(search_fts, columns=[ref_layer_id_field, column_name])
                         summary_df = pd.merge(
                             summary_df,
-                            search_shp_df[[column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]],
-                            on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
+                            search_shp_df[[column_name, ref_layer_id_field]],
+                            on=ref_layer_id_field,
                             how='inner'
                         )
-
+                
                 # Compute zonal stat and geotiff
                 elif file_format == 'GeoTIFF':
                     column_prefix = '_'
@@ -265,15 +269,15 @@ class CovariatesProcesser():
                         raster_band=1,
                         #raster_nodata_value = raster_nodata_value,
                         column_prefix=column_prefix,
-                        cluster_no_field=CovariatesProcesser.CLUSTER_N0_FIELD_NAME
+                        cluster_no_field=ref_layer_id_field
                     )
                     
-                    results_df = stats[[f'{column_prefix}{sum_stat}', CovariatesProcesser.CLUSTER_N0_FIELD_NAME]]
-                    results_df.columns = [column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]
+                    results_df = stats[[f'{column_prefix}{sum_stat}', ref_layer_id_field]]
+                    results_df.columns = [column_name, ref_layer_id_field]
                     summary_df = pd.merge(
                         summary_df,  # merge destination
-                        results_df[[column_name, CovariatesProcesser.CLUSTER_N0_FIELD_NAME]],
-                        on=CovariatesProcesser.CLUSTER_N0_FIELD_NAME,
+                        results_df[[column_name, ref_layer_id_field]],
+                        on=ref_layer_id_field,
                         how='inner'
                     )
 

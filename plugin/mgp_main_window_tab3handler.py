@@ -51,6 +51,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
         self.ui.covrefLayerToolButton.clicked.connect(self.onCovrefLayerToolButtonClicked)
         self.ui.covrefLayerLineEdit.textChanged.connect(self.onCovrefLayerFileChanged)
+        self.ui.covrefLayerIdFieldCombobox.currentTextChanged.connect(self.onCovrefLayerIdFieldComboboxTextChanged)
 
         self.ui.computeCovariatesButton.clicked.connect(self.onComputeCovariatesButtonClicked)
         self.ui.covoutputsOpenFileToolButton.clicked.connect(self.onCovoutputsOpenFileToolButtonClicked)
@@ -73,6 +74,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
         self.ui.covrefLayerToolButton.setToolTip("Browse for the anonymised cluster buffer shapefile on the computer. It was generated to phase of cluster displacement (Displace).")
         self.ui.covrefLayerLineEdit.setToolTip("Anonymised cluster buffer shapefile on the computer.")
+        self.ui.covrefLayerIdFieldCombobox.setToolTip("Choose the field corresponding to the polygon layer's ID field.")
 
         self.ui.computeCovariatesButton.setToolTip("Compute covariates. QGIS generates additional layers depending on inputs and a CSV file with the outputs.")
 
@@ -250,6 +252,24 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
     def onCovrefLayerFileChanged(self) -> typing.NoReturn:
         '''handle reference layer changed
         '''
+        self.ui.covrefLayerIdFieldCombobox.clear()
+        self.updateCovrefLayerIdFieldCombobox()
+        self.mainwindow.updateSaveStatus(True)
+
+    def updateCovrefLayerIdFieldCombobox(self):
+        # retrieve field and update combobox
+        fields = Utils.getFieldsListAsStrArray(self.ui.covrefLayerLineEdit.text())
+        if fields:
+            self.ui.covrefLayerIdFieldCombobox.addItems(fields)
+            self.ui.covrefLayerIdFieldCombobox.setEnabled(True)
+            self.ui.covrefLayerIdFieldCombobox.setCurrentIndex(0)
+            #TODO: set 'cluster' field name by default if exists
+        else:
+            self.ui.covrefLayerIdFieldCombobox.setEnabled(False)
+    
+    def onCovrefLayerIdFieldComboboxTextChanged(self) -> typing.NoReturn:
+        '''handle reference field changed
+        '''
         self.mainwindow.updateSaveStatus(True)
 
     ## #############################################################
@@ -316,10 +336,12 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             Utils.removeLayerIfExistsByName(bufferLayerName)
             bufferLayer = QgsVectorLayer(bufferShpPath, bufferLayerName)
             QgsProject.instance().addMapLayer(bufferLayer)
+            bufferIdField = self.ui.covrefLayerIdFieldCombobox.currentText()
 
             covariatesProcesser.setReferenceLayer(
                 bufferLayer,
-                bufferShpPath)
+                bufferShpPath,
+                bufferIdField)
 
             covariatesProcesser.computeCovariates()
             self.covoutputs_file = covariatesProcesser.output_file

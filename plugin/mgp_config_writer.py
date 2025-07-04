@@ -105,7 +105,8 @@ class mgp_config_writer:
                 'sumstatIndex': str(self.mainWindow.ui.sumstatFieldComboBox.currentIndex()),
                 'columnnameIndex': str(self.mainWindow.ui.columnnameFieldComboBox.currentIndex()),
                 'imagesDir': images_dir,
-                'buffer': buffer_file
+                'buffer': buffer_file,
+                'buffer_id': str(self.mainWindow.ui.covrefLayerIdFieldCombobox.currentIndex())
             }
 
             with open(self.fileMGC, 'w') as file:

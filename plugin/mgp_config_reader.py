@@ -112,11 +112,14 @@ class mgp_config_reader:
                             self.mainWindow.ui.imagesSourceFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['imagesDir'])))
                     except:
                         self.mainWindow.ui.imagesSourceFileLineEdit.clear()
-                if 'buffer' in configReader['CovariatesInputs']:
+                if 'buffer' in configReader['CovariatesInputs']: # TODO? rename 'buffer' by 'polygon' or similar in 1.3 (breaking change) 
                     try:
                         if configReader['CovariatesInputs']['buffer']:
                             self.mainWindow.ui.covrefLayerLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['CovariatesInputs']['buffer'])))
                     except:
                         self.mainWindow.ui.covrefLayerLineEdit.clear()
+                if 'buffer_id' in configReader['CovariatesInputs']:
+                    self.mainWindow.ui.covrefLayerIdFieldCombobox.setCurrentIndex(int(configReader['CovariatesInputs']['buffer_id']))
+
         except BaseException as e:
             Logger.logException("[ConfigReader] A problem occured while loading the project from :  " + self.fileMGC, e)

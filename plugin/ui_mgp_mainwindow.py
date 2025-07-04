@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:\dev\repos\qgis_plugins\MICS-Geocoding-Plugin\mics-geocoding\plugin\mgp_mainwindow.ui'
+# Form implementation generated from reading ui file 'C:\Miguel\dev\repos\qgis_plugins\MICS-Geocoding-Plugin\mics-geocoding\plugin\mgp_mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -87,7 +87,7 @@ class Ui_MGPDialog(object):
         self.tab_step1.setAutoFillBackground(False)
         self.tab_step1.setObjectName("tab_step1")
         self.groupBoxCentroid = QtWidgets.QGroupBox(self.tab_step1)
-        self.groupBoxCentroid.setGeometry(QtCore.QRect(10, 10, 461, 281))
+        self.groupBoxCentroid.setGeometry(QtCore.QRect(10, 10, 461, 301))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -97,7 +97,7 @@ class Ui_MGPDialog(object):
         self.groupBoxCentroid.setFlat(False)
         self.groupBoxCentroid.setObjectName("groupBoxCentroid")
         self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.groupBoxCentroid)
-        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(0, 20, 461, 261))
+        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(0, 20, 461, 274))
         self.verticalLayoutWidget_3.setObjectName("verticalLayoutWidget_3")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
         self.verticalLayout_3.setContentsMargins(10, 10, 10, 10)
@@ -176,7 +176,7 @@ class Ui_MGPDialog(object):
         self.groupBoxDisplacer.setMinimumSize(QtCore.QSize(0, 0))
         self.groupBoxDisplacer.setObjectName("groupBoxDisplacer")
         self.verticalLayoutWidget_4 = QtWidgets.QWidget(self.groupBoxDisplacer)
-        self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(0, 23, 461, 211))
+        self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(0, 23, 461, 219))
         self.verticalLayoutWidget_4.setObjectName("verticalLayoutWidget_4")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_4)
         self.verticalLayout_4.setContentsMargins(10, 10, 10, 10)
@@ -400,6 +400,16 @@ class Ui_MGPDialog(object):
         self.covrefLayerToolButton = QtWidgets.QToolButton(self.verticalLayoutWidget_6)
         self.covrefLayerToolButton.setObjectName("covrefLayerToolButton")
         self.horizontalLayoutRL_2.addWidget(self.covrefLayerToolButton)
+        self.covrefLayerIdFieldCombobox = QtWidgets.QComboBox(self.verticalLayoutWidget_6)
+        self.covrefLayerIdFieldCombobox.setEnabled(False)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Maximum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.covrefLayerIdFieldCombobox.sizePolicy().hasHeightForWidth())
+        self.covrefLayerIdFieldCombobox.setSizePolicy(sizePolicy)
+        self.covrefLayerIdFieldCombobox.setMinimumSize(QtCore.QSize(100, 0))
+        self.covrefLayerIdFieldCombobox.setObjectName("covrefLayerIdFieldCombobox")
+        self.horizontalLayoutRL_2.addWidget(self.covrefLayerIdFieldCombobox)
         self.verticalLayout_6.addLayout(self.horizontalLayoutRL_2)
         spacerItem5 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_6.addItem(spacerItem5)
@@ -463,7 +473,7 @@ class Ui_MGPDialog(object):
         self.verticalLayout.addWidget(self.widget)
         MGPDialog.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MGPDialog)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 509, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 509, 26))
         self.menubar.setObjectName("menubar")
         self.menutest = QtWidgets.QMenu(self.menubar)
         self.menutest.setObjectName("menutest")
@@ -545,7 +555,7 @@ class Ui_MGPDialog(object):
         self.columnnameFieldLabel.setText(_translate("MGPDialog", "Variable Name"))
         self.imagesSourceFileLabel.setText(_translate("MGPDialog", "Covariates input folder"))
         self.imagesSourceFileToolButton.setText(_translate("MGPDialog", "..."))
-        self.covrefLayerLabel.setText(_translate("MGPDialog", "Buffer Layer"))
+        self.covrefLayerLabel.setText(_translate("MGPDialog", "Polygon Layer"))
         self.covrefLayerToolButton.setText(_translate("MGPDialog", "..."))
         self.computeCovariatesButton.setText(_translate("MGPDialog", "Compute Covariates"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step3), _translate("MGPDialog", "Extract"))
