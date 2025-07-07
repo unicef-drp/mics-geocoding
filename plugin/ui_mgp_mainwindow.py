@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Miguel\dev\repos\qgis_plugins\MICS-Geocoding-Plugin\mics-geocoding\plugin\mgp_mainwindow.ui'
+# Form implementation generated from reading ui file '...\mics-geocoding\plugin\mgp_mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -167,7 +167,7 @@ class Ui_MGPDialog(object):
         self.tab_step2 = QtWidgets.QWidget()
         self.tab_step2.setObjectName("tab_step2")
         self.groupBoxDisplacer = QtWidgets.QGroupBox(self.tab_step2)
-        self.groupBoxDisplacer.setGeometry(QtCore.QRect(10, 10, 461, 231))
+        self.groupBoxDisplacer.setGeometry(QtCore.QRect(10, 10, 461, 241))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -176,7 +176,7 @@ class Ui_MGPDialog(object):
         self.groupBoxDisplacer.setMinimumSize(QtCore.QSize(0, 0))
         self.groupBoxDisplacer.setObjectName("groupBoxDisplacer")
         self.verticalLayoutWidget_4 = QtWidgets.QWidget(self.groupBoxDisplacer)
-        self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(0, 23, 461, 219))
+        self.verticalLayoutWidget_4.setGeometry(QtCore.QRect(0, 20, 461, 221))
         self.verticalLayoutWidget_4.setObjectName("verticalLayoutWidget_4")
         self.verticalLayout_4 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_4)
         self.verticalLayout_4.setContentsMargins(10, 10, 10, 10)
@@ -260,7 +260,7 @@ class Ui_MGPDialog(object):
         self.displaceCentroidsButton.setObjectName("displaceCentroidsButton")
         self.verticalLayout_4.addWidget(self.displaceCentroidsButton)
         self.toggleShowMoreButton = QtWidgets.QPushButton(self.tab_step2)
-        self.toggleShowMoreButton.setGeometry(QtCore.QRect(404, 240, 81, 25))
+        self.toggleShowMoreButton.setGeometry(QtCore.QRect(404, 250, 81, 25))
         self.toggleShowMoreButton.setMaximumSize(QtCore.QSize(16777215, 25))
         self.toggleShowMoreButton.setAutoFillBackground(False)
         self.toggleShowMoreButton.setFlat(True)
@@ -275,7 +275,7 @@ class Ui_MGPDialog(object):
         self.moreWidget.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.moreWidget.setObjectName("moreWidget")
         self.verticalLayoutWidget_5 = QtWidgets.QWidget(self.moreWidget)
-        self.verticalLayoutWidget_5.setGeometry(QtCore.QRect(0, 0, 461, 41))
+        self.verticalLayoutWidget_5.setGeometry(QtCore.QRect(0, 10, 461, 61))
         self.verticalLayoutWidget_5.setObjectName("verticalLayoutWidget_5")
         self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_5)
         self.verticalLayout_5.setContentsMargins(0, 0, 0, 0)
@@ -473,7 +473,7 @@ class Ui_MGPDialog(object):
         self.verticalLayout.addWidget(self.widget)
         MGPDialog.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MGPDialog)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 509, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 509, 21))
         self.menubar.setObjectName("menubar")
         self.menutest = QtWidgets.QMenu(self.menubar)
         self.menutest.setObjectName("menutest")
@@ -530,7 +530,7 @@ class Ui_MGPDialog(object):
         self.typeFieldLabel_2.setText(_translate("MGPDialog", "Area (HH6)"))
         self.longitudeFieldLabel_2.setText(_translate("MGPDialog", "Longitude"))
         self.latitudeFieldLabel_2.setText(_translate("MGPDialog", "Latitude"))
-        self.adminBoundariesFieldLabel_2.setText(_translate("MGPDialog", "Admin Identifier"))
+        self.adminBoundariesFieldLabel_2.setText(_translate("MGPDialog", "Admin Identifier (HH7A)"))
         self.loadCentroidsButton.setText(_translate("MGPDialog", "Generate Centroids"))
         self.generateCentroidBuffersButton.setText(_translate("MGPDialog", "Generate Centroid Buffers"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step1), _translate("MGPDialog", "Generate"))
