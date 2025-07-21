@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Miguel\dev\repos\qgis_plugins\MICS-Geocoding-Plugin\mics-geocoding\plugin\mgp_mainwindow.ui'
+# Form implementation generated from reading ui file '...\mics-geocoding\plugin\mgp_mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -473,7 +473,7 @@ class Ui_MGPDialog(object):
         self.verticalLayout.addWidget(self.widget)
         MGPDialog.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MGPDialog)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 509, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 509, 21))
         self.menubar.setObjectName("menubar")
         self.menutest = QtWidgets.QMenu(self.menubar)
         self.menutest.setObjectName("menutest")
@@ -530,7 +530,7 @@ class Ui_MGPDialog(object):
         self.typeFieldLabel_2.setText(_translate("MGPDialog", "Area (HH6)"))
         self.longitudeFieldLabel_2.setText(_translate("MGPDialog", "Longitude"))
         self.latitudeFieldLabel_2.setText(_translate("MGPDialog", "Latitude"))
-        self.adminBoundariesFieldLabel_2.setText(_translate("MGPDialog", "Admin Identifier"))
+        self.adminBoundariesFieldLabel_2.setText(_translate("MGPDialog", "Admin Identifier (HH7A)"))
         self.loadCentroidsButton.setText(_translate("MGPDialog", "Generate Centroids"))
         self.generateCentroidBuffersButton.setText(_translate("MGPDialog", "Generate Centroid Buffers"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_step1), _translate("MGPDialog", "Generate"))

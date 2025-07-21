@@ -285,7 +285,7 @@
                <item row="4" column="0">
                 <widget class="QLabel" name="adminBoundariesFieldLabel_2">
                  <property name="text">
-                  <string>Admin Identifier</string>
+                  <string>Admin Identifier (HH7A)</string>
                  </property>
                 </widget>
                </item>
@@ -369,7 +369,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>23</y>
+              <y>20</y>
               <width>461</width>
               <height>221</height>
              </rect>
@@ -562,7 +562,11 @@
            <property name="geometry">
             <rect>
              <x>404</x>
+<<<<<<< HEAD
              <y>270</y>
+=======
+             <y>250</y>
+>>>>>>> 27c177b69f6a55899bb3b212d0ab300d07cba284
              <width>81</width>
              <height>25</height>
             </rect>
@@ -608,9 +612,13 @@
             <property name="geometry">
              <rect>
               <x>0</x>
+<<<<<<< HEAD
               <y>20</y>
+=======
+              <y>10</y>
+>>>>>>> 27c177b69f6a55899bb3b212d0ab300d07cba284
               <width>461</width>
-              <height>41</height>
+              <height>61</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -1086,7 +1094,7 @@
      <x>0</x>
      <y>0</y>
      <width>509</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menutest">
