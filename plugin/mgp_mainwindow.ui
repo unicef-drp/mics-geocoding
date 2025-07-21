@@ -562,11 +562,7 @@
            <property name="geometry">
             <rect>
              <x>404</x>
-<<<<<<< HEAD
              <y>270</y>
-=======
-             <y>250</y>
->>>>>>> 27c177b69f6a55899bb3b212d0ab300d07cba284
              <width>81</width>
              <height>25</height>
             </rect>
@@ -612,11 +608,7 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-<<<<<<< HEAD
               <y>20</y>
-=======
-              <y>10</y>
->>>>>>> 27c177b69f6a55899bb3b212d0ab300d07cba284
               <width>461</width>
               <height>61</height>
              </rect>
