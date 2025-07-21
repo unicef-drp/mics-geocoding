@@ -10,7 +10,7 @@ SET PLUGIN_DIRECTORY_NAME=micsgeocodeplugin
 
 SET PLUGIN_DIRECTORY=%QGIS_PLUGIN_DIRECTORY%\%PLUGIN_DIRECTORY_NAME%\
 
-SET ZIP_TARGET_DIRECTORY="%cd%"\%PLUGIN_DIRECTORY_NAME%-1.3.0-b4.zip
+SET ZIP_TARGET_DIRECTORY="%cd%"\%PLUGIN_DIRECTORY_NAME%-1.3.0-b6.zip
 
 @REM ##########################################################################
 @REM set paths
