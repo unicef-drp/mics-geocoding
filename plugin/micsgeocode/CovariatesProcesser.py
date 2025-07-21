@@ -74,6 +74,7 @@ class CovariatesProcesser():
         self.__ref_layer_id_field = ""
 
         self.output_file = ''
+        self.output_warning = ''
 
 ####################################################################
 # setters
@@ -152,8 +153,15 @@ class CovariatesProcesser():
                 file_format = input_row['file_format']
                 sum_stat = input_row['sum_stat']
                 column_name = input_row['column']
-                Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(rowIndex, file_name, file_format, sum_stat, column_name))
-                rowIndex = rowIndex + 1
+
+                if sum_stat == 'variety':
+                    msg_error = "Variety statistic is temporarily not supported in this version, it will not be available in the output file."
+                    #Logger.logWarning(msg_error)
+                    self.output_warning = msg_error
+                    continue
+                else:
+                    Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(rowIndex, file_name, file_format, sum_stat, column_name))
+                #rowIndex = rowIndex + 1
 
                 # Compute distance to nearest
                 if file_format == 'Shapefile':
@@ -470,7 +478,7 @@ class CovariatesProcesser():
                 '7' : 'range',
                 '8' : 'minority',
                 '9' : 'majority',
-                '10': 'variety',
+                '10': 'variety', # phase1: exclude from options, phase2: workaround to overcome QGIS bug - calculate all stats at once for a raster
                 '11': 'variance'
             }
 
@@ -493,7 +501,7 @@ class CovariatesProcesser():
             #    'DATA_TYPE':0,
             #    'OUTPUT':'TEMPORARY_OUTPUT'
             #})
-
+            
             result = processing.run("native:zonalstatisticsfb", {
                 'INPUT': vector_path,
                 'INPUT_RASTER': raster_path,

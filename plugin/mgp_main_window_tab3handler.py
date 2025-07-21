@@ -350,7 +350,10 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             else:
                 self.ui.covoutputsOpenFileToolButton.setEnabled(False)
 
-            Logger.logSuccess("[CovariatesProcesser] Covariates succcessfully processed")
+            if covariatesProcesser.output_warning != '':
+                Logger.logWarning("[CovariatesProcesser] " + covariatesProcesser.output_warning)
+            else:
+                Logger.logSuccess("[CovariatesProcesser] Covariates succcessfully processed")
 
         except BaseException as e:
             Logger.logException("[CovariatesProcesser] A problem occured while processing covariates.", e)
