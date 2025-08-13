@@ -106,6 +106,8 @@ class mgp_config_reader:
                     self.mainWindow.ui.sumstatFieldComboBox.setCurrentIndex(int(configReader['CovariatesInputs']['sumstatIndex']))
                 if 'columnnameIndex' in configReader['CovariatesInputs']:
                     self.mainWindow.ui.columnnameFieldComboBox.setCurrentIndex(int(configReader['CovariatesInputs']['columnnameIndex']))
+                if 'nodataIndex' in configReader['CovariatesInputs']:
+                    self.mainWindow.ui.nodataFieldComboBox.setCurrentIndex(int(configReader['CovariatesInputs']['nodataIndex']))
                 if 'imagesDir' in configReader['CovariatesInputs']:
                     try:
                         if configReader['CovariatesInputs']['imagesDir']:

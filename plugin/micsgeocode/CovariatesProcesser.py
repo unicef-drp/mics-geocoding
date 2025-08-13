@@ -66,6 +66,7 @@ class CovariatesProcesser():
         self.input_csv_field_fileformat = ''
         self.input_csv_field_sumstat = ''
         self.input_csv_field_columnname = ''
+        self.input_csv_field_nodata = None # can be null/empty, to catch
 
         self.images_directory = Path(self.input_csv).parent
 
@@ -105,6 +106,7 @@ class CovariatesProcesser():
         Logger.logInfo("[STEP02 MANAGER] input_csv_field_fileformat:  " + self.input_csv_field_fileformat)
         Logger.logInfo("[STEP02 MANAGER] input_csv_field_sumstat   :  " + self.input_csv_field_sumstat)
         Logger.logInfo("[STEP02 MANAGER] input_csv_field_columnname:  " + self.input_csv_field_columnname)
+        Logger.logInfo("[STEP02 MANAGER] input_csv_field_nodata:  " + (self.input_csv_field_nodata if self.input_csv_field_nodata else "None"))
 
         ref_layer_id_field = self.__ref_layer_id_field
 
@@ -135,13 +137,15 @@ class CovariatesProcesser():
                     input_fileformat_id = line.index(self.input_csv_field_fileformat)
                     input_field_sumstat_id = line.index(self.input_csv_field_sumstat)
                     input_field_columnname_id = line.index(self.input_csv_field_columnname)
+                    input_field_nodata_id = line.index(self.input_csv_field_nodata) if self.input_csv_field_nodata else None
                 if rowIndex != 0:
                     line = [s.strip() for s in re.split(',', i.strip())]
                     inputs.append({
                         'file': line[input_file_id],
                         'file_format': line[input_fileformat_id],
                         'sum_stat': line[input_field_sumstat_id],
-                        'column': line[input_field_columnname_id]
+                        'column': line[input_field_columnname_id],
+                        'raster_nodata_value': line[input_field_nodata_id] if input_field_nodata_id else None
                     })
                 rowIndex = rowIndex + 1
             rowIndex = 1
@@ -153,6 +157,7 @@ class CovariatesProcesser():
                 file_format = input_row['file_format']
                 sum_stat = input_row['sum_stat']
                 column_name = input_row['column']
+                raster_nodata_value = input_row['raster_nodata_value']
 
                 if sum_stat == 'variety':
                     msg_error = "Variety statistic is temporarily not supported in this version, it will not be available in the output file."
@@ -161,7 +166,7 @@ class CovariatesProcesser():
                     continue
                 else:
                     Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(rowIndex, file_name, file_format, sum_stat, column_name))
-                #rowIndex = rowIndex + 1
+                rowIndex = rowIndex + 1
 
                 # Compute distance to nearest
                 if file_format == 'Shapefile':
@@ -275,7 +280,7 @@ class CovariatesProcesser():
                         vector_path=self.__ref_layer_shp,
                         raster_path=file_path,
                         raster_band=1,
-                        #raster_nodata_value = raster_nodata_value,
+                        raster_nodata_value=raster_nodata_value,
                         column_prefix=column_prefix,
                         cluster_no_field=ref_layer_id_field
                     )
@@ -332,11 +337,11 @@ class CovariatesProcesser():
             stat,
             vector_path,
             raster_path,
-            raster_band=1,
-            #raster_nodata_value = -9999,
-            column_prefix='_',
-            cluster_no_field=CLUSTER_N0_FIELD_NAME,
-            global_src_extent=False
+            raster_band = 1,
+            raster_nodata_value = -9999,
+            column_prefix = '_',
+            cluster_no_field = CLUSTER_N0_FIELD_NAME,
+            global_src_extent = False
             ):
         '''Compute zonal statistic
         '''

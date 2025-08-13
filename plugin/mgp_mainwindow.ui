@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>509</width>
-    <height>681</height>
+    <width>513</width>
+    <height>690</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -641,7 +641,7 @@
              <x>10</x>
              <y>10</y>
              <width>461</width>
-             <height>311</height>
+             <height>321</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -668,7 +668,7 @@
               <x>0</x>
               <y>20</y>
               <width>461</width>
-              <height>291</height>
+              <height>301</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -795,6 +795,16 @@
                </item>
                <item row="3" column="1">
                 <widget class="QComboBox" name="columnnameFieldComboBox"/>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="nodataFieldLabel">
+                 <property name="text">
+                  <string>No-data Value</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QComboBox" name="nodataFieldComboBox"/>
                </item>
               </layout>
              </item>
@@ -1085,7 +1095,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>509</width>
+     <width>513</width>
      <height>21</height>
     </rect>
    </property>

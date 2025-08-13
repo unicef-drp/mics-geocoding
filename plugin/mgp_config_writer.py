@@ -104,6 +104,7 @@ class mgp_config_writer:
                 'fileformatIndex': str(self.mainWindow.ui.fileformatFieldComboBox.currentIndex()),
                 'sumstatIndex': str(self.mainWindow.ui.sumstatFieldComboBox.currentIndex()),
                 'columnnameIndex': str(self.mainWindow.ui.columnnameFieldComboBox.currentIndex()),
+                'nodataIndex': str(self.mainWindow.ui.nodataFieldComboBox.currentIndex()),
                 'imagesDir': images_dir,
                 'buffer': buffer_file,
                 'buffer_id': str(self.mainWindow.ui.covrefLayerIdFieldCombobox.currentIndex())

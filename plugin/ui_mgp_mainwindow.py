@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Miguel\dev\repos\qgis_plugins\MICS-Geocoding-Plugin\mics-geocoding\plugin\mgp_mainwindow.ui'
+# Form implementation generated from reading ui file '\mics-geocoding\plugin\mgp_mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MGPDialog(object):
     def setupUi(self, MGPDialog):
         MGPDialog.setObjectName("MGPDialog")
-        MGPDialog.resize(509, 681)
+        MGPDialog.resize(513, 690)
         MGPDialog.setAutoFillBackground(True)
         self.centralwidget = QtWidgets.QWidget(MGPDialog)
         self.centralwidget.setObjectName("centralwidget")
@@ -288,7 +288,7 @@ class Ui_MGPDialog(object):
         self.tab_step3 = QtWidgets.QWidget()
         self.tab_step3.setObjectName("tab_step3")
         self.groupBoxCentroid_2 = QtWidgets.QGroupBox(self.tab_step3)
-        self.groupBoxCentroid_2.setGeometry(QtCore.QRect(10, 10, 461, 311))
+        self.groupBoxCentroid_2.setGeometry(QtCore.QRect(10, 10, 461, 321))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -298,7 +298,7 @@ class Ui_MGPDialog(object):
         self.groupBoxCentroid_2.setFlat(False)
         self.groupBoxCentroid_2.setObjectName("groupBoxCentroid_2")
         self.verticalLayoutWidget_6 = QtWidgets.QWidget(self.groupBoxCentroid_2)
-        self.verticalLayoutWidget_6.setGeometry(QtCore.QRect(0, 20, 461, 291))
+        self.verticalLayoutWidget_6.setGeometry(QtCore.QRect(0, 20, 461, 301))
         self.verticalLayoutWidget_6.setObjectName("verticalLayoutWidget_6")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_6)
         self.verticalLayout_6.setContentsMargins(10, 10, 10, 10)
@@ -359,6 +359,12 @@ class Ui_MGPDialog(object):
         self.columnnameFieldComboBox = QtWidgets.QComboBox(self.verticalLayoutWidget_6)
         self.columnnameFieldComboBox.setObjectName("columnnameFieldComboBox")
         self.formLayout_4.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.columnnameFieldComboBox)
+        self.nodataFieldLabel = QtWidgets.QLabel(self.verticalLayoutWidget_6)
+        self.nodataFieldLabel.setObjectName("nodataFieldLabel")
+        self.formLayout_4.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.nodataFieldLabel)
+        self.nodataFieldComboBox = QtWidgets.QComboBox(self.verticalLayoutWidget_6)
+        self.nodataFieldComboBox.setObjectName("nodataFieldComboBox")
+        self.formLayout_4.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.nodataFieldComboBox)
         self.verticalLayout_6.addLayout(self.formLayout_4)
         spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_6.addItem(spacerItem3)
@@ -473,7 +479,7 @@ class Ui_MGPDialog(object):
         self.verticalLayout.addWidget(self.widget)
         MGPDialog.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MGPDialog)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 509, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 513, 21))
         self.menubar.setObjectName("menubar")
         self.menutest = QtWidgets.QMenu(self.menubar)
         self.menutest.setObjectName("menutest")
@@ -553,6 +559,7 @@ class Ui_MGPDialog(object):
         self.fileformatFieldLabel.setText(_translate("MGPDialog", "File Format"))
         self.sumstatFieldLabel.setText(_translate("MGPDialog", "Summary Statistics"))
         self.columnnameFieldLabel.setText(_translate("MGPDialog", "Variable Name"))
+        self.nodataFieldLabel.setText(_translate("MGPDialog", "No-data Value"))
         self.imagesSourceFileLabel.setText(_translate("MGPDialog", "Covariates input folder"))
         self.imagesSourceFileToolButton.setText(_translate("MGPDialog", "..."))
         self.covrefLayerLabel.setText(_translate("MGPDialog", "Polygon Layer"))

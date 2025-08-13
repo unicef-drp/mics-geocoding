@@ -48,6 +48,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.fileformatFieldComboBox.currentTextChanged.connect(self.onFileformatFieldChanged)
         self.ui.sumstatFieldComboBox.currentTextChanged.connect(self.onSumstatFieldChanged)
         self.ui.columnnameFieldComboBox.currentTextChanged.connect(self.onColumnnameFieldChanged)
+        self.ui.nodataFieldComboBox.currentTextChanged.connect(self.onNodataFieldChanged)
 
         self.ui.covrefLayerToolButton.clicked.connect(self.onCovrefLayerToolButtonClicked)
         self.ui.covrefLayerLineEdit.textChanged.connect(self.onCovrefLayerFileChanged)
@@ -71,6 +72,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.fileformatFieldComboBox.setToolTip("Choose the field indicating file format variable.")
         self.ui.sumstatFieldComboBox.setToolTip("Choose the field indicating summary statistics variable.")
         self.ui.columnnameFieldComboBox.setToolTip("Choose the field indicating variable name variable.")
+        self.ui.nodataFieldComboBox.setToolTip("Choose the field indicating raster no-data value variable.")
 
         self.ui.covrefLayerToolButton.setToolTip("Browse for the anonymised cluster buffer shapefile on the computer. It was generated to phase of cluster displacement (Displace).")
         self.ui.covrefLayerLineEdit.setToolTip("Anonymised cluster buffer shapefile on the computer.")
@@ -145,56 +147,47 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             MGP_OPEN_FILE(self.ui.covinputsSourceFileLineEdit.text())
 
     def updateCovinputsComboBoxes(self):
+
+        def get_item_index(normalized_candidates, in_list, default=None):
+            '''Get the index of the first item in in_list that matches any of the normalized_candidates.
+            If default is provided, it will be used if it exists in in_list.'''
+
+            if default:
+                index = in_list.index(default)
+            
+            for item in in_list:
+                normalized_item = item.lower().replace(' ', '').replace('_', '')
+                if normalized_item in normalized_candidates:
+                    # If the item is between the candidates, we set it in the nodata combobox
+                    index = in_list.index(item)
+                    break
+            
+            return index
+        
+        def setComboBox(combobox, candidates, fields, default=None):
+            combobox.clear()
+            combobox.addItems(fields)
+            combobox.setCurrentIndex(get_item_index(candidates, fields, default))
+
+        # Define candidates for each field
+        # These are normalized candidates, without spaces or underscores, to match the fields in the CSV
+        candidates = {
+            "filename": ["filename", "name", 'file'],
+            "fileformat": ["fileformat", "format"],
+            "sumstat": ["sumstat", "sumstats", "summarystatistic", "summarystatistics", "sumstatistics"],
+            "columnname": ["columnname", "variablename", "varname"],
+            "nodata": ['rasternodatavalue', 'rasternodata', 'nodatavalue', 'nodata']
+        }
+
         # Retrieve fieldlist and populate comboboxes
         fields = Utils.getFieldsListAsStrArray(self.ui.covinputsSourceFileLineEdit.text())
+        fields_and_notavailable = fields + ['Not available']  # Add 'Not available' to allow for no selection (optional field)
 
-        self.ui.filenameFieldComboBox.clear()
-        self.ui.fileformatFieldComboBox.clear()
-        self.ui.sumstatFieldComboBox.clear()
-        self.ui.columnnameFieldComboBox.clear()
-
-        self.ui.filenameFieldComboBox.addItems(fields)
-        self.ui.fileformatFieldComboBox.addItems(fields)
-        self.ui.sumstatFieldComboBox.addItems(fields)
-        self.ui.columnnameFieldComboBox.addItems(fields)
-
-        candidates = ["filename", "FileName", "Filename", "FILENAME",
-                      "file name", "File Name", "File name", "FILE NAME"
-                      "name", "Name", "name", "NAME"]
-        for item in candidates:
-            if item in fields:
-                self.ui.filenameFieldComboBox.setCurrentIndex(fields.index(item))
-                break
-
-        candidates = ["fileformat", "FileFormat", "Fileformat", "FILEFORMAT",
-                      "file format", "File Format", "File format", "FILE FORMAT",
-                      "format", "Format", "FORMAT"]
-        for item in candidates:
-            if item in fields:
-                self.ui.fileformatFieldComboBox.setCurrentIndex(fields.index(item))
-                break
-
-        candidates = ["sumstat", "SumStat", "Sumstat", "SUMSTAT",
-                      "sum stat", "Sum Stat", "Sum stat", "SUM STAT",
-                      "sumstats", "SumStats", "Sumstats", "SUMSTATS",
-                      "sum stats", "Sum Stats", "Sum stats", "SUM STATS",
-                      "summarystatistic", "SummaryStatistic", "Summarystatistic", "SUMMARYSTATISTIC",
-                      "summary statistic", "Summary Statistic", "Summary statistic", "SUMMARY STATISTIC",
-                      "summarystatistics", "SummaryStatistics", "Summarystatistics", "SUMMARYSTATISTICS",
-                      "summary statistics", "Summary Statistics", "Summary statistics", "SUMMARY STATISTICS"]
-        for item in candidates:
-            if item in fields:
-                self.ui.sumstatFieldComboBox.setCurrentIndex(fields.index(item))
-                break
-
-        candidates = ["columnname", "ColumnName", "Columnname", "COLUMNNAME",
-                      "column name", "Column Name", "Column name", "COLUMN NAME",
-                      "variablename", "VariableName", "Variablename", "VARIABLENAME",
-                      "variable name", "Variable Name", "Variable name", "VARIABLE NAME"]
-        for item in candidates:
-            if item in fields:
-                self.ui.columnnameFieldComboBox.setCurrentIndex(fields.index(item))
-                break
+        setComboBox(self.ui.filenameFieldComboBox, candidates['filename'], fields)
+        setComboBox(self.ui.fileformatFieldComboBox, candidates['fileformat'], fields)
+        setComboBox(self.ui.sumstatFieldComboBox, candidates['sumstat'], fields)
+        setComboBox(self.ui.columnnameFieldComboBox, candidates['columnname'], fields)
+        setComboBox(self.ui.nodataFieldComboBox, candidates['nodata'], fields_and_notavailable, 'Not available')
 
     def onFilenameFieldChanged(self) -> typing.NoReturn:
         '''Update Filename field
@@ -213,6 +206,11 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
     def onColumnnameFieldChanged(self) -> typing.NoReturn:
         '''Update Column name field
+        '''
+        self.mainwindow.updateSaveStatus(True)
+
+    def onNodataFieldChanged(self) -> typing.NoReturn:
+        '''Update No data name field
         '''
         self.mainwindow.updateSaveStatus(True)
 
@@ -307,6 +305,10 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
                 Logger.logWarning("[CovariatesProcesser] A valid file format field must be provided")
                 return
 
+            if self.ui.nodataFieldComboBox.isEnabled() and not self.ui.nodataFieldComboBox.currentText():
+                Logger.logWarning("[CovariatesProcesser] No raster nodata value field must is provided, the value set in the raster will be used.")
+                return
+            
         if not self.ui.imagesSourceFileLineEdit.text():
             Logger.logWarning("[CovariatesProcesser] A valid image directory must be provided")
             return
@@ -324,6 +326,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             covariatesProcesser.input_csv_field_sumstat = self.ui.sumstatFieldComboBox.currentText()
             covariatesProcesser.input_csv_field_filename = self.ui.filenameFieldComboBox.currentText()
             covariatesProcesser.input_csv_field_fileformat = self.ui.fileformatFieldComboBox.currentText()
+            covariatesProcesser.input_csv_field_nodata = None if self.ui.nodataFieldComboBox.currentText() == "Not available" else self.ui.nodataFieldComboBox.currentText()
 
             covariatesProcesser.images_directory = self.ui.imagesSourceFileLineEdit.text()
 
