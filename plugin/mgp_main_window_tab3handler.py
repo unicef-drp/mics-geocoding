@@ -308,7 +308,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
                 return
 
             if self.ui.nodataFieldComboBox.isEnabled() and self.ui.nodataFieldComboBox.currentText() == self.NOT_AVAILABLE_VALUE:
-                Logger.logWarning("[CovariatesProcesser] Raster's nodata value field is provided, the original value from the raster will be used.")
+                Logger.logWarning("[CovariatesProcesser] Raster's nodata value field is not provided, the original value from the raster will be used.")
                 return
             
         if not self.ui.imagesSourceFileLineEdit.text():
