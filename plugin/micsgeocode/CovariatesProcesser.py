@@ -128,6 +128,12 @@ class CovariatesProcesser():
 
             # Convert the dictionary into DataFrame
             summary_df = pd.DataFrame(clusters)
+            summary_df = summary_df.astype({ref_layer_id_field: "string"}) # force string type for the ID field
+
+            print('')
+            print('summary_df.dtypes')
+            print(summary_df.dtypes)
+            print('___')
 
             # read all input covariates
             for i in f:
@@ -263,6 +269,8 @@ class CovariatesProcesser():
                                       shortest_dist_lyr.getFeatures()]
                         # Convert the dictionary into DataFrame
                         search_shp_df = pd.DataFrame(search_fts, columns=[ref_layer_id_field, column_name])
+                        search_shp_df = search_shp_df.astype({ref_layer_id_field: "string"}) # force string type for the ID field
+
                         summary_df = pd.merge(
                             summary_df,
                             search_shp_df[[column_name, ref_layer_id_field]],
@@ -287,6 +295,8 @@ class CovariatesProcesser():
                     
                     results_df = stats[[f'{column_prefix}{sum_stat}', ref_layer_id_field]]
                     results_df.columns = [column_name, ref_layer_id_field]
+                    results_df = results_df.astype({ref_layer_id_field: "string"}) # force string type for the ID field
+
                     summary_df = pd.merge(
                         summary_df,  # merge destination
                         results_df[[column_name, ref_layer_id_field]],
