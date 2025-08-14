@@ -91,6 +91,8 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             self.ui.covoutputsOpenFileToolButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirOpenIcon"))
         )
 
+        self.NOT_AVAILABLE_VALUE = 'Not available'
+
     ## #############################################################
     # reset
     ## #############################################################
@@ -181,13 +183,13 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
         # Retrieve fieldlist and populate comboboxes
         fields = Utils.getFieldsListAsStrArray(self.ui.covinputsSourceFileLineEdit.text())
-        fields_and_notavailable = fields + ['Not available']  # Add 'Not available' to allow for no selection (optional field)
+        fields_and_notavailable = fields + [self.NOT_AVAILABLE_VALUE]  # Add 'Not available' to allow for no selection (optional field)
 
         setComboBox(self.ui.filenameFieldComboBox, candidates['filename'], fields)
         setComboBox(self.ui.fileformatFieldComboBox, candidates['fileformat'], fields)
         setComboBox(self.ui.sumstatFieldComboBox, candidates['sumstat'], fields)
         setComboBox(self.ui.columnnameFieldComboBox, candidates['columnname'], fields)
-        setComboBox(self.ui.nodataFieldComboBox, candidates['nodata'], fields_and_notavailable, 'Not available')
+        setComboBox(self.ui.nodataFieldComboBox, candidates['nodata'], fields_and_notavailable, self.NOT_AVAILABLE_VALUE)
 
     def onFilenameFieldChanged(self) -> typing.NoReturn:
         '''Update Filename field
@@ -305,8 +307,8 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
                 Logger.logWarning("[CovariatesProcesser] A valid file format field must be provided")
                 return
 
-            if self.ui.nodataFieldComboBox.isEnabled() and not self.ui.nodataFieldComboBox.currentText():
-                Logger.logWarning("[CovariatesProcesser] No raster nodata value field must is provided, the value set in the raster will be used.")
+            if self.ui.nodataFieldComboBox.isEnabled() and self.ui.nodataFieldComboBox.currentText() == self.NOT_AVAILABLE_VALUE:
+                Logger.logWarning("[CovariatesProcesser] Raster's nodata value field is provided, the original value from the raster will be used.")
                 return
             
         if not self.ui.imagesSourceFileLineEdit.text():
@@ -326,7 +328,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             covariatesProcesser.input_csv_field_sumstat = self.ui.sumstatFieldComboBox.currentText()
             covariatesProcesser.input_csv_field_filename = self.ui.filenameFieldComboBox.currentText()
             covariatesProcesser.input_csv_field_fileformat = self.ui.fileformatFieldComboBox.currentText()
-            covariatesProcesser.input_csv_field_nodata = None if self.ui.nodataFieldComboBox.currentText() == "Not available" else self.ui.nodataFieldComboBox.currentText()
+            covariatesProcesser.input_csv_field_nodata = None if self.ui.nodataFieldComboBox.currentText() == self.NOT_AVAILABLE_VALUE else self.ui.nodataFieldComboBox.currentText()
 
             covariatesProcesser.images_directory = self.ui.imagesSourceFileLineEdit.text()
 
