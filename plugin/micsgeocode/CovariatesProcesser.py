@@ -23,6 +23,7 @@ from datetime import datetime
 from operator import itemgetter
 import numpy as np
 import pandas as pd
+import math
 
 from .Logger import Logger
 from .Transforms import Transforms
@@ -130,11 +131,6 @@ class CovariatesProcesser():
             summary_df = pd.DataFrame(clusters)
             summary_df = summary_df.astype({ref_layer_id_field: "string"}) # force string type for the ID field
 
-            print('')
-            print('summary_df.dtypes')
-            print(summary_df.dtypes)
-            print('___')
-
             # read all input covariates
             for i in f:
                 if rowIndex == 0:
@@ -151,7 +147,7 @@ class CovariatesProcesser():
                         'file_format': line[input_fileformat_id],
                         'sum_stat': line[input_field_sumstat_id],
                         'column': line[input_field_columnname_id],
-                        'raster_nodata_value': line[input_field_nodata_id] if input_field_nodata_id else None
+                        'user_nodata_value': line[input_field_nodata_id] if input_field_nodata_id else None
                     })
                 rowIndex = rowIndex + 1
             rowIndex = 1
@@ -163,7 +159,7 @@ class CovariatesProcesser():
                 file_format = input_row['file_format']
                 sum_stat = input_row['sum_stat']
                 column_name = input_row['column']
-                raster_nodata_value = input_row['raster_nodata_value']
+                user_nodata_value = input_row['user_nodata_value']
 
                 if sum_stat == 'variety':
                     msg_error = "Variety statistic is temporarily not supported in this version, it will not be available in the output file."
@@ -171,7 +167,7 @@ class CovariatesProcesser():
                     self.output_warning = msg_error
                     continue
                 else:
-                    Logger.logInfo("Processing input file no {}: file name: {}, file format: {}, summary statistics: {}, output column: {}".format(rowIndex, file_name, file_format, sum_stat, column_name))
+                    Logger.logInfo(f"Processing input file no {rowIndex}: file name: {file_name}, file format: {file_format}, summary statistics: {sum_stat}, output column: {column_name}, user nodata value: {user_nodata_value}")
                 rowIndex = rowIndex + 1
 
                 # Compute distance to nearest
@@ -194,7 +190,7 @@ class CovariatesProcesser():
                         for cluster_ft in self.__ref_layer.getFeatures():
                             feat = QgsFeature()
                             # startPt = QgsPoint(cluster_ft.geometry().centroid().asPoint())
-                            startGeom = cluster_ft.geometry().centroid() #TODO: does this make sense with polygon features?
+                            startGeom = cluster_ft.geometry().centroid() # TODO: does this make sense with polygon features?
                             # endPt = QgsPoint(QgsPointXY(0, 0))
                             endGeom = QgsGeometry.fromPointXY(QgsPointXY(0, 0))
 
@@ -282,13 +278,12 @@ class CovariatesProcesser():
                 elif file_format == 'GeoTIFF':
                     column_prefix = '_'
                     # https://mapscaping.com/nodata-values-in-rasters-with-qgis/
-                    #raster_nodata_value = -200 # TODO: set as user input
                     stats = self.zonal_stat(
                         stat=sum_stat,
                         vector_path=self.__ref_layer_shp,
                         raster_path=file_path,
                         raster_band=1,
-                        raster_nodata_value=raster_nodata_value,
+                        user_nodata_value=user_nodata_value,
                         column_prefix=column_prefix,
                         cluster_no_field=ref_layer_id_field
                     )
@@ -327,7 +322,7 @@ class CovariatesProcesser():
     ####################################################################
 
     def bbox_to_pixel_offsets(self, gt, bbox):
-        '''Compute bboc to pixel offsets
+        '''Compute bbox to pixel offsets
         '''
         origin_x = gt[0]
         origin_y = gt[3]
@@ -348,15 +343,14 @@ class CovariatesProcesser():
             vector_path,
             raster_path,
             raster_band = 1,
-            raster_nodata_value = -9999,
+            user_nodata_value = None,
             column_prefix = '_',
             cluster_no_field = CLUSTER_N0_FIELD_NAME,
             global_src_extent = False
             ):
         '''Compute zonal statistic
         '''
-
-        DEFAULT_RASTER_NODATA_VALUE = -9999
+        print(f"[CovariatesProcesser] Processing {stat}...")
 
         if not os.path.isfile(vector_path):
             Logger.logInfo("[ZonalStat] vector dataset is missing")
@@ -376,103 +370,82 @@ class CovariatesProcesser():
             rb = rds.GetRasterBand(1)
             rgt = rds.GetGeoTransform()
 
-            raster_nodata_value = rb.GetNoDataValue()
+            original_raster_nodata_value = rb.GetNoDataValue()
 
-            if raster_nodata_value is None:
-                raster_nodata_value = float(DEFAULT_RASTER_NODATA_VALUE)
+            print(f"[ZonalStat] Original raster nodata value: {original_raster_nodata_value}")
+            print(f"[ZonalStat] User raster nodata value: {user_nodata_value}")
+            
+            if original_raster_nodata_value is None and user_nodata_value is None:
+                raise ValueError(f"Raster nodata value is not set, please provide a valid nodata value in the input file or set the raster's nodata value in the raster properties.")
+
+            if user_nodata_value:
+                # overwrite the raster nodata value with the user provided value
+                print('[ZonalStat] Overwriting raster nodata value with user provided value...')
+                raster_nodata_value = float(user_nodata_value)
                 rb.SetNoDataValue(raster_nodata_value)
+            else:
+                # else keeps original raster nodata value
+                raster_nodata_value = original_raster_nodata_value
 
-            Logger.logInfo(f"[ZonalStat] raster nodata value: {raster_nodata_value}")
+            Logger.logInfo(f"[ZonalStat] Raster nodata value: {raster_nodata_value}")
+            print(f"[ZonalStat] Raster nodata value: {raster_nodata_value}")
 
-            vds = ogr.Open(vector_path, GA_ReadOnly)  # TODO maybe open update if we want to write stats
+            vds = ogr.Open(vector_path, GA_ReadOnly)
             if not vds:
                 Logger.logInfo("[ZonalStat] vds is missing")
                 Logger.logInfo("[ZonalStat] vector_path path was: " + vector_path)
 
             vlyr = vds.GetLayer(0)
 
-            mem_drv = ogr.GetDriverByName('Memory')
-            driver = gdal.GetDriverByName('MEM')
-
             # Loop through vectors
             stats = []
             feat = vlyr.GetNextFeature()
+            
+            def exists_data_value(list, nodata_value):
+                exists = False
+                float_limit_number = -3.40282347e+38 # maximum negative value representable in single-precision floating-point format (float32), common as nodata value : equal operator doesn't work with it, we need math.isclose()
+                
+                if math.isclose(nodata_value, float_limit_number, rel_tol=1e-7):
+                    
+                    if any(
+                        any(not math.isclose(value, nodata_value, rel_tol=1e-7) for value in sublist)
+                        for sublist in list
+                    ):
+                        #print('valid data value found in list - 1')
+                        exists = True
+
+                elif any(not nodata_value in sublist for sublist in list):
+                    #print('nodata_value found in list - 2')
+                    exists = True
+
+                return exists
 
             while feat is not None:
+                # print('feat[cluster_no_field]: ' + str(feat[cluster_no_field]))
 
-                if not global_src_extent:
+                if not global_src_extent: # this is always False as long as the zonal_stats function keeps the default value
                     # use local source extent
                     # fastest option when you have fast disks and well indexed raster (ie tiled Geotiff)
                     # advantage: each feature uses the smallest raster chunk
                     # disadvantage: lots of reads on the source raster
                     src_offset = self.bbox_to_pixel_offsets(rgt, feat.geometry().GetEnvelope())
                     src_array = rb.ReadAsArray(*src_offset)
+                    
+                    # print('src_array:')
+                    # print(src_array)
+                    # print('')
 
-                    # calculate new geotransform of the feature subset
-                    new_gt = (
-                        (rgt[0] + (src_offset[0] * rgt[1])),
-                        rgt[1],
-                        0.0,
-                        (rgt[3] + (src_offset[1] * rgt[5])),
-                        0.0,
-                        rgt[5]
-                    )
-
-                # Create a temporary vector layer in memory
-                mem_ds = mem_drv.CreateDataSource('out')
-                mem_layer = mem_ds.CreateLayer('poly', None, ogr.wkbPolygon)
-                mem_layer.CreateFeature(feat.Clone())
-
-                # Rasterize it
-                rvds = driver.Create('', src_offset[2], src_offset[3], 1, gdal.GDT_Byte)
-                rvds.SetGeoTransform(new_gt)
-                gdal.RasterizeLayer(rvds, [1], mem_layer, burn_values=[1])
-                rv_array = rvds.ReadAsArray()
-
-                # Mask the source data array with our current feature
-                # we take the logical_not to flip 0<->1 to get the correct mask effect
-                # we also mask out nodata values explictly
-                masked = np.ma.MaskedArray(
-                    src_array,
-                    mask=np.logical_or(
-                        src_array == raster_nodata_value,
-                        np.logical_not(rv_array)
-                    )
-                )
+                yes_or_no = 'Yes' if exists_data_value(src_array, raster_nodata_value) else 'No'
+                # print('yes_or_no: ' + yes_or_no)
 
                 feature_stats = {
                     cluster_no_field: feat[cluster_no_field],
-                    #'fid': int(feat.GetFID()),
-                    yes_or_no_field: "Yes"
+                    yes_or_no_field: yes_or_no
                 }
-
-                # get the actual pixel value for all stats if mask is returning null (e.g. pixel size is too large)
-                if not masked.min():
-                    geom = feat.geometry()
-                    mx, my = geom.Centroid().GetX(), geom.Centroid().GetY()  # coord in map units
-
-                    # Convert from map to pixel coordinates.
-                    # Only works for geotransforms with no rotation.
-                    px = int((mx - rgt[0]) / rgt[1])  # x pixel
-                    py = int((my - rgt[3]) / rgt[5])  # y pixel
-
-                    intval = rb.ReadAsArray(px, py, 1, 1)
-
-                    yes_or_no = "Yes"
-                    if intval == raster_nodata_value:
-                        yes_or_no = "No"
-
-                    feature_stats = {
-                        cluster_no_field: feat[cluster_no_field],
-                        #'fid': int(feat.GetFID()),
-                        yes_or_no_field: yes_or_no
-                    }
-
+                
                 stats.append(feature_stats)
-
-                rvds = None
-                mem_ds = None
                 feat = vlyr.GetNextFeature()
+                # print('')
 
             vds = None
             rds = None
