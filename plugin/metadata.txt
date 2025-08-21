@@ -6,7 +6,7 @@
 name=MICS GIS PLUGIN
 qgisMinimumVersion=3.0
 description=MICS GIS PLUGIN
-version=1.3.0-b6
+version=1.3.0-b7
 author=e
 email=ngashi@unicef.org
 
