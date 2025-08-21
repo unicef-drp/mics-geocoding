@@ -9,7 +9,7 @@
 ##
 ## ###########################################################################
 
-from qgis.core import (QgsVectorLayer, QgsRasterLayer, QgsGeometry, QgsPoint, QgsPointXY, QgsField, QgsFeature, QgsVectorFileWriter, QgsProject, QgsCoordinateTransformContext) #, QgsRaster  # QGIS3
+from qgis.core import (QgsVectorLayer, QgsRasterLayer, QgsGeometry, QgsPoint, QgsPointXY, QgsField, QgsFeature, QgsRasterPipe, QgsRasterFileWriter, QgsVectorFileWriter, QgsProject, QgsCoordinateTransformContext) #, QgsRaster  # QGIS3
 from qgis import processing
 from PyQt5 import QtCore
 
@@ -24,6 +24,7 @@ from operator import itemgetter
 import numpy as np
 import pandas as pd
 import math
+import tempfile
 
 from .Logger import Logger
 from .Transforms import Transforms
@@ -102,12 +103,12 @@ class CovariatesProcesser():
 
         self.output_file = os.path.join(Utils.LayersName.outputDirectory, output_filename)
 
-        Logger.logInfo("[STEP02 MANAGER] input_file:  " + self.input_csv)
-        Logger.logInfo("[STEP02 MANAGER] input_csv_field_filename  :  " + self.input_csv_field_filename)
-        Logger.logInfo("[STEP02 MANAGER] input_csv_field_fileformat:  " + self.input_csv_field_fileformat)
-        Logger.logInfo("[STEP02 MANAGER] input_csv_field_sumstat   :  " + self.input_csv_field_sumstat)
-        Logger.logInfo("[STEP02 MANAGER] input_csv_field_columnname:  " + self.input_csv_field_columnname)
-        Logger.logInfo("[STEP02 MANAGER] input_csv_field_nodata:  " + (self.input_csv_field_nodata if self.input_csv_field_nodata else "None"))
+        Logger.logInfo("[CovariatesProcesser | STEP02 MANAGER] input_file:  " + self.input_csv)
+        Logger.logInfo("[CovariatesProcesser | STEP02 MANAGER] input_csv_field_filename  :  " + self.input_csv_field_filename)
+        Logger.logInfo("[CovariatesProcesser | STEP02 MANAGER] input_csv_field_fileformat:  " + self.input_csv_field_fileformat)
+        Logger.logInfo("[CovariatesProcesser | STEP02 MANAGER] input_csv_field_sumstat   :  " + self.input_csv_field_sumstat)
+        Logger.logInfo("[CovariatesProcesser | STEP02 MANAGER] input_csv_field_columnname:  " + self.input_csv_field_columnname)
+        Logger.logInfo("[CovariatesProcesser | STEP02 MANAGER] input_csv_field_nodata:  " + (self.input_csv_field_nodata if self.input_csv_field_nodata else "None"))
 
         ref_layer_id_field = self.__ref_layer_id_field
 
@@ -159,7 +160,7 @@ class CovariatesProcesser():
                 file_format = input_row['file_format']
                 sum_stat = input_row['sum_stat']
                 column_name = input_row['column']
-                user_nodata_value = input_row['user_nodata_value']
+                user_nodata_value = None if not input_row['user_nodata_value'] or input_row['user_nodata_value'] == "" else input_row['user_nodata_value']
 
                 if sum_stat == 'variety':
                     msg_error = "Variety statistic is temporarily not supported in this version, it will not be available in the output file."
@@ -167,7 +168,7 @@ class CovariatesProcesser():
                     self.output_warning = msg_error
                     continue
                 else:
-                    Logger.logInfo(f"Processing input file no {rowIndex}: file name: {file_name}, file format: {file_format}, summary statistics: {sum_stat}, output column: {column_name}, user nodata value: {user_nodata_value}")
+                    Logger.logInfo(f"[CovariatesProcesser] Processing input file no {rowIndex}: file name: {file_name}, file format: {file_format}, summary statistics: {sum_stat}, output column: {column_name}, user nodata value: {user_nodata_value}")
                 rowIndex = rowIndex + 1
 
                 # Compute distance to nearest
@@ -314,8 +315,8 @@ class CovariatesProcesser():
                 columns=selected_columns
             )
 
-        Logger.logInfo("Output file saved to {}".format(self.output_file))
-        Logger.logInfo("Successfully completed at {}".format(datetime.now()))
+        Logger.logInfo("[CovariatesProcesser] Output file saved to {}".format(self.output_file))
+        Logger.logInfo("[CovariatesProcesser] Successfully completed at {}".format(datetime.now()))
 
     ####################################################################
     # Utilitity method
@@ -350,15 +351,46 @@ class CovariatesProcesser():
             ):
         '''Compute zonal statistic
         '''
-        print(f"[CovariatesProcesser] Processing {stat}...")
+
+        def is_equal_nodata_value(value, nodata_value):
+            """Check if the value is equal to the nodata value, considering floating point precision issues."""
+            if nodata_value is None or value is None:
+                return False
+            float_limit_number = -3.40282347e+38 # maximum negative value representable in single-precision floating-point format (float32), common as nodata value : equal operator doesn't work with it, we need math.isclose()
+            if math.isclose(nodata_value, float_limit_number, rel_tol=1e-7):
+                return math.isclose(value, nodata_value, rel_tol=1e-7)
+            else:
+                return value == nodata_value
+
+        def exists_data_value(list, nodata_value):
+            exists = False
+            float_limit_number = -3.40282347e+38 # maximum negative value representable in single-precision floating-point format (float32), common as nodata value : equal operator doesn't work with it, we need math.isclose()
+            
+            if math.isclose(nodata_value, float_limit_number, rel_tol=1e-7):
+                
+                if any(
+                    any(not math.isclose(value, nodata_value, rel_tol=1e-7) for value in sublist)
+                    for sublist in list
+                ):
+                    #print('valid data value found in list - 1')
+                    exists = True
+
+            elif any(not nodata_value in sublist for sublist in list):
+                #print('nodata_value found in list - 2')
+                exists = True
+
+            return exists
+        
+        Logger.logInfo(f"[CovariatesProcesser] Processing {stat}...")
+        #print(f"[CovariatesProcesser] Processing {stat}...")
 
         if not os.path.isfile(vector_path):
-            Logger.logInfo("[ZonalStat] vector dataset is missing")
-            Logger.logInfo("[ZonalStat] vector_path path was: " + vector_path)
+            Logger.logInfo("[CovariatesProcesser | ZonalStat] vector dataset is missing")
+            Logger.logInfo("[CovariatesProcesser | ZonalStat] vector_path path was: " + vector_path)
 
         if not os.path.isfile(raster_path):
-            Logger.logInfo("[ZonalStat] raster dataset is missing")
-            Logger.logInfo("[ZonalStat] raster_path path was: " + raster_path)     
+            Logger.logInfo("[CovariatesProcesser | ZonalStat] raster dataset is missing")
+            Logger.logInfo("[CovariatesProcesser | ZonalStat] raster_path path was: " + raster_path)     
 
         if stat == 'yes_or_no':
 
@@ -372,53 +404,33 @@ class CovariatesProcesser():
 
             original_raster_nodata_value = rb.GetNoDataValue()
 
-            print(f"[ZonalStat] Original raster nodata value: {original_raster_nodata_value}")
-            print(f"[ZonalStat] User raster nodata value: {user_nodata_value}")
+            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | yes_or_no] Raster properties: nodata (GDAL)={original_raster_nodata_value}")
+            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | yes_or_no] User input: nodata={user_nodata_value}")
             
             if original_raster_nodata_value is None and user_nodata_value is None:
                 raise ValueError(f"Raster nodata value is not set, please provide a valid nodata value in the input file or set the raster's nodata value in the raster properties.")
 
-            if user_nodata_value:
+            if user_nodata_value and not is_equal_nodata_value(original_raster_nodata_value, float(user_nodata_value)):
                 # overwrite the raster nodata value with the user provided value
-                print('[ZonalStat] Overwriting raster nodata value with user provided value...')
+                Logger.logInfo('[CovariatesProcesser | ZonalStat | yes_or_no] Overwriting raster nodata value with user provided value...')
                 raster_nodata_value = float(user_nodata_value)
                 rb.SetNoDataValue(raster_nodata_value)
             else:
                 # else keeps original raster nodata value
                 raster_nodata_value = original_raster_nodata_value
 
-            Logger.logInfo(f"[ZonalStat] Raster nodata value: {raster_nodata_value}")
-            print(f"[ZonalStat] Raster nodata value: {raster_nodata_value}")
+            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | yes_or_no] Used: nodata={raster_nodata_value}")
 
             vds = ogr.Open(vector_path, GA_ReadOnly)
             if not vds:
-                Logger.logInfo("[ZonalStat] vds is missing")
-                Logger.logInfo("[ZonalStat] vector_path path was: " + vector_path)
+                Logger.logInfo("[CovariatesProcesser | ZonalStat | yes_or_no] vds is missing")
+                Logger.logInfo("[CovariatesProcesser | ZonalStat | yes_or_no] vector_path path was: " + vector_path)
 
             vlyr = vds.GetLayer(0)
 
             # Loop through vectors
             stats = []
             feat = vlyr.GetNextFeature()
-            
-            def exists_data_value(list, nodata_value):
-                exists = False
-                float_limit_number = -3.40282347e+38 # maximum negative value representable in single-precision floating-point format (float32), common as nodata value : equal operator doesn't work with it, we need math.isclose()
-                
-                if math.isclose(nodata_value, float_limit_number, rel_tol=1e-7):
-                    
-                    if any(
-                        any(not math.isclose(value, nodata_value, rel_tol=1e-7) for value in sublist)
-                        for sublist in list
-                    ):
-                        #print('valid data value found in list - 1')
-                        exists = True
-
-                elif any(not nodata_value in sublist for sublist in list):
-                    #print('nodata_value found in list - 2')
-                    exists = True
-
-                return exists
 
             while feat is not None:
                 # print('feat[cluster_no_field]: ' + str(feat[cluster_no_field]))
@@ -451,6 +463,7 @@ class CovariatesProcesser():
             rds = None
 
             results_df = pd.DataFrame(stats)[[yes_or_no_field, cluster_no_field]]
+            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] {stat} computed.")
 
             return results_df                
 
@@ -489,32 +502,96 @@ class CovariatesProcesser():
             #    'DATA_TYPE':0,
             #    'OUTPUT':'TEMPORARY_OUTPUT'
             #})
+
+            # Load original raster
+            layer = QgsRasterLayer(raster_path, "tmp_raster", "gdal")
+            if not layer.isValid():
+                raise Exception(f"Raster could not be loaded: {raster_path}")
+
+            provider = layer.dataProvider()
+
+            # Check the current nodata value
+            current_nodata = provider.sourceNoDataValue(1)
+            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Raster properties: nodata={current_nodata}")
+            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] User input: nodata={user_nodata_value}")
+
+            # Flag to know if we need the temporal raster
+            if user_nodata_value is None:
+                use_temporal = False
+            else:
+                user_nodata_value = float(user_nodata_value)
+                use_temporal = not (is_equal_nodata_value(current_nodata, user_nodata_value))
+
+            # Define input raster based on use_temporal
+            if not use_temporal:
+                input_raster = raster_path
+                tmpfile = None
+                Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Using original raster with its own nodata value.")
+                # if user_nodata_value is None:
+                #     Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Using original raster with its current nodata value.")
+                # else:
+                #     Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Current nodata value matches with the value given by the user.") #, temporal raster is not generated.")
+            else:
+                Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Nodata values do not match, creating temporal raster with the user nodata value...")
+
+                # Redefine nodata
+                provider.setNoDataValue(1, user_nodata_value)
+
+                # Save to temporal file
+                tmpdir = tempfile.gettempdir() # TODO: use plugins output directory
+                tmpfile = os.path.join(tmpdir, "tmp_raster_corr.tif")
+
+                pipe = QgsRasterPipe()
+                if not pipe.set(provider.clone()):
+                    raise Exception("Could not clone the dataProvider to the pipe.")
+                
+                writer = QgsRasterFileWriter(tmpfile)
+                writer.writeRaster(
+                    pipe,
+                    layer.width(),
+                    layer.height(),
+                    layer.extent(),
+                    layer.crs()
+                )
+                input_raster = tmpfile
             
-            result = processing.run("native:zonalstatisticsfb", {
-                'INPUT': vector_path,
-                'INPUT_RASTER': raster_path,
-                'RASTER_BAND': raster_band,
-                'COLUMN_PREFIX': column_prefix,
-                'STATISTICS': [get_stat_id(stat)],
-                'OUTPUT': 'memory:' #'TEMPORARY_OUTPUT'
-            })
-            layer = result['OUTPUT']
+            try:
+                result = processing.run("native:zonalstatisticsfb", {
+                    'INPUT': vector_path,
+                    'INPUT_RASTER': input_raster, #raster_path,
+                    'RASTER_BAND': raster_band,
+                    'COLUMN_PREFIX': column_prefix,
+                    'STATISTICS': [get_stat_id(stat)],
+                    'OUTPUT': 'memory:' #'TEMPORARY_OUTPUT'
+                })
+                layer = result['OUTPUT']
 
-            # In case we want to load the layer on the map:
-            #layer.setName("output_covariates" + output)        
-            #QgsProject.instance().addMapLayer(layer)
+                # In case we want to load the layer on the map:
+                #layer.setName("output_covariates" + output)        
+                #QgsProject.instance().addMapLayer(layer)
 
-            # `layer` contains a table with the stat (column) for each feature (row)
-            # cluster | buf_dist | mean
+                # `layer` contains a table with the stat (column) for each feature (row)
+                # cluster | buf_dist | mean
 
-            # Get a list of field names
-            fieldnames = [field.name() for field in layer.fields()] # to define dataframe columns
+                # Get a list of field names
+                fieldnames = [field.name() for field in layer.fields()] # to define dataframe columns
 
-            # Get a list of attributes for each selected feature
-            data = [f.attributes() for f in layer.getFeatures()]
-            
-            # Create a Pandas DataFrame
-            df = pd.DataFrame(data, columns=fieldnames)
+                # Get a list of attributes for each selected feature
+                data = [f.attributes() for f in layer.getFeatures()]
+                
+                # Create a Pandas DataFrame
+                df = pd.DataFrame(data, columns=fieldnames)
+                Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] {stat} computed.")
+
+            finally:
+                # Clean temporal raster if created
+                if use_temporal and tmpfile and os.path.exists(tmpfile):
+                    try:
+                        os.remove(tmpfile)
+                        Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Temporal raster {tmpfile} deleted.")
+                    except Exception as e:
+                        Logger.logWarning(f"[CovariatesProcesser | ZonalStat | {stat}] Temporal {tmpfile} could not be deleted: {e}")
+
 
             # Return a dataframe, unlike the original zonal_stats function (caution)
             return df
