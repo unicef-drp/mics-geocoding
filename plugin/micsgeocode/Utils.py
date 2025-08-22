@@ -196,6 +196,7 @@ def getFieldsListAsStrArray(file: str) -> typing.List[str]:
         if layer:
             fieldList = [f.name() for f in layer.fields()]
     elif extension == "csv":
+        #with open(file, "r", encoding='utf-8-sig') as f:
         with open(file, "r") as f:
             fieldList = [s.strip() for s in f.readline().strip().split(',')]
     elif extension == "txt":
@@ -205,6 +206,38 @@ def getFieldsListAsStrArray(file: str) -> typing.List[str]:
 
     return fieldList
 
+def get_item_index(normalized_candidates, in_list, default=None):
+    '''Get the index of the first item in in_list that matches any of the normalized_candidates.
+    If default is provided, it will be used if it exists in in_list.'''
+    
+    index = None
+
+    if default:
+        index = in_list.index(default)
+    
+    for item in in_list:
+        normalized_item = item.lower().replace(' ', '').replace('_', '')
+        # print(f"{item} -> {normalized_item}")
+        if normalized_item in normalized_candidates:
+            print(f"Matched: {normalized_item} in {normalized_candidates}")
+            # If the item is between the candidates, we set it in the nodata combobox
+            index = in_list.index(item)
+            break
+    
+    return index
+
+def setComboBox(combobox, candidates, fields, default=None):
+    # print(f"Setting combobox | candidates: {candidates}, fields: {fields}, default: {default}")
+    # print(f"Setting combobox | fields: {fields}, default: {default}")
+    # print(f"Setting combobox | default: {default}")
+
+    combobox.clear()
+    combobox.addItems(fields)
+    index = get_item_index(candidates, fields, default)
+    # print(f"Determined index: {index}")
+    if index is not None:
+        # print(f"Setting combobox to index {index}: {fields[index]}")
+        combobox.setCurrentIndex(get_item_index(candidates, fields, default))
 
 def layerCrossesTheMeridian(layer: QgsVectorLayer) -> bool:
     """ add a convenient method that checks if a layer crosses the antimeridian
