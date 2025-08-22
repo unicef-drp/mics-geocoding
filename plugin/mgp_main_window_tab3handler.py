@@ -150,27 +150,6 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
     def updateCovinputsComboBoxes(self):
 
-        def get_item_index(normalized_candidates, in_list, default=None):
-            '''Get the index of the first item in in_list that matches any of the normalized_candidates.
-            If default is provided, it will be used if it exists in in_list.'''
-
-            if default:
-                index = in_list.index(default)
-            
-            for item in in_list:
-                normalized_item = item.lower().replace(' ', '').replace('_', '')
-                if normalized_item in normalized_candidates:
-                    # If the item is between the candidates, we set it in the nodata combobox
-                    index = in_list.index(item)
-                    break
-            
-            return index
-        
-        def setComboBox(combobox, candidates, fields, default=None):
-            combobox.clear()
-            combobox.addItems(fields)
-            combobox.setCurrentIndex(get_item_index(candidates, fields, default))
-
         # Define candidates for each field
         # These are normalized candidates, without spaces or underscores, to match the fields in the CSV
         candidates = {
@@ -185,11 +164,11 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         fields = Utils.getFieldsListAsStrArray(self.ui.covinputsSourceFileLineEdit.text())
         fields_and_notavailable = fields + [self.NOT_AVAILABLE_VALUE]  # Add 'Not available' to allow for no selection (optional field)
 
-        setComboBox(self.ui.filenameFieldComboBox, candidates['filename'], fields)
-        setComboBox(self.ui.fileformatFieldComboBox, candidates['fileformat'], fields)
-        setComboBox(self.ui.sumstatFieldComboBox, candidates['sumstat'], fields)
-        setComboBox(self.ui.columnnameFieldComboBox, candidates['columnname'], fields)
-        setComboBox(self.ui.nodataFieldComboBox, candidates['nodata'], fields_and_notavailable, self.NOT_AVAILABLE_VALUE)
+        Utils.setComboBox(self.ui.filenameFieldComboBox, candidates['filename'], fields)
+        Utils.setComboBox(self.ui.fileformatFieldComboBox, candidates['fileformat'], fields)
+        Utils.setComboBox(self.ui.sumstatFieldComboBox, candidates['sumstat'], fields)
+        Utils.setComboBox(self.ui.columnnameFieldComboBox, candidates['columnname'], fields)
+        Utils.setComboBox(self.ui.nodataFieldComboBox, candidates['nodata'], fields_and_notavailable, self.NOT_AVAILABLE_VALUE)
 
     def onFilenameFieldChanged(self) -> typing.NoReturn:
         '''Update Filename field
