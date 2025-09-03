@@ -27,7 +27,6 @@ import typing
 from .ui_mgp_mainwindow import Ui_MGPDialog
 from .micsgeocode import CentroidsDisplacer as Displacer
 from .micsgeocode import CentroidBuffersMaxDistanceComputer as Radier
-from .micsgeocode import CentroidBuffersLayerWriter as BufferWriter
 from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
@@ -254,7 +253,7 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         # retrieve field and update combobox
         fields = Utils.getFieldsListAsStrArray(self.ui.referenceLayerLineEdit.text())
         if fields:
-            candidates = ["hh7a", "district", "lga", "admin", "region", "hh7", "geonamet", "geonames", "geoname", "geocodet", "geocodes", "geocode", "micsgeo", "adm1en", "adm1pcode", "adm2en", "adm2pcode"]
+            candidates = ["geonamet", "geonames", "geoname", "micsgeo", "geocodet", "geocodes", "geocode", "hh7a", "district", "lga", "admin", "region", "hh7", "adm1en", "adm1pcode", "adm2en", "adm2pcode"]
             Utils.setComboBox(self.ui.referenceLayerFieldCombobox, candidates, fields)
             self.ui.referenceLayerFieldCombobox.setEnabled(True)
         else:
