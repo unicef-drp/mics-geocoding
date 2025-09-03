@@ -124,7 +124,7 @@ class CentroidsDisplacer():
         Utils.removeLayerIfExists(Utils.LayersType.DISPLACED)
         Utils.removeLayerIfExists(Utils.LayersType.DISPLACEDANON)
 
-        Utils.removeLayerIfExists(Utils.LayersType.CENTROIDS_BUFFERS)
+        #Utils.removeLayerIfExists(Utils.LayersType.CENTROIDS_BUFFERS)
         # actually generated elsewher, but depends on this computation
 
         self.__generatedLayers.clear()
