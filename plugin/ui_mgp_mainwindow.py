@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '\mics-geocoding\plugin\mgp_mainwindow.ui'
+# Form implementation generated from reading ui file 'C:\Miguel\dev\repos\qgis_plugins\MICS-Geocoding-Plugin\mics-geocoding\plugin\mgp_mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -284,11 +284,14 @@ class Ui_MGPDialog(object):
         self.exportDisplacedCentroidsButton.setMinimumSize(QtCore.QSize(0, 30))
         self.exportDisplacedCentroidsButton.setObjectName("exportDisplacedCentroidsButton")
         self.verticalLayout_5.addWidget(self.exportDisplacedCentroidsButton)
+        self.groupBoxDisplacer.raise_()
+        self.moreWidget.raise_()
+        self.toggleShowMoreButton.raise_()
         self.tabWidget.addTab(self.tab_step2, "")
         self.tab_step3 = QtWidgets.QWidget()
         self.tab_step3.setObjectName("tab_step3")
         self.groupBoxCentroid_2 = QtWidgets.QGroupBox(self.tab_step3)
-        self.groupBoxCentroid_2.setGeometry(QtCore.QRect(10, 10, 461, 321))
+        self.groupBoxCentroid_2.setGeometry(QtCore.QRect(10, 10, 461, 331))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Maximum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -298,7 +301,7 @@ class Ui_MGPDialog(object):
         self.groupBoxCentroid_2.setFlat(False)
         self.groupBoxCentroid_2.setObjectName("groupBoxCentroid_2")
         self.verticalLayoutWidget_6 = QtWidgets.QWidget(self.groupBoxCentroid_2)
-        self.verticalLayoutWidget_6.setGeometry(QtCore.QRect(0, 20, 461, 301))
+        self.verticalLayoutWidget_6.setGeometry(QtCore.QRect(0, 20, 461, 311))
         self.verticalLayoutWidget_6.setObjectName("verticalLayoutWidget_6")
         self.verticalLayout_6 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_6)
         self.verticalLayout_6.setContentsMargins(10, 10, 10, 10)
@@ -479,7 +482,7 @@ class Ui_MGPDialog(object):
         self.verticalLayout.addWidget(self.widget)
         MGPDialog.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MGPDialog)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 513, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 513, 26))
         self.menubar.setObjectName("menubar")
         self.menutest = QtWidgets.QMenu(self.menubar)
         self.menutest.setObjectName("menutest")

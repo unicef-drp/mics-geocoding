@@ -630,6 +630,9 @@
             </layout>
            </widget>
           </widget>
+          <zorder>groupBoxDisplacer</zorder>
+          <zorder>moreWidget</zorder>
+          <zorder>toggleShowMoreButton</zorder>
          </widget>
          <widget class="QWidget" name="tab_step3">
           <attribute name="title">
@@ -641,7 +644,7 @@
              <x>10</x>
              <y>10</y>
              <width>461</width>
-             <height>321</height>
+             <height>331</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -668,7 +671,7 @@
               <x>0</x>
               <y>20</y>
               <width>461</width>
-              <height>301</height>
+              <height>311</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1096,7 +1099,7 @@
      <x>0</x>
      <y>0</y>
      <width>513</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menutest">
