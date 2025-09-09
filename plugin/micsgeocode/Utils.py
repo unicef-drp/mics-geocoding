@@ -215,13 +215,12 @@ def get_item_index(normalized_candidates, in_list, default=None):
     if default:
         index = in_list.index(default)
     
-    for item in in_list:
-        normalized_item = item.lower().replace(' ', '').replace('_', '')
-        # print(f"{item} -> {normalized_item}")
-        if normalized_item in normalized_candidates:
-            print(f"Matched: {normalized_item} in {normalized_candidates}")
-            # If the item is between the candidates, we set it in the nodata combobox
-            index = in_list.index(item)
+    # for item in in_list:
+    normalized_items = [item.lower().replace(' ', '').replace('_', '') for item in in_list]
+    for candidate in normalized_candidates:
+        if candidate in normalized_items:
+            # If the item is between the candidates, we set it in the combobox
+            index = normalized_items.index(candidate)
             break
     
     return index

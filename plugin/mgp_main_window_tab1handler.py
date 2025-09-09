@@ -160,12 +160,9 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
             self.ui.latitudeFieldComboBox.setEnabled(False)
 
         # init cluster combobox and look for a default value
-        self.ui.adminBoundariesFieldComboBox.addItems(fields)
-        candidates = ["HH7A", "District", "DISTRICT","district", "LGA","admin", "Admin", "ADMIN", "region", "Region", "REGION", "HH7", "GEONAMET", "GEONAMES", "GEONAME", "GEOCODET", "GEOCODES", "GEOCODE", "MICSGEO"]
-        for item in candidates:
-            if item in fields:
-                self.ui.adminBoundariesFieldComboBox.setCurrentIndex(fields.index(item))
-                break
+        if fields:
+            candidates = ["geonamet", "geonames", "geoname", "micsgeo", "geocodet", "geocodes", "geocode", "hh7a", "district", "lga", "admin", "region", "hh7", "adm1en", "adm1pcode", "adm2en", "adm2pcode"]
+            Utils.setComboBox(self.ui.adminBoundariesFieldComboBox, candidates, fields)
 
     def onLongitudeFieldChanged(self) -> typing.NoReturn:
         '''Update longitude field
