@@ -48,9 +48,11 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.fileformatFieldComboBox.currentTextChanged.connect(self.onFileformatFieldChanged)
         self.ui.sumstatFieldComboBox.currentTextChanged.connect(self.onSumstatFieldChanged)
         self.ui.columnnameFieldComboBox.currentTextChanged.connect(self.onColumnnameFieldChanged)
+        self.ui.nodataFieldComboBox.currentTextChanged.connect(self.onNodataFieldChanged)
 
         self.ui.covrefLayerToolButton.clicked.connect(self.onCovrefLayerToolButtonClicked)
         self.ui.covrefLayerLineEdit.textChanged.connect(self.onCovrefLayerFileChanged)
+        self.ui.covrefLayerIdFieldCombobox.currentTextChanged.connect(self.onCovrefLayerIdFieldComboboxTextChanged)
 
         self.ui.computeCovariatesButton.clicked.connect(self.onComputeCovariatesButtonClicked)
         self.ui.covoutputsOpenFileToolButton.clicked.connect(self.onCovoutputsOpenFileToolButtonClicked)
@@ -70,9 +72,11 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.fileformatFieldComboBox.setToolTip("Choose the field indicating file format variable.")
         self.ui.sumstatFieldComboBox.setToolTip("Choose the field indicating summary statistics variable.")
         self.ui.columnnameFieldComboBox.setToolTip("Choose the field indicating variable name variable.")
+        self.ui.nodataFieldComboBox.setToolTip("Choose the field indicating raster no-data value variable.")
 
         self.ui.covrefLayerToolButton.setToolTip("Browse for the anonymised cluster buffer shapefile on the computer. It was generated to phase of cluster displacement (Displace).")
         self.ui.covrefLayerLineEdit.setToolTip("Anonymised cluster buffer shapefile on the computer.")
+        self.ui.covrefLayerIdFieldCombobox.setToolTip("Choose the field corresponding to the polygon layer's ID field.")
 
         self.ui.computeCovariatesButton.setToolTip("Compute covariates. QGIS generates additional layers depending on inputs and a CSV file with the outputs.")
 
@@ -86,6 +90,8 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.covoutputsOpenFileToolButton.setIcon(
             self.ui.covoutputsOpenFileToolButton.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DirOpenIcon"))
         )
+
+        self.NOT_AVAILABLE_VALUE = 'Not available'
 
     ## #############################################################
     # reset
@@ -143,56 +149,26 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             MGP_OPEN_FILE(self.ui.covinputsSourceFileLineEdit.text())
 
     def updateCovinputsComboBoxes(self):
+
+        # Define candidates for each field
+        # These are normalized candidates, without spaces or underscores, to match the fields in the CSV
+        candidates = {
+            "filename": ["filename", "name", 'file'],
+            "fileformat": ["fileformat", "format"],
+            "sumstat": ["sumstat", "sumstats", "summarystatistic", "summarystatistics", "sumstatistics"],
+            "columnname": ["columnname", "variablename", "varname"],
+            "nodata": ['rasternodatavalue', 'rasternodata', 'nodatavalue', 'nodata']
+        }
+
         # Retrieve fieldlist and populate comboboxes
         fields = Utils.getFieldsListAsStrArray(self.ui.covinputsSourceFileLineEdit.text())
+        fields_and_notavailable = fields + [self.NOT_AVAILABLE_VALUE]  # Add 'Not available' to allow for no selection (optional field)
 
-        self.ui.filenameFieldComboBox.clear()
-        self.ui.fileformatFieldComboBox.clear()
-        self.ui.sumstatFieldComboBox.clear()
-        self.ui.columnnameFieldComboBox.clear()
-
-        self.ui.filenameFieldComboBox.addItems(fields)
-        self.ui.fileformatFieldComboBox.addItems(fields)
-        self.ui.sumstatFieldComboBox.addItems(fields)
-        self.ui.columnnameFieldComboBox.addItems(fields)
-
-        candidates = ["filename", "FileName", "Filename", "FILENAME",
-                      "file name", "File Name", "File name", "FILE NAME"
-                      "name", "Name", "name", "NAME"]
-        for item in candidates:
-            if item in fields:
-                self.ui.filenameFieldComboBox.setCurrentIndex(fields.index(item))
-                break
-
-        candidates = ["fileformat", "FileFormat", "Fileformat", "FILEFORMAT",
-                      "file format", "File Format", "File format", "FILE FORMAT",
-                      "format", "Format", "FORMAT"]
-        for item in candidates:
-            if item in fields:
-                self.ui.fileformatFieldComboBox.setCurrentIndex(fields.index(item))
-                break
-
-        candidates = ["sumstat", "SumStat", "Sumstat", "SUMSTAT",
-                      "sum stat", "Sum Stat", "Sum stat", "SUM STAT",
-                      "sumstats", "SumStats", "Sumstats", "SUMSTATS",
-                      "sum stats", "Sum Stats", "Sum stats", "SUM STATS",
-                      "summarystatistic", "SummaryStatistic", "Summarystatistic", "SUMMARYSTATISTIC",
-                      "summary statistic", "Summary Statistic", "Summary statistic", "SUMMARY STATISTIC",
-                      "summarystatistics", "SummaryStatistics", "Summarystatistics", "SUMMARYSTATISTICS",
-                      "summary statistics", "Summary Statistics", "Summary statistics", "SUMMARY STATISTICS"]
-        for item in candidates:
-            if item in fields:
-                self.ui.sumstatFieldComboBox.setCurrentIndex(fields.index(item))
-                break
-
-        candidates = ["columnname", "ColumnName", "Columnname", "COLUMNNAME",
-                      "column name", "Column Name", "Column name", "COLUMN NAME",
-                      "variablename", "VariableName", "Variablename", "VARIABLENAME",
-                      "variable name", "Variable Name", "Variable name", "VARIABLE NAME"]
-        for item in candidates:
-            if item in fields:
-                self.ui.columnnameFieldComboBox.setCurrentIndex(fields.index(item))
-                break
+        Utils.setComboBox(self.ui.filenameFieldComboBox, candidates['filename'], fields)
+        Utils.setComboBox(self.ui.fileformatFieldComboBox, candidates['fileformat'], fields)
+        Utils.setComboBox(self.ui.sumstatFieldComboBox, candidates['sumstat'], fields)
+        Utils.setComboBox(self.ui.columnnameFieldComboBox, candidates['columnname'], fields)
+        Utils.setComboBox(self.ui.nodataFieldComboBox, candidates['nodata'], fields_and_notavailable, self.NOT_AVAILABLE_VALUE)
 
     def onFilenameFieldChanged(self) -> typing.NoReturn:
         '''Update Filename field
@@ -211,6 +187,11 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
 
     def onColumnnameFieldChanged(self) -> typing.NoReturn:
         '''Update Column name field
+        '''
+        self.mainwindow.updateSaveStatus(True)
+
+    def onNodataFieldChanged(self) -> typing.NoReturn:
+        '''Update No data name field
         '''
         self.mainwindow.updateSaveStatus(True)
 
@@ -250,6 +231,24 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
     def onCovrefLayerFileChanged(self) -> typing.NoReturn:
         '''handle reference layer changed
         '''
+        self.ui.covrefLayerIdFieldCombobox.clear()
+        self.updateCovrefLayerIdFieldCombobox()
+        self.mainwindow.updateSaveStatus(True)
+
+    def updateCovrefLayerIdFieldCombobox(self):
+        # retrieve field and update combobox
+        fields = Utils.getFieldsListAsStrArray(self.ui.covrefLayerLineEdit.text())
+        if fields:
+            self.ui.covrefLayerIdFieldCombobox.addItems(fields)
+            self.ui.covrefLayerIdFieldCombobox.setEnabled(True)
+            self.ui.covrefLayerIdFieldCombobox.setCurrentIndex(0)
+            #TODO: set 'cluster' field name by default if exists
+        else:
+            self.ui.covrefLayerIdFieldCombobox.setEnabled(False)
+    
+    def onCovrefLayerIdFieldComboboxTextChanged(self) -> typing.NoReturn:
+        '''handle reference field changed
+        '''
         self.mainwindow.updateSaveStatus(True)
 
     ## #############################################################
@@ -287,6 +286,9 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
                 Logger.logWarning("[CovariatesProcesser] A valid file format field must be provided")
                 return
 
+            if self.ui.nodataFieldComboBox.isEnabled() and self.ui.nodataFieldComboBox.currentText() == self.NOT_AVAILABLE_VALUE:
+                Logger.logInfo("[CovariatesProcesser] Raster's nodata value field is not provided, the original value from the raster will be used.")
+            
         if not self.ui.imagesSourceFileLineEdit.text():
             Logger.logWarning("[CovariatesProcesser] A valid image directory must be provided")
             return
@@ -304,17 +306,25 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             covariatesProcesser.input_csv_field_sumstat = self.ui.sumstatFieldComboBox.currentText()
             covariatesProcesser.input_csv_field_filename = self.ui.filenameFieldComboBox.currentText()
             covariatesProcesser.input_csv_field_fileformat = self.ui.fileformatFieldComboBox.currentText()
+            covariatesProcesser.input_csv_field_nodata = None if self.ui.nodataFieldComboBox.currentText() == self.NOT_AVAILABLE_VALUE else self.ui.nodataFieldComboBox.currentText()
 
             covariatesProcesser.images_directory = self.ui.imagesSourceFileLineEdit.text()
 
-            bufferAnonLayerName = Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON)
-            Utils.removeLayerIfExistsByName(bufferAnonLayerName)
-            bufferAnonLayer = QgsVectorLayer(self.ui.covrefLayerLineEdit.text(), bufferAnonLayerName)
-            QgsProject.instance().addMapLayer(bufferAnonLayer)
+            # Read the name of the buffer shapefile used for the covariate calculation
+            bufferShpPath = self.ui.covrefLayerLineEdit.text()
+            # Extract its name without extension and set is as layer name
+            bufferLayerName, extension = os.path.splitext(os.path.basename(bufferShpPath))
+            #bufferLayerName = Utils.LayersName.layerName(Utils.LayersType.BUFFERSANON)
+            # Remove the layer is if it already exists and load the new one
+            Utils.removeLayerIfExistsByName(bufferLayerName)
+            bufferLayer = QgsVectorLayer(bufferShpPath, bufferLayerName)
+            QgsProject.instance().addMapLayer(bufferLayer)
+            bufferIdField = self.ui.covrefLayerIdFieldCombobox.currentText()
 
             covariatesProcesser.setReferenceLayer(
-                bufferAnonLayer,
-                self.ui.covrefLayerLineEdit.text())
+                bufferLayer,
+                bufferShpPath,
+                bufferIdField)
 
             covariatesProcesser.computeCovariates()
             self.covoutputs_file = covariatesProcesser.output_file
@@ -323,7 +333,10 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             else:
                 self.ui.covoutputsOpenFileToolButton.setEnabled(False)
 
-            Logger.logSuccess("[CovariatesProcesser] Covariates succcessfully processed")
+            if covariatesProcesser.output_warning != '':
+                Logger.logWarning("[CovariatesProcesser] " + covariatesProcesser.output_warning)
+            else:
+                Logger.logSuccess("[CovariatesProcesser] Covariates succcessfully processed")
 
         except BaseException as e:
             Logger.logException("[CovariatesProcesser] A problem occured while processing covariates.", e)

@@ -5,6 +5,10 @@
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
 ##
+# Updated: Nazim Gashi
+# Time: 06/05/2024 13:00:00
+# Time: 08/01/2025 15:00:00 (line 117, 125, and 158 added)
+##
 # Description:
 ##
 ## ###########################################################################
@@ -14,16 +18,18 @@ import os
 
 from PyQt5 import QtWidgets, QtCore, QtGui
 from pathlib import Path
-from datetime import datetime
+#from datetime import datetime
 
-import re
+#import re
 import typing
 
-from .ui_mgp_dialog import Ui_MGPDialog
+#from .ui_mgp_mainwindow import Ui_MGPDialog
+from .micsgeocode import CentroidBuffersMaxDistanceComputer as Radier
+from .micsgeocode import CentroidBuffersLayerWriter as BufferWriter
 from .micsgeocode import CentroidsLoader as Loader
-from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
-from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
+from .micsgeocode.Logger import Logger
+#from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 
 
 class MGPMainWindowTab1Handler(QtCore.QObject):
@@ -52,6 +58,7 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         self.ui.adminBoundariesFieldComboBox.currentTextChanged.connect(self.onAdminBoundariesFieldChanged)
 
         self.ui.loadCentroidsButton.clicked.connect(self.onLoadCentroidsButtonCLicked)
+        self.ui.generateCentroidBuffersButton.clicked.connect(self.onGenerateCentroidBuffersButtonCLicked)
 
         ## ####################################################################
         # Init Tooltips - easier than in qtdesigner
@@ -67,6 +74,9 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         self.ui.adminBoundariesFieldComboBox.setToolTip("Administrative boundaries. Choose the field indicating administrative boundaries variable of displacement level.")
 
         self.ui.loadCentroidsButton.setToolTip("Generate Centroids. QGIS generates layers depending on input.")
+        self.ui.generateCentroidBuffersButton.setToolTip(
+            "Generate Buffers. QGIS generates a buffer layer for the original cluster centroids."
+        )
 
     ## #############################################################
     # reset
@@ -84,7 +94,7 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
         '''
         settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
         dir = settings.value("last_file_directory", QtCore.QDir.homePath())
-        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open centroids file", dir, "(*.csv *.shp)")
+        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open cluster source file", dir, "(*.csv *.shp)")
         if file:
             self.centroidsFile = file
             self.ui.centroidsSourceFileLineEdit.setText(os.path.normpath(self.centroidsFile))
@@ -110,7 +120,7 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
 
         # init type combobox and look for a default value
         self.ui.typeFieldComboBox.addItems(fields)
-        candidates = ["Type", "type", "TYPE"]
+        candidates = ["Type", "type", "TYPE", "Area", "HH6"]
         for item in candidates:
             if item in fields:
                 self.ui.typeFieldComboBox.setCurrentIndex(fields.index(item))
@@ -118,7 +128,7 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
 
         # init cluster combobox and look for a default value
         self.ui.numeroFieldComboBox.addItems(fields)
-        candidates = ["clusterno", "ClusterNo", "CLUSTERNO"]
+        candidates = ["clusterno", "ClusterNo", "CLUSTERNO", "HH1","Cluster", "CLUSTER", "cluster"]
         for item in candidates:
             if item in fields:
                 self.ui.numeroFieldComboBox.setCurrentIndex(fields.index(item))
@@ -150,12 +160,9 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
             self.ui.latitudeFieldComboBox.setEnabled(False)
 
         # init cluster combobox and look for a default value
-        self.ui.adminBoundariesFieldComboBox.addItems(fields)
-        candidates = ["adminBoundaries", "AdminBoundaries", "ADMINBOUNDARIES", "region", "Region", "REGION"]
-        for item in candidates:
-            if item in fields:
-                self.ui.adminBoundariesFieldComboBox.setCurrentIndex(fields.index(item))
-                break
+        if fields:
+            candidates = ["geonamet", "geonames", "geoname", "micsgeo", "geocodet", "geocodes", "geocode", "hh7a", "district", "lga", "admin", "region", "hh7", "adm1en", "adm1pcode", "adm2en", "adm2pcode"]
+            Utils.setComboBox(self.ui.adminBoundariesFieldComboBox, candidates, fields)
 
     def onLongitudeFieldChanged(self) -> typing.NoReturn:
         '''Update longitude field
@@ -234,3 +241,30 @@ class MGPMainWindowTab1Handler(QtCore.QObject):
 
         except BaseException as e:
             Logger.logException("[Generate] A problem occured while generating centroids.", e)
+
+    def onGenerateCentroidBuffersButtonCLicked(self) -> typing.NoReturn:
+        Logger.logInfo("[Generate] About to generate")
+
+        centroidLayer = Utils.getLayerIfExists(Utils.LayersType.CENTROIDS)
+
+        if not centroidLayer:
+            Logger.logWarning("[Generate] A valid centroid source file must be generated first.")
+            return
+        
+        #Get the max distances per buffer id
+        radier = Radier.CentroidBuffersMaxDistanceComputer()
+        radier.centroidLayer = centroidLayer
+        radier.computeBufferRadiusesCentroids()
+        maxDistances = radier.maxDistance
+
+        if not maxDistances:
+            Logger.logWarning("[Generate] The displacement has not been computed. The centroids buffer layer can't be generated.")
+            return
+
+        try:
+            bufferer = BufferWriter.CentroidBuffersLayerWriter()
+            bufferer.maxDistances = maxDistances
+            bufferer.writerCentroidBuffersLayer()
+
+        except:
+            Logger.logWarning("[Generate] A problem occured while generating centroids buffer.")

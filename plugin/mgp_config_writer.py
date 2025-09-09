@@ -94,7 +94,8 @@ class mgp_config_writer:
             configWriter['CentroidsLayer'] = {
                 'file': centroid_layer_file,
                 'numeroIndex': str(self.mainWindow.ui.centroidsLayerNumeroFieldComboBox.currentIndex()),
-                'typeIndex': str(self.mainWindow.ui.centroidsLayerTypeFieldComboBox.currentIndex())
+                'typeIndex': str(self.mainWindow.ui.centroidsLayerTypeFieldComboBox.currentIndex()),
+                'adminIndex': str(self.mainWindow.ui.centroidsLayerAdminFieldComboBox.currentIndex())
             }
 
             configWriter['CovariatesInputs'] = {
@@ -103,8 +104,10 @@ class mgp_config_writer:
                 'fileformatIndex': str(self.mainWindow.ui.fileformatFieldComboBox.currentIndex()),
                 'sumstatIndex': str(self.mainWindow.ui.sumstatFieldComboBox.currentIndex()),
                 'columnnameIndex': str(self.mainWindow.ui.columnnameFieldComboBox.currentIndex()),
+                'nodataIndex': str(self.mainWindow.ui.nodataFieldComboBox.currentIndex()),
                 'imagesDir': images_dir,
-                'buffer': buffer_file
+                'buffer': buffer_file,
+                'buffer_id': str(self.mainWindow.ui.covrefLayerIdFieldCombobox.currentIndex())
             }
 
             with open(self.fileMGC, 'w') as file:
