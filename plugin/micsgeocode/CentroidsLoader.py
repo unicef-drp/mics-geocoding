@@ -406,11 +406,11 @@ class CentroidsLoader():
         """ Compute the centroid geometry for a given centroid feature, the multi point and the convexhull
         """
 
-        test100 = cluster_convexhull_ft.geometry().poleOfInaccessibility(100)
-        test50 = cluster_convexhull_ft.geometry().poleOfInaccessibility(50)
-        test10 = cluster_convexhull_ft.geometry().poleOfInaccessibility(10)
+        # test100 = cluster_convexhull_ft.geometry().poleOfInaccessibility(100)
+        # test50 = cluster_convexhull_ft.geometry().poleOfInaccessibility(50)
+        # test10 = cluster_convexhull_ft.geometry().poleOfInaccessibility(10)
 
-        print(f"[CentroidsLoader] Pole of inaccessibility | 100: {test100[0]}, 50: {test50[0]}, 10: {test10[0]}")
+        # print(f"[CentroidsLoader] Pole of inaccessibility | 100: {test100[0]}, 50: {test50[0]}, 10: {test10[0]}")
 
         # determine if pole of inaccessibility can be determined
         if cluster_convexhull_ft.geometry().poleOfInaccessibility(100)[0].isNull():
