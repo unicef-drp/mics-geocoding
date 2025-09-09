@@ -7,11 +7,10 @@ SET PLUGIN_SOURCE_DIRECTORY=%cd%
 
 SET PLUGIN_RESOURCES_FILE=%PLUGIN_SOURCE_DIRECTORY%\resources.qrc
 
-@REM run pyuic (not needed here, th eui file is loaded directly)
-pyuic5.exe %PLUGIN_SOURCE_DIRECTORY%\mgp_mainwindow.ui -o %PLUGIN_SOURCE_DIRECTORY%\ui_mgp_dialog.py --from-imports
+@REM run pyuic (not needed here, th eui file is loaded directly) !! Ensure there is no spaces in the ptah to the plugin!
+pyuic5.bat %PLUGIN_SOURCE_DIRECTORY%\mgp_mainwindow.ui -o %PLUGIN_SOURCE_DIRECTORY%\ui_mgp_mainwindow.py --from-imports
 
 @REM run pyrcc
-
-pyrcc5.exe %PLUGIN_SOURCE_DIRECTORY%\resources.qrc -o %PLUGIN_SOURCE_DIRECTORY%\resources_rc.py
+pyrcc5.bat %PLUGIN_SOURCE_DIRECTORY%\resources.qrc -o %PLUGIN_SOURCE_DIRECTORY%\resources_rc.py
 
 @ECHO ON

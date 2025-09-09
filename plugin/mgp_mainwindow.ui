@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>509</width>
-    <height>681</height>
+    <width>513</width>
+    <height>690</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -152,7 +152,7 @@
           </size>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab_step1">
           <property name="autoFillBackground">
@@ -167,7 +167,7 @@
              <x>10</x>
              <y>10</y>
              <width>461</width>
-             <height>331</height>
+             <height>301</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -191,10 +191,10 @@
            <widget class="QWidget" name="verticalLayoutWidget_3">
             <property name="geometry">
              <rect>
-              <x>10</x>
+              <x>0</x>
               <y>20</y>
-              <width>441</width>
-              <height>301</height>
+              <width>461</width>
+              <height>274</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -285,7 +285,7 @@
                <item row="4" column="0">
                 <widget class="QLabel" name="adminBoundariesFieldLabel_2">
                  <property name="text">
-                  <string>Admin boundaries</string>
+                  <string>Admin Identifier (HH7A)</string>
                  </property>
                 </widget>
                </item>
@@ -320,6 +320,19 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QPushButton" name="generateCentroidBuffersButton">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>30</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Generate Centroid Buffers</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </widget>
@@ -334,7 +347,7 @@
              <x>10</x>
              <y>10</y>
              <width>461</width>
-             <height>231</height>
+             <height>251</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -356,9 +369,9 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>23</y>
+              <y>20</y>
               <width>461</width>
-              <height>208</height>
+              <height>221</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -422,6 +435,13 @@
                <item row="0" column="1">
                 <widget class="QComboBox" name="centroidsLayerNumeroFieldComboBox"/>
                </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="centroidsLayerAdminFieldLabel">
+                 <property name="text">
+                  <string>Admin Identifier (HH7A)</string>
+                 </property>
+                </widget>
+               </item>
                <item row="1" column="0">
                 <widget class="QLabel" name="centroidsLayerTypeFieldLabel">
                  <property name="text">
@@ -431,6 +451,13 @@
                </item>
                <item row="1" column="1">
                 <widget class="QComboBox" name="centroidsLayerTypeFieldComboBox"/>
+               </item>
+               <item row="2" column="1">
+                <widget class="QComboBox" name="centroidsLayerAdminFieldComboBox">
+                 <property name="editable">
+                  <bool>false</bool>
+                 </property>
+                </widget>
                </item>
               </layout>
              </item>
@@ -535,7 +562,7 @@
            <property name="geometry">
             <rect>
              <x>404</x>
-             <y>240</y>
+             <y>270</y>
              <width>81</width>
              <height>25</height>
             </rect>
@@ -560,9 +587,9 @@
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>260</y>
+             <y>280</y>
              <width>461</width>
-             <height>111</height>
+             <height>81</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -581,25 +608,12 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>0</y>
+              <y>20</y>
               <width>461</width>
-              <height>111</height>
+              <height>61</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_5">
-             <item>
-              <widget class="QPushButton" name="generateCentroidBuffersButton">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Generate Centroid Buffers</string>
-               </property>
-              </widget>
-             </item>
              <item>
               <widget class="QPushButton" name="exportDisplacedCentroidsButton">
                <property name="minimumSize">
@@ -616,6 +630,9 @@
             </layout>
            </widget>
           </widget>
+          <zorder>groupBoxDisplacer</zorder>
+          <zorder>moreWidget</zorder>
+          <zorder>toggleShowMoreButton</zorder>
          </widget>
          <widget class="QWidget" name="tab_step3">
           <attribute name="title">
@@ -653,7 +670,7 @@
              <rect>
               <x>0</x>
               <y>20</y>
-              <width>451</width>
+              <width>461</width>
               <height>311</height>
              </rect>
             </property>
@@ -782,6 +799,16 @@
                <item row="3" column="1">
                 <widget class="QComboBox" name="columnnameFieldComboBox"/>
                </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="nodataFieldLabel">
+                 <property name="text">
+                  <string>No-data Value</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QComboBox" name="nodataFieldComboBox"/>
+               </item>
               </layout>
              </item>
              <item>
@@ -860,7 +887,7 @@
                   </sizepolicy>
                  </property>
                  <property name="text">
-                  <string>Buffer Layer</string>
+                  <string>Polygon Layer</string>
                  </property>
                 </widget>
                </item>
@@ -871,6 +898,25 @@
                 <widget class="QToolButton" name="covrefLayerToolButton">
                  <property name="text">
                   <string>...</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="covrefLayerIdFieldCombobox">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>0</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -935,6 +981,13 @@
        <property name="rightMargin">
         <number>10</number>
        </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="configFileLabel">
+         <property name="text">
+          <string>    In-use Config File</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="1">
         <widget class="QLineEdit" name="configFileLineEdit">
          <property name="enabled">
@@ -942,13 +995,6 @@
          </property>
          <property name="readOnly">
           <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="configFileLabel">
-         <property name="text">
-          <string>    In-use Config File</string>
          </property>
         </widget>
        </item>
@@ -1052,8 +1098,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>509</width>
-     <height>21</height>
+     <width>513</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menutest">
