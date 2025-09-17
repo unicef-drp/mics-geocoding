@@ -78,42 +78,42 @@ class LayersName():
             return LayersName.outputDirectory + QtCore.QDir.separator() + LayersName.basename + '_' + base + "." + ext
         return LayersName.outputDirectory + QtCore.QDir.separator() + base + "." + ext
 
+def getLayerByName(name):
+    """ Find existing layer with the given name.
+    """
+    layerList = QgsProject.instance().mapLayersByName(name)
+    if layerList:
+        return layerList[0]
+    return None
 
 def getLayerIfExists(layerType: LayersType) -> QgsMapLayer:
-    """ Remove existing layer with the same name. Avoid duplication when run multiple times.
+    """ Find existing layer with the given name.
     """
-    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
-    if layers:
-        return layers[0]
-
-    return None
+    return getLayerByName(LayersName.layerName(layerType))
 
 
 def removeLayerIfExistsByName(layerName: str) -> typing.NoReturn:
     """ Remove existing layer with the same name. Avoid duplication when run multiple times.
     """
-    layers = QgsProject.instance().mapLayersByName(layerName)
-    if layers:
-        QgsProject.instance().removeMapLayer(layers[0])
-
+    layer = getLayerByName(layerName)
+    if layer:
+        QgsProject.instance().removeMapLayer(layer)
 
 def removeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
     """ Remove existing layer with the same name. Avoid duplication when run multiple times.
     """
-    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
-    if layers:
-        QgsProject.instance().removeMapLayer(layers[0])
-
+    layer = getLayerByName(LayersName.layerName(layerType))
+    if layer:
+        QgsProject.instance().removeMapLayer(layer)
 
 def putLayerOnTopIfExists(layerType: LayersType) -> typing.NoReturn:
     """ Put layer on top if it exists
     """
-    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
-    if layers:
-        lyr = QgsProject.instance().takeMapLayer(layers[0])
+    layer = getLayerByName(LayersName.layerName(layerType))
+    if layer:
+        lyr = QgsProject.instance().takeMapLayer(layer)
         if lyr:
             QgsProject.instance().addMapLayer(lyr)
-
 
 def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typing.List[QgsField]) -> QgsVectorLayer:
     """ Create layer method, given a type, a name and some attributes
@@ -133,26 +133,33 @@ def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typ
 def reloadLayerFromDiskToAvoidMemoryFlag(layerType: LayersType) -> typing.NoReturn:
     """ Close the layer, if it exists. Then reopen it, from the file. To avoid the weird 'memory' flag
     """
-    filename = LayersName.fileName(layerType)
     layerName = LayersName.layerName(layerType)
+    layer = getLayerByName(layerName)
+
+    # check if the file name is different from the default one (can happen when skipping steps)
+    filename = ''
+    if layer:
+        filename = layer.source()
+    if not filename.endswith('.shp'):
+        # try default file name
+        filename = LayersName.fileName(layerType)
 
     removeLayerIfExists(layerType)
 
     layer = QgsVectorLayer(filename, layerName)
     QgsProject.instance().addMapLayer(layer)
 
-
 def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
-    """ Write hte layer on disk, if it exists in the project instance
+    """ Write the layer on disk, if it exists in the project instance
     """
-    layers = QgsProject.instance().mapLayersByName(LayersName.layerName(layerType))
-    if layers:
+    layer = getLayerByName(LayersName.layerName(layerType))
+    if layer:
         options = QgsVectorFileWriter.SaveVectorOptions()
         options.driverName = "ESRI Shapefile"
 
         # writer = QgsVectorFileWriter( "output_path_and_name.shp", provider.encoding(), provider.fields(), QGis.WKBPolygon, provider.crs() )
         writer = QgsVectorFileWriter.writeAsVectorFormatV2(
-            layers[0],
+            layer,
             LayersName.fileName(layerType),
             QgsCoordinateTransformContext(),
             options)
@@ -189,6 +196,7 @@ def getFieldsListAsStrArray(file: str) -> typing.List[str]:
         if layer:
             fieldList = [f.name() for f in layer.fields()]
     elif extension == "csv":
+        #with open(file, "r", encoding='utf-8-sig') as f:
         with open(file, "r") as f:
             fieldList = [s.strip() for s in f.readline().strip().split(',')]
     elif extension == "txt":
@@ -198,6 +206,37 @@ def getFieldsListAsStrArray(file: str) -> typing.List[str]:
 
     return fieldList
 
+def get_item_index(normalized_candidates, in_list, default=None):
+    '''Get the index of the first item in in_list that matches any of the normalized_candidates.
+    If default is provided, it will be used if it exists in in_list.'''
+    
+    index = None
+
+    if default:
+        index = in_list.index(default)
+    
+    # for item in in_list:
+    normalized_items = [item.lower().replace(' ', '').replace('_', '') for item in in_list]
+    for candidate in normalized_candidates:
+        if candidate in normalized_items:
+            # If the item is between the candidates, we set it in the combobox
+            index = normalized_items.index(candidate)
+            break
+    
+    return index
+
+def setComboBox(combobox, candidates, fields, default=None):
+    # print(f"Setting combobox | candidates: {candidates}, fields: {fields}, default: {default}")
+    # print(f"Setting combobox | fields: {fields}, default: {default}")
+    # print(f"Setting combobox | default: {default}")
+
+    combobox.clear()
+    combobox.addItems(fields)
+    index = get_item_index(candidates, fields, default)
+    # print(f"Determined index: {index}")
+    if index is not None:
+        # print(f"Setting combobox to index {index}: {fields[index]}")
+        combobox.setCurrentIndex(get_item_index(candidates, fields, default))
 
 def layerCrossesTheMeridian(layer: QgsVectorLayer) -> bool:
     """ add a convenient method that checks if a layer crosses the antimeridian

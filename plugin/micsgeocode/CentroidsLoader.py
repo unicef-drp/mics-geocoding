@@ -18,7 +18,7 @@ from qgis.PyQt.QtCore import QVariant
 
 from . import Utils
 from pathlib import Path
-from .Transforms import Transforms
+from .Transforms import Transforms, CRS
 from .Logger import Logger
 
 from . import Errors
@@ -115,7 +115,7 @@ class CentroidsLoader():
         """ Init all layers
         """
         if type == Utils.LayersType.GPS:
-            self.layers[Utils.LayersType.GPS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.GPS, [
+            self.layers[Utils.LayersType.GPS] = Utils.createLayer('Point?crs='+CRS.WGS84, Utils.LayersType.GPS, [
                 QgsField("cluster", QVariant.Int),
                 QgsField("type", QVariant.String),
                 QgsField("lon", QVariant.Double),
@@ -123,14 +123,14 @@ class CentroidsLoader():
             ])
 
         elif type == Utils.LayersType.MULTIPLT:
-            self.layers[Utils.LayersType.MULTIPLT] = Utils.createLayer('MultiPoint?crs='+Transforms.layer_proj, Utils.LayersType.MULTIPLT, [
+            self.layers[Utils.LayersType.MULTIPLT] = Utils.createLayer('MultiPoint?crs='+CRS.WGS84, Utils.LayersType.MULTIPLT, [
                 QgsField("cluster", QVariant.Int),
                 QgsField("type", QVariant.String),
                 QgsField("count", QVariant.Int)
             ])
 
         elif type == Utils.LayersType.CONVEXHULL:
-            self.layers[Utils.LayersType.CONVEXHULL] = Utils.createLayer('Polygon?crs='+Transforms.layer_proj, Utils.LayersType.CONVEXHULL, [
+            self.layers[Utils.LayersType.CONVEXHULL] = Utils.createLayer('Polygon?crs='+CRS.WGS84, Utils.LayersType.CONVEXHULL, [
                 QgsField("cluster", QVariant.Int),
                 QgsField("type", QVariant.String),
                 QgsField("count", QVariant.Int),
@@ -140,7 +140,7 @@ class CentroidsLoader():
                 QgsField("height_m", QVariant.Double)
             ])
         elif type == Utils.LayersType.CENTROIDS:
-            self.layers[Utils.LayersType.CENTROIDS] = Utils.createLayer('Point?crs='+Transforms.layer_proj, Utils.LayersType.CENTROIDS, [
+            self.layers[Utils.LayersType.CENTROIDS] = Utils.createLayer('Point?crs='+CRS.WGS84, Utils.LayersType.CENTROIDS, [
                 QgsField("cluster", QVariant.Int),
                 QgsField("type", QVariant.String),
                 QgsField("count", QVariant.Int),
@@ -189,7 +189,32 @@ class CentroidsLoader():
                     1,
                     cluster_polygon[self.admin_boundaries_field]
                 ])
-                cluster_centroid_ft.setGeometry(cluster_polygon.geometry().poleOfInaccessibility(100)[0])
+
+                print(f"[CentroidsLoader] Computing centroid for cluster {cluster_polygon[self.cluster_no_field]}")
+
+                pole_inaccessibility_precision = 0.00001  # default precision for pole of inaccessibility
+
+                # test100 = cluster_polygon.geometry().poleOfInaccessibility(100)
+                # test1 = cluster_polygon.geometry().poleOfInaccessibility(1)
+                # test01 = cluster_polygon.geometry().poleOfInaccessibility(0.1)
+                # test001 = cluster_polygon.geometry().poleOfInaccessibility(0.01)
+                # test0001 = cluster_polygon.geometry().poleOfInaccessibility(0.001)
+                # test00001 = cluster_polygon.geometry().poleOfInaccessibility(0.0001)
+                # test000001 = cluster_polygon.geometry().poleOfInaccessibility(0.00001)
+                # print(f"[CentroidsLoader] Pole of inaccessibility | 100: {test100[0]}")
+                # print(f"[CentroidsLoader] Pole of inaccessibility | 1: {test1[0]}")
+                # print(f"[CentroidsLoader] Pole of inaccessibility | 0.1: {test01[0]}")
+                # print(f"[CentroidsLoader] Pole of inaccessibility | 0.01: {test001[0]}")
+                # print(f"[CentroidsLoader] Pole of inaccessibility | 0.001: {test0001[0]}")
+                # print(f"[CentroidsLoader] Pole of inaccessibility | 0.0001: {test00001[0]}")
+                # print(f"[CentroidsLoader] Pole of inaccessibility | 0.00001: {test000001[0]}")
+
+                if cluster_polygon.geometry().poleOfInaccessibility(pole_inaccessibility_precision)[0].isNull():
+                    cluster_centroid_ft.setGeometry(cluster_polygon.geometry().centroid())
+                else:
+                    cluster_centroid_ft.setGeometry(cluster_polygon.geometry().poleOfInaccessibility(pole_inaccessibility_precision)[0])
+
+                # cluster_centroid_ft.setGeometry(cluster_polygon.geometry().poleOfInaccessibility(100)[0])
                 self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
                 # cluster_centroid_fts.append(cluster_centroid_ft)
             QgsProject.instance().addMapLayer(self.layers[Utils.LayersType.POLYGONS])
@@ -322,6 +347,9 @@ class CentroidsLoader():
             cluster_convexhull_ft = self.__computeConvexhullFeature(cluster, gps_coords_list)
             # compute centroid
             cluster_centroid_ft.setAttributes([cluster[0], cluster[1], len(gps_coords_list), gps_coords_per_cluster[0]['admin']])
+            
+            print(f"[CentroidsLoader] Computing centroid for cluster {cluster[0]}")
+            
             self.__computeCentroidGeometry(cluster_centroid_ft, cluster_multipt_ft, cluster_convexhull_ft)
 
         self.layers[Utils.LayersType.CENTROIDS].dataProvider().addFeatures([cluster_centroid_ft])
@@ -349,7 +377,10 @@ class CentroidsLoader():
 
         # calculate convex hull geometry params
         cluster_convexhull_geom_merc = QgsGeometry(cluster_convexhull_ft.geometry())
-        cluster_convexhull_geom_merc.transform(Transforms.tr)
+        #print(cluster_convexhull_geom_merc)
+        pt = cluster_convexhull_geom_merc.asPoint() # QgsPointXY
+        crs_transformation = Transforms(pt.y(), pt.x())
+        cluster_convexhull_geom_merc.transform(crs_transformation.tr)
         cluster_convexhull_mbb = cluster_convexhull_geom_merc.orientedMinimumBoundingBox()
 
         area_m2 = cluster_convexhull_mbb[1]
@@ -374,6 +405,13 @@ class CentroidsLoader():
     def __computeCentroidGeometry(self, cluster_centroid_ft: QgsFeature, cluster_multipt_ft: QgsFeature, cluster_convexhull_ft: QgsFeature) -> typing.NoReturn:
         """ Compute the centroid geometry for a given centroid feature, the multi point and the convexhull
         """
+
+        # test100 = cluster_convexhull_ft.geometry().poleOfInaccessibility(100)
+        # test50 = cluster_convexhull_ft.geometry().poleOfInaccessibility(50)
+        # test10 = cluster_convexhull_ft.geometry().poleOfInaccessibility(10)
+
+        # print(f"[CentroidsLoader] Pole of inaccessibility | 100: {test100[0]}, 50: {test50[0]}, 10: {test10[0]}")
+
         # determine if pole of inaccessibility can be determined
         if cluster_convexhull_ft.geometry().poleOfInaccessibility(100)[0].isNull():
             cluster_centroid_ft.setGeometry(cluster_multipt_ft.geometry().centroid())

@@ -5,6 +5,10 @@
 # Author: Etienne Delclaux
 # Created: 17/03/2021 11:15:56 2016 (+0200)
 ##
+# Updated: Nazim Gashi
+# Time: 06/05/2024 13:00:00
+# Time: 08/01/2025 15:00:00 (lines 316 and 319 added) (updates done between in 312 and 315)
+##
 # Description:
 ##
 ## ###########################################################################
@@ -20,10 +24,9 @@ from datetime import datetime
 import re
 import typing
 
-from .ui_mgp_dialog import Ui_MGPDialog
+from .ui_mgp_mainwindow import Ui_MGPDialog
 from .micsgeocode import CentroidsDisplacer as Displacer
 from .micsgeocode import CentroidBuffersMaxDistanceComputer as Radier
-from .micsgeocode import CentroidBuffersLayerWriter as BufferWriter
 from .micsgeocode.Logger import Logger
 from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
@@ -82,6 +85,7 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.centroidsLayerLineEdit.textChanged.connect(self.onCentroidsLayerChanged)
         self.ui.centroidsLayerNumeroFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerNumeroFieldChanged)
         self.ui.centroidsLayerTypeFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerTypeFieldChanged)
+        self.ui.centroidsLayerAdminFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerAdminFieldChanged)
 
         self.ui.displaceCentroidsButton.clicked.connect(self.onDisplaceCentroidsButtonClicked)
 
@@ -89,8 +93,6 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
         # Command window
         self.ui.toggleShowMoreButton.clicked.connect(self.onToggleShowMoreButtonClicked)
-
-        self.ui.generateCentroidBuffersButton.clicked.connect(self.onGenerateCentroidBuffersButtonCLicked)
 
         ## ####################################################################
         # Init Tooltips - easier than in qtdesigner
@@ -104,13 +106,10 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.centroidsLayerLineEdit.setToolTip("Cluster centroids file on the computer.")
         self.ui.centroidsLayerNumeroFieldComboBox.setToolTip("Choose the field indicating cluster number variable.")
         self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field indicating cluster area variable.")
+        self.ui.centroidsLayerAdminFieldComboBox.setToolTip("Choose the field indicating cluster admin variable.")
 
         self.ui.displaceCentroidsButton.setToolTip(
             "Displace Centroids. QGIS generates additional layers depending on inputs.\nThe final anonymised displaced cluster file is generated “BASENAME_cluster_anonymised_displaced_centroids”."
-        )
-
-        self.ui.generateCentroidBuffersButton.setToolTip(
-            "Generate Buffers. QGIS generates a buffer layer for the original cluster centroids."
         )
 
         self.ui.exportDisplacedCentroidsButton.setToolTip("Export anonymised displaced cluster centroids as a CSV file.")
@@ -186,6 +185,15 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         fields = Utils.getFieldsListAsStrArray(self.ui.centroidsLayerLineEdit.text())
         self.ui.centroidsLayerTypeFieldComboBox.clear()
         self.ui.centroidsLayerNumeroFieldComboBox.clear()
+        self.ui.centroidsLayerAdminFieldComboBox.clear()
+
+        # init type combobox and look for a default value
+        self.ui.centroidsLayerAdminFieldComboBox.addItems(fields)
+        candidates = ["Admin", "admin", "ADMIN"]
+        for item in candidates:
+            if item in fields:
+                self.ui.centroidsLayerAdminFieldComboBox.setCurrentIndex(fields.index(item))
+                break
 
         # init type combobox and look for a default value
         self.ui.centroidsLayerTypeFieldComboBox.addItems(fields)
@@ -215,6 +223,11 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         '''
         self.mainwindow.updateSaveStatus(True)
 
+    def onCentroidsLayerAdminFieldChanged(self) -> typing.NoReturn:
+        '''Update type field
+        '''
+        self.mainwindow.updateSaveStatus(True)
+
     # #############################################################
     # Reference Layer
     # #############################################################
@@ -240,9 +253,9 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         # retrieve field and update combobox
         fields = Utils.getFieldsListAsStrArray(self.ui.referenceLayerLineEdit.text())
         if fields:
-            self.ui.referenceLayerFieldCombobox.addItems(fields)
+            candidates = ["geonamet", "geonames", "geoname", "micsgeo", "geocodet", "geocodes", "geocode", "hh7a", "district", "lga", "admin", "region", "hh7", "adm1en", "adm1pcode", "adm2en", "adm2pcode"]
+            Utils.setComboBox(self.ui.referenceLayerFieldCombobox, candidates, fields)
             self.ui.referenceLayerFieldCombobox.setEnabled(True)
-            self.ui.referenceLayerFieldCombobox.setCurrentIndex(0)
         else:
             self.ui.referenceLayerFieldCombobox.setEnabled(False)
 
@@ -271,14 +284,23 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
             displacer = Displacer.CentroidsDisplacer()
 
+            # Read the name of the centroid shapefile used for the displacement
+            centroidShpPath = self.ui.centroidsLayerLineEdit.text()
+
             # Centroid Layer
             centroidsLayerName = Utils.LayersName.layerName(Utils.LayersType.CENTROIDS)
+            # Remove the layer is if it already exists and load the new one
             Utils.removeLayerIfExistsByName(centroidsLayerName)
-            displacer.centroidLayer = QgsVectorLayer(self.ui.centroidsLayerLineEdit.text(), centroidsLayerName)
+            displacer.centroidLayer = QgsVectorLayer(centroidShpPath, centroidsLayerName)
             QgsProject.instance().addMapLayer(displacer.centroidLayer)
 
-            displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
+            displacer.set_field_mappings(
+                cluster_no_field=self.ui.centroidsLayerNumeroFieldComboBox.currentText(),
+                cluster_type_field=self.ui.centroidsLayerTypeFieldComboBox.currentText(),
+                cluster_admin_field=self.ui.centroidsLayerAdminFieldComboBox.currentText()
+            )
 
+            displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
             displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
 
             displacer.displaceCentroids()
@@ -305,30 +327,17 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
                 filename = Utils.LayersName.fileName(Utils.LayersType.DISPLACEDANON, "csv")
                 with open(filename, 'w', encoding="UTF8", newline="") as csvfile:
                     writer = csv.writer(csvfile)
-                    writer.writerow(["Cluster Number", "Longitude", "Latitude"])
+                    writer.writerow(["HH1", "HH6", "Longitude", "Latitude", "MICSGEO"])
                     for ft in layer.getFeatures():
                         writer.writerow([
-                            str(ft['cluster']),
+                            str(ft['HH1']),
+                            ft['HH6'],
                             "{:.6f}".format(ft.geometry().asPoint().x()),
-                            "{:.6f}".format(ft.geometry().asPoint().y())
+                            "{:.6f}".format(ft.geometry().asPoint().y()),
+                            ft['MICSGEO']
                         ])
+                
+                Logger.logSuccess("[Displace] Centroids succcessfully exported as CSV")
+
         except BaseException as e:
             Logger.logException("[Displace] A problem occured while saving displaced anonymised centroids", e)
-
-    def onGenerateCentroidBuffersButtonCLicked(self) -> typing.NoReturn:
-        Logger.logInfo("[Displace] About to generate")
-        if not self.maxDistancesPerBufferId:
-            Logger.logWarning("[Displace] The displacement has not been computed. The centroids buffer layer can't be generated.")
-            return
-
-        if not self.ui.centroidsLayerLineEdit.text():
-            Logger.logWarning("[Displace] A valid centroid source file must be provided")
-            return
-
-        try:
-            bufferer = BufferWriter.CentroidBuffersLayerWriter()
-            bufferer.maxDistances = self.maxDistancesPerBufferId
-            bufferer.writerCentroidBuffersLayer()
-
-        except:
-            Logger.logWarning("[Displace] A problem occured while generating centroids buffer.")

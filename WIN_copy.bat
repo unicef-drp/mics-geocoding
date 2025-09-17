@@ -52,7 +52,7 @@ set PLUGIN_FILES=__init__.py
 set PLUGIN_FILES=%PLUGIN_FILES%;icon_bars.png
 set PLUGIN_FILES=%PLUGIN_FILES%;metadata.txt
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_plugin.py
-set PLUGIN_FILES=%PLUGIN_FILES%;ui_mgp_dialog.py
+set PLUGIN_FILES=%PLUGIN_FILES%;ui_mgp_mainwindow.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_main_window.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_main_window_tab1handler.py
 set PLUGIN_FILES=%PLUGIN_FILES%;mgp_main_window_tab2handler.py
@@ -71,7 +71,7 @@ FOR %%F IN (%PLUGIN_FILES%) DO (
 @REM copy mcis geocode INSIDE plugin directory
 @REM ##########################################################################
 
-set MICS_SOURCE_DIRECTORY=%PROJECT_SOURCE_DIRECTORY%\micsgeocode
+set MICS_SOURCE_DIRECTORY=%PROJECT_SOURCE_DIRECTORY%\plugin\micsgeocode
 
 ROBOCOPY %MICS_SOURCE_DIRECTORY% %PLUGIN_DIRECTORY%\micsgeocode /S /E /NJH /NJS /NC /NS /NP /NFL /NDL
 
