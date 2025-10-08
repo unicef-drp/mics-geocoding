@@ -5,15 +5,15 @@
 [general]
 name=MICS GIS PLUGIN
 qgisMinimumVersion=3.0
-description=MICS GIS PLUGIN
+description=QGIS plugin for geocoding MICS survey data with displacement and covariate processing
 version=1.3.0
-author=e
+author=Jan Burdziej (UNICEF), Nazim Gashi (UNICEF), Etienne Delclaux (CartONG)
 email=ngashi@unicef.org
 
-about=Provide a brief description of the plugin and its purpose.
+about=The MICS GIS Plugin facilitates geocoding workflows for Multiple Indicator Cluster Surveys (MICS). It handles centroid loading from GPS coordinates or shapefiles, applies displacement algorithms for data anonymization, and processes geospatial covariates. Designed specifically for UNICEF MICS data workflows.
 
-tracker=http://bugs
-repository=http://repo
+tracker=https://github.com/unicef/mics-geocoding/issues
+repository=https://github.com/unicef/mics-geocoding
 # End of mandatory metadata
 
 # Recommended items:
@@ -25,11 +25,11 @@ hasProcessingProvider=no
 # Tags are comma separated with spaces allowed
 tags=python
 
-homepage=http://homepage
+homepage=https://github.com/unicef/mics-geocoding
 category=Plugins
 icon=icon_bars.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
