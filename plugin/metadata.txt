@@ -29,7 +29,7 @@ homepage=https://github.com/unicef/mics-geocoding
 category=Plugins
 icon=icon_bars.png
 # experimental flag
-experimental=False
+experimental=True
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
