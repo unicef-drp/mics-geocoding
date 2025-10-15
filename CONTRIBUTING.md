@@ -1,6 +1,6 @@
-# Contributing to MICS GIS Plugin
+# Contributing to MICS Geocode Plugin
 
-Thank you for your interest in contributing to the MICS GIS Plugin! This document provides guidelines for contributing to the project.
+Thank you for your interest in contributing to the MICS Geocode Plugin! This document provides guidelines for contributing to the project.
 
 ## Table of Contents
 
@@ -59,7 +59,7 @@ cd mics-geocoding
 ### 2. Install Development Environment
 
 **Requirements:**
-- QGIS 3.0 or higher
+- QGIS 3.0+
 - Python 3.6+ (comes with QGIS)
 - Qt Designer (optional, for UI work)
 
@@ -84,7 +84,7 @@ ln -s $(pwd)/plugin ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/mi
 
 ### 4. Verify Installation
 
-- The MICS GIS toolbar should appear
+- The MICS Geocode toolbar should appear
 - Click the icon to open the plugin
 - Check the QGIS log panel for any errors
 
@@ -340,7 +340,7 @@ plugin = qgis.utils.plugins['micsgeocodeplugin']
 
 If you have questions about contributing:
 
-- **Email**: ngashi@unicef.org
+- **Email**: mics@unicef.org
 - **GitHub Issues**: For technical questions
 - **Documentation**: Check USER_GUIDE.md and README.md
 
@@ -353,12 +353,12 @@ Contributors will be:
 - Acknowledged in the repository
 - Part of improving child welfare data worldwide
 
-Thank you for contributing to the MICS GIS Plugin! 🌍
+Thank you for contributing to the MICS Geocode Plugin! 🌍
 
 ---
 
 ## Project Authors
 
-**Original Authors**: Jan Burdziej (UNICEF), Nazim Gashi (UNICEF), Etienne Delclaux (CartONG)
+**Original Authors**: Nazim Gashi (UNICEF), Jan Burdziej (UNICEF), Etienne Delclaux (CartONG), Miguel Moreno (CartONG)
 
 **Contributors**: See release notes and git history for full list of contributors.
