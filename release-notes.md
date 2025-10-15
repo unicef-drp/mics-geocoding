@@ -1,5 +1,27 @@
 # Release Notes
 
+## 1.3.0
+ 
+### Features
+ 
+- For geospatial covariates calculation, produce outputs consistent with the QGIS Zonal Statistics approach.
+- For displacement, more consistent buffer radius across different latitudes (UTM projection).
+- Support for specifying a NoData value in the covariates input CSV and default variable names for the “Boundary layer” dropdown.
+- Add the Admin drop-down list to the “Displace” tab.
+- Move the “Generate Centroid Buffers” button from “Displace” to “Generate,”.
+- Reposition the “Generate Centroids” button.
+ 
+### Bugfixes
+ 
+- Rename outputs correctly when using original buffers.
+- Correct the file dialog label for the cluster source input.
+- Prevent unintended use of previous basenames.
+- Stop saving temporary “distance to nearest shp” layers.
+ 
+## Previous to 1.3.0
+ 
+Notes are not available at the moment for intermediate releases.
+
 ## 0.9
 
 ### Features
