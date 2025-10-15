@@ -3,17 +3,17 @@
 # This file should be included when you package your plugin.# Mandatory items:
 
 [general]
-name=MICS GIS PLUGIN
+name=MICS GEOCODE PLUGIN
 qgisMinimumVersion=3.0
-description=MICS GIS PLUGIN
+description=A QGIS plugin designed to support the Multiple Indicator Cluster Survey (MICS) geospatial data anonymisation and extraction of geospatial covariates. Although designed for MICS, the Plugin can be used for any household survey.
 version=1.3.0
-author=e
-email=ngashi@unicef.org
+author=Nazim Gashi (UNICEF), Jan Burdziej (UNICEF), Etienne Delclaux (CartONG), Miguel Moreno (CartONG)
+email=mics@unicef.org
 
-about=Provide a brief description of the plugin and its purpose.
+about=A QGIS plugin designed to support the Multiple Indicator Cluster Survey (MICS) geospatial data anonymisation and extraction of geospatial covariates. Although designed for MICS, the Plugin can be used for any household survey.
 
-tracker=http://bugs
-repository=http://repo
+tracker=https://github.com/unicef/mics-geocoding/issues
+repository=https://github.com/unicef/mics-geocoding
 # End of mandatory metadata
 
 # Recommended items:
@@ -25,11 +25,11 @@ hasProcessingProvider=no
 # Tags are comma separated with spaces allowed
 tags=python
 
-homepage=http://homepage
+homepage=https://github.com/unicef/mics-geocoding
 category=Plugins
 icon=icon_bars.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
