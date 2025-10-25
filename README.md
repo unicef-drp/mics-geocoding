@@ -1,19 +1,116 @@
-# MICS Geocode
+# MICS Geocode Plugin
 
-This document is aimed at describing the project and helping developer at onboarding.
+A QGIS plugin designed to support the Multiple Indicator Cluster Survey (MICS) geospatial data anonymisation and extraction of geospatial covariates.
+Although designed for MICS, the Plugin can be used for any household survey.
 
-This document is **NOT** a comitment to anything. It is **NOT** an official technical specifications.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![QGIS: 3.0+](https://img.shields.io/badge/QGIS-3.0+-green.svg)](https://qgis.org)
 
-Author: Jan Burdziej, Unicef
-Support in dev: Etienne Delclaux, CartONG
+---
 
-> In this project, MGP is used as an acornym for MICS Geocode Plugin
+## Quick Links
 
-- [release notes](release-notes.md)
+- 📖 **[User Guide](USER_GUIDE.md)** - Usage instructions
+- 🔧 **[Developer Documentation](#developer-documentation)** - Technical implementation details
+- 📝 **[Release Notes](release-notes.md)** - Version history and changes
+- 🐛 **[Report Issues](https://github.com/unicef/mics-geocoding/issues)** - Bug reports and feature requests
 
-## Project structure description
+---
 
-There are three helpers script for windows:
+## What is This Plugin?
+
+The MICS Geocode Plugin streamlines the processing of GIS data for MICS surveys. Following documented methodolgy (https://mics.unicef.org/publications/mics-methodological-paper-no-12-2024-geographic-displacement-procedures-and AND https://mics.unicef.org/publications/mics-methodological-paper-no-13-2025-geospatial-covariates-extraction-procedures), it automates three key tasks:
+
+1. **📍 Centroid Generation** - Generate cluster centroids from GPS coordinates in shapefiles or CSV files
+2. **🔒 Privacy Protection** - Apply random displacement to ensure respondent anonymity
+3. **🌍 Covariate Extraction** - Extract geospatial covariates from raster and vector datasets for further analysis
+
+### Key Features
+
+- **Flexible Input**: Accepts CSV (with lat/lon) or shapefile formats
+- **Automated Processing**: Streamlined workflow with minimal manual intervention
+- **Respondent Protection**: Built-in displacement algorithms for data anonymisation
+- **Covariate Processing**: Extract data from multiple raster and vector layers
+- **Configuration Management**: Save and reload project settings
+- **QGIS Integration**: Seamless integration with QGIS processing framework
+
+---
+
+## Quick Start
+
+### For Users
+
+For more detailed instructions on how to install and use the plugin, go to the MICS website (https://mics.unicef.org/mics-gis#learning_corner):
+1. Download the latest version of the plugin
+2. Download the manual on how to install the plugin
+3. Download the manual on how to use the plugin
+
+The MICS tools are available in the UN languages and can be accessed at https://mics.unicef.org/tools#survey-design
+
+### For Developers
+
+If you want to **develop** or **modify** the plugin, see the [Developer Documentation](#developer-documentation) below.
+
+---
+
+## System Requirements
+
+- **QGIS**: Version 3.0+
+- **Python**: 3.6+ (bundled with QGIS)
+- **Operating System**: Windows, macOS, or Linux
+- **Dependencies**: All required packages included with QGIS
+
+---
+
+## Documentation
+
+### User Documentation
+
+- **[Complete User Guide](USER_GUIDE.md)**
+
+### Developer Documentation
+
+The information below is for developers who want to modify or contribute to the plugin.
+
+**Authors**: Nazim Gashi (UNICEF), Jan Burdziej (UNICEF), Etienne Delclaux (CartONG), Miguel Moreno (CartONG)
+
+> **Note**: MGP is used throughout the codebase as an acronym for MICS Geocode Plugin
+
+---
+
+## Project Structure
+
+The repository is organized as follows:
+
+```
+mics-geocoding/
+├── plugin/                   # Main plugin code
+│   ├── micsgeocode/          # Core processing modules
+│   ├── *.py                  # UI and configuration handlers
+│   ├── *.ui                  # Qt Designer interface files
+│   ├── metadata.txt          # Plugin metadata
+│   └── resources.qrc         # Qt resources
+├── releases/                 # Packaged plugin releases
+├── WIN_copy.bat              # Windows: Install to QGIS plugins folder
+├── WIN_zip.bat               # Windows: Create distributable ZIP
+├── README.md                 # This file
+├── USER_GUIDE.md             # End-user documentation
+└── release-notes.md          # Version history
+```
+
+---
+
+## Development Setup
+
+### Prerequisites
+
+- QGIS 3.0+ installed
+- Python 3.6+ (bundled with QGIS)
+- Qt Designer (optional, for UI modifications)
+
+### Windows Development Workflow
+
+Three helper scripts are provided for Windows developers:
 
 ### WIN_copy.bat
 
@@ -93,7 +190,7 @@ pip install pyqt5-tools
   Basically, this file helps maanging user inputs, testing values, and starts the processes.
   In order to the run the processes, it triggeres the Step01Manager and CovariatesProcesser contains in the **micsgeocode folder**
 
-### MICS GeoCode
+### MICS Geocode
 
 - `__init__.py` mandatory files for this folder to be used as a package
 - `Logger.py` helper class that handle all the logging part. This trigger a logging inside the QGis Log Pannel
