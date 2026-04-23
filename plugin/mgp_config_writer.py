@@ -38,7 +38,12 @@ class mgp_config_writer:
                 ref_file = os.path.relpath(self.mainWindow.ui.referenceLayerLineEdit.text(), project_root_path)
             except:
                 ref_file = ""
-
+            
+            try:  
+                urbanism_file = os.path.relpath(self.mainWindow.ui.urbanismFileLineEdit.text(), project_root_path)  
+            except:  
+                urbanism_file = ""
+            
             try:
                 centroid_file = os.path.relpath(self.mainWindow.ui.centroidsSourceFileLineEdit.text(), project_root_path)
             except:
@@ -80,6 +85,11 @@ class mgp_config_writer:
             configWriter['ReferenceLayer'] = {
                 'fileReferenceLayer': ref_file,
                 'fileReferenceLayerField': str(self.mainWindow.ui.referenceLayerFieldCombobox.currentIndex())
+            }
+
+            configWriter['UrbanismLayer'] = {  
+                'urbanismEnabled': str(self.mainWindow.ui.urbanismCheckBox.isChecked()),  
+                'urbanismFile': urbanism_file  
             }
 
             configWriter['CentroidsSource'] = {

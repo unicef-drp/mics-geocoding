@@ -14,6 +14,9 @@ from qgis.core import *  # QGIS3
 from PyQt5 import QtCore
 
 from pathlib import Path
+import csv  
+import re
+#from io import StringIO  
 
 import typing
 from enum import Enum
@@ -144,8 +147,8 @@ def reloadLayerFromDiskToAvoidMemoryFlag(layerType: LayersType) -> typing.NoRetu
         # try default file name
         filename = LayersName.fileName(layerType)
 
+    # print(f"Reloading layer {layerName} from disk: {filename}")
     removeLayerIfExists(layerType)
-
     layer = QgsVectorLayer(filename, layerName)
     QgsProject.instance().addMapLayer(layer)
 
@@ -158,11 +161,17 @@ def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
         options.driverName = "ESRI Shapefile"
 
         # writer = QgsVectorFileWriter( "output_path_and_name.shp", provider.encoding(), provider.fields(), QGis.WKBPolygon, provider.crs() )
-        writer = QgsVectorFileWriter.writeAsVectorFormatV2(
+        writer = QgsVectorFileWriter.writeAsVectorFormatV3(
             layer,
             LayersName.fileName(layerType),
             QgsCoordinateTransformContext(),
             options)
+        
+        # if writer[0] == QgsVectorFileWriter.NoError:
+        #     print("success!")
+        # else:
+        #     print(writer)
+
         # Don't know how to manage this.
         # reloadLayerFromDiskToAvoidMemoryFlag(layerType)
 
@@ -185,7 +194,21 @@ def getval(ft: QgsFeature, field: QgsField) -> str:
         result = ""
     return result
 
+def detect_csv_delimiter(file_path, sample_lines=3):
+# def detect_csv_delimiter(f, sample_lines=3):
+    """Auto-detect CSV delimiter by analyzing first few lines"""
 
+    with open(file_path, 'r', encoding='utf-8-sig') as f:
+        sample = ''.join([f.readline() for _ in range(sample_lines)])
+    #sample = ''.join([f.readline() for _ in range(sample_lines)])
+
+    sniffer = csv.Sniffer()
+    try:
+        dialect = sniffer.sniff(sample, delimiters=',;\t\|')
+        return dialect.delimiter
+    except csv.Error:
+        return ','  # fallback to comma
+    
 def getFieldsListAsStrArray(file: str) -> typing.List[str]:
     """ analyze file and retrieve field list
     """
@@ -195,14 +218,14 @@ def getFieldsListAsStrArray(file: str) -> typing.List[str]:
         layer = QgsVectorLayer(file, "tmp", "ogr")
         if layer:
             fieldList = [f.name() for f in layer.fields()]
-    elif extension == "csv":
-        #with open(file, "r", encoding='utf-8-sig') as f:
+    elif extension in ["csv", 'tsv', 'txt']:
+        delimiter = detect_csv_delimiter(file)
         with open(file, "r") as f:
-            fieldList = [s.strip() for s in f.readline().strip().split(',')]
-    elif extension == "txt":
-        with open(file, "r") as f:
-            line = f.readline()
-            fieldList = line.strip().split('\t')
+            fieldList = [s.strip() for s in re.split(re.escape(delimiter), f.readline().strip())] 
+    # elif extension == "txt":
+    #     with open(file, "r") as f:
+    #         line = f.readline()
+    #         fieldList = line.strip().split('\t')
 
     return fieldList
 
@@ -246,3 +269,17 @@ def layerCrossesTheMeridian(layer: QgsVectorLayer) -> bool:
         return ext.xMinimum() == -180 and ext.xMaximum() == 180
     except:
         return False
+
+def getPoleOfInaccessibilityOrCentroid(polygon_feature: QgsFeature, fallback_feature: QgsFeature = None, precision: float = 0.00001) -> typing.NoReturn:
+    """ Compute the centroid geometry for a given centroid feature, the multi point and the convexhull
+    """
+
+    pole_result = polygon_feature.geometry().poleOfInaccessibility(precision)
+    if pole_result[0].isNull(): 
+        if fallback_feature:  
+            return fallback_feature.geometry().centroid()  # fallback to centroid
+        else:
+            return polygon_feature.geometry().centroid()  # fallback to centroid  
+    else:  
+        return pole_result[0]
+

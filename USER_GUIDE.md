@@ -25,4 +25,4 @@ For technical support:
 **Authors**: Nazim Gashi (UNICEF), Jan Burdziej (UNICEF), Etienne Delclaux (CartONG), Miguel Moreno (CartONG)  
 **Document Version**: 1.0  
 **Last Updated**: October 2025  
-**Plugin Version**: 1.3.0
+**Plugin Version**: 1.4.0

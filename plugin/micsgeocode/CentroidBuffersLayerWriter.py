@@ -18,7 +18,7 @@ import random
 import typing
 
 from qgis.core import *  # QGIS3
-from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtCore import QMetaType
 from datetime import datetime
 
 from . import Utils
@@ -54,8 +54,8 @@ class CentroidBuffersLayerWriter():
 
         # create layer for anonymised buffers
         self.__generatedLayers[Utils.LayersType.CENTROIDS_BUFFERS] = Utils.createLayer('Polygon?crs='+CRS.WGS84, Utils.LayersType.CENTROIDS_BUFFERS, [
-            QgsField("cluster", QVariant.Int),
-            QgsField("buf_dist", QVariant.Int)
+            QgsField("cluster", QMetaType.Type.Int),
+            QgsField("buf_dist", QMetaType.Type.Int)
         ])
 
         #crs_transformation = None
@@ -104,7 +104,7 @@ class CentroidBuffersLayerWriter():
         Utils.putLayerOnTopIfExists(Utils.LayersType.LINKS)  # fix z order
         Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)  # fix z order
 
-        Utils.reloadLayerFromDiskToAvoidMemoryFlag(Utils.LayersType.CENTROIDS_BUFFERS)
+        # Utils.reloadLayerFromDiskToAvoidMemoryFlag(Utils.LayersType.CENTROIDS_BUFFERS)
 
         Logger.logInfo("[CentroidBuffersLayerWriter] Centroids displacement finished at {}".format(datetime.now()))
 

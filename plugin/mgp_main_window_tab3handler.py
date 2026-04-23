@@ -15,6 +15,7 @@ import typing
 
 from .mgp_file import openFile as MGP_OPEN_FILE
 from .micsgeocode.Logger import Logger
+from .micsgeocode.ProgressBar import ProgressBar
 from .micsgeocode import Utils
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 from .micsgeocode import CovariatesProcesser as CovariatesProcesser
@@ -79,6 +80,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
         self.ui.covrefLayerIdFieldCombobox.setToolTip("Choose the field corresponding to the polygon layer's ID field.")
 
         self.ui.computeCovariatesButton.setToolTip("Compute covariates. QGIS generates additional layers depending on inputs and a CSV file with the outputs.")
+        self.ui.covoutputsOpenFileToolButton.setToolTip("Open covariates output file.")
 
         ## ####################################################################
         # Init icons
@@ -299,6 +301,7 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
             return
 
         try:
+            self.mainwindow.progress.show()
             covariatesProcesser = CovariatesProcesser.CovariatesProcesser()
 
             covariatesProcesser.input_csv = self.ui.covinputsSourceFileLineEdit.text()
@@ -326,17 +329,19 @@ class MGPMainWindowTab3Handler(QtCore.QObject):
                 bufferShpPath,
                 bufferIdField)
 
-            covariatesProcesser.computeCovariates()
+            covariatesProcesser.computeCovariates(self.mainwindow.progress)
             self.covoutputs_file = covariatesProcesser.output_file
             if self.covoutputs_file:
                 self.ui.covoutputsOpenFileToolButton.setEnabled(True)
             else:
                 self.ui.covoutputsOpenFileToolButton.setEnabled(False)
 
+            self.mainwindow.progress.hide()
             if covariatesProcesser.output_warning != '':
                 Logger.logWarning("[CovariatesProcesser] " + covariatesProcesser.output_warning)
             else:
                 Logger.logSuccess("[CovariatesProcesser] Covariates succcessfully processed")
 
         except BaseException as e:
+            self.mainwindow.progress.hide()
             Logger.logException("[CovariatesProcesser] A problem occured while processing covariates.", e)

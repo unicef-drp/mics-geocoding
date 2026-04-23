@@ -71,6 +71,16 @@ class mgp_config_reader:
                 if 'fileReferenceLayerField' in configReader['ReferenceLayer']:
                     self.mainWindow.ui.referenceLayerFieldCombobox.setCurrentIndex(int(configReader['ReferenceLayer']['fileReferenceLayerField']))
 
+            if 'UrbanismLayer' in configReader:
+                if 'urbanismEnabled' in configReader['UrbanismLayer']:
+                    self.mainWindow.ui.urbanismCheckBox.setChecked(configReader['UrbanismLayer']['urbanismEnabled'] == 'True')
+                if 'urbanismFile' in configReader['UrbanismLayer']:
+                    try:
+                        if configReader['UrbanismLayer']['urbanismFile']:
+                            self.mainWindow.ui.urbanismFileLineEdit.setText(os.path.realpath(os.path.join(project_root_path, configReader['UrbanismLayer']['urbanismFile'])))
+                    except:
+                        self.mainWindow.ui.urbanismFileLineEdit.clear()
+
             if 'CentroidsSource' in configReader:
                 if 'file' in configReader['CentroidsSource']:
                     try:

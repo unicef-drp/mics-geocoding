@@ -31,9 +31,6 @@ from .Transforms import Transforms
 from . import Utils
 
 # to avoid GEOS errors! see: https://stackoverflow.com/questions/62075847/using-qgis-and-shaply-error-geosgeom-createlinearring-r-returned-a-null-pointer
-# This might be useless - I tried without it an it worked fine
-#from shapely import speedups
-#speedups.disable()
 
 """
 Zonal Statistics
@@ -93,7 +90,7 @@ class CovariatesProcesser():
 # computation
 ####################################################################
 
-    def computeCovariates(self) -> typing.NoReturn:
+    def computeCovariates(self, progress_bar) -> typing.NoReturn:
         """ Facade that handle the covariates computation
         """
         # Generate output name
@@ -115,13 +112,17 @@ class CovariatesProcesser():
         shortest_distance_basename = ""
 
         # read input list of covariates
+        delimiter = Utils.detect_csv_delimiter(self.input_csv)
+        Logger.logInfo(f"[CovariatesProcesser] Detected delimiter: '{delimiter}'")
+
+        # multiple covariates can be defined in a single row, separated by ; or ,
+        # each covariate must have a corresponding output column name
+        covariate_delimiter = ';' if delimiter == ',' else ','
+        
         with open(self.input_csv, "r", encoding='utf-8-sig') as f:
-            rowIndex = 0
-            inputs = []
 
-            registry = QgsProject.instance()
-
-            clusters = [
+            qgis_project = QgsProject.instance()
+            ref_features = [
                 {
                     'fid': ft.id(),
                     ref_layer_id_field: ft[ref_layer_id_field]
@@ -129,59 +130,84 @@ class CovariatesProcesser():
             ]  # TODO: ft.id() is different than ft.GetFID()? !!!!! make sure IDs match - fix required!!!
 
             # Convert the dictionary into DataFrame
-            summary_df = pd.DataFrame(clusters)
+            summary_df = pd.DataFrame(ref_features)
             summary_df = summary_df.astype({ref_layer_id_field: "string"}) # force string type for the ID field
 
             # read all input covariates
+            rowIndex = 0
+            inputs = []
+            expected_columns = None
             for i in f:
                 if rowIndex == 0:
-                    line = [s.strip() for s in re.split(',', i.strip())]
+
+                    line = [s.strip() for s in re.split(re.escape(delimiter), i.strip())] # error here
+                    expected_columns = len(line)
                     input_file_id = line.index(self.input_csv_field_filename)
                     input_fileformat_id = line.index(self.input_csv_field_fileformat)
                     input_field_sumstat_id = line.index(self.input_csv_field_sumstat)
                     input_field_columnname_id = line.index(self.input_csv_field_columnname)
                     input_field_nodata_id = line.index(self.input_csv_field_nodata) if self.input_csv_field_nodata else None
                 if rowIndex != 0:
-                    line = [s.strip() for s in re.split(',', i.strip())]
+                    line = [s.strip() for s in re.split(re.escape(delimiter), i.strip())]
+                    # Pad with empty strings if needed
+                    if len(line) < expected_columns:
+                        line += [''] * (expected_columns - len(line))
+
                     inputs.append({
+                        'row_index': rowIndex,
                         'file': line[input_file_id],
                         'file_format': line[input_fileformat_id],
-                        'sum_stat': line[input_field_sumstat_id],
-                        'column': line[input_field_columnname_id],
+                        'sum_stats': line[input_field_sumstat_id].split(covariate_delimiter), # list of one or more summary stats
+                        'column_names': line[input_field_columnname_id].split(covariate_delimiter), # list of one or more output columns
                         'user_nodata_value': line[input_field_nodata_id] if input_field_nodata_id else None
                     })
-                rowIndex = rowIndex + 1
-            rowIndex = 1
 
+                rowIndex = rowIndex + 1
+            
+            total_rows = len(inputs)
+            i = 0 # used only for progress bar
             # loop through all covariates
             for input_row in inputs:
+                i += 1
+                row_index = input_row['row_index']
                 file_name = input_row['file']
                 file_path = os.path.join(self.images_directory, file_name)
                 file_format = input_row['file_format']
-                sum_stat = input_row['sum_stat']
-                column_name = input_row['column']
+                sum_stats = input_row['sum_stats']
+                column_names = input_row['column_names']
                 user_nodata_value = None if not input_row['user_nodata_value'] or input_row['user_nodata_value'] == "" else input_row['user_nodata_value']
 
-                if sum_stat == 'variety':
+                if 'variety' in sum_stats:
                     msg_error = "Variety statistic is temporarily not supported in this version, it will not be available in the output file."
                     #Logger.logWarning(msg_error)
                     self.output_warning = msg_error
-                    continue
-                else:
-                    Logger.logInfo(f"[CovariatesProcesser] Processing input file no {rowIndex}: file name: {file_name}, file format: {file_format}, summary statistics: {sum_stat}, output column: {column_name}, user nodata value: {user_nodata_value}")
-                rowIndex = rowIndex + 1
+                    variety_index = sum_stats.index('variety')
+                    sum_stats.remove('variety')
+                    column_names.pop(variety_index)
+                    if len(sum_stats) == 0:
+                        progress_bar.update(int((i) / total_rows * 100))
+                        continue
+                
+                if len(sum_stats) != len(column_names):
+                    raise ValueError(f"In row {rowIndex+1} of the input CSV file, the number of summary statistics ({len(sum_stats)}) does not match the number of output columns ({len(column_names)}). Please correct the input file.")
+                    
+                # else:
+                Logger.logInfo(f"[CovariatesProcesser] Processing input file row {row_index}: file name: {file_name} | file format: {file_format} | summary statistics: {str(sum_stats)}, | output columns: {str(column_names)} | user nodata value: {user_nodata_value}")
 
                 # Compute distance to nearest
                 if file_format == 'Shapefile':
-                    if sum_stat == 'distance_to_nearest':
+                    if covariate_delimiter.join(sum_stats) == 'distance_to_nearest':
+
+                        column_name = column_names[0]  # only one output column supported for distance to nearest
+
                         # create layer for shortest distance
                         shortest_distance_basename = file_name.split('.')[0]  # remove file extension
                         shortest_dist_lyr = QgsVectorLayer('LineString?crs=epsg:4326', f'Shortest distance to {shortest_distance_basename}', 'memory')
                         shortest_dist_prov = shortest_dist_lyr.dataProvider()
                         shortest_dist_prov.addAttributes([
-                            QgsField(ref_layer_id_field, QtCore.QVariant.String),
-                            QgsField("nearestfid", QtCore.QVariant.String),
-                            QgsField("dist", QtCore.QVariant.Double, 'double', 15, 2)
+                            QgsField(ref_layer_id_field, QtCore.QMetaType.Type.QString),
+                            QgsField("nearestfid", QtCore.QMetaType.Type.QString),
+                            QgsField("dist", QtCore.QMetaType.Type.Double, 'double', 15, 2)
                         ])
                         shortest_dist_lyr.updateFields()
 
@@ -190,15 +216,14 @@ class CovariatesProcesser():
                         #crs_transformation = None
                         for cluster_ft in self.__ref_layer.getFeatures():
                             feat = QgsFeature()
-                            # startPt = QgsPoint(cluster_ft.geometry().centroid().asPoint())
-                            startGeom = cluster_ft.geometry().centroid() # TODO: does this make sense with polygon features?
-                            # endPt = QgsPoint(QgsPointXY(0, 0))
+
+                            startGeom = Utils.getPoleOfInaccessibilityOrCentroid(cluster_ft)
                             endGeom = QgsGeometry.fromPointXY(QgsPointXY(0, 0))
 
                             #if not crs_transformation:
                             # obtain the target transformation
-                            pt = startGeom.asPoint() # QgsPointXY
-                            crs_transformation = Transforms(pt.y(), pt.x())
+                            startPoint = startGeom.asPoint() # QgsPointXY
+                            crs_transformation = Transforms(startPoint.y(), startPoint.x())
 
                             minDistFtId = -1
 
@@ -218,8 +243,7 @@ class CovariatesProcesser():
                                 isInsideFeature = False
                                 for tmp_ft in search_features:
                                     geom = tmp_ft.geometry()
-                                    pt = cluster_ft.geometry().centroid().asPoint() # TODO: startGeom.asPoint() ?
-                                    contains = geom.contains(pt)
+                                    contains = geom.contains(startPoint)
                                     if contains:
                                         minDistFtId = tmp_ft.id()
                                         isInsideFeature = True
@@ -228,19 +252,18 @@ class CovariatesProcesser():
                                 if not isInsideFeature:
                                     cswc = min(
                                         [(
-                                            l.id(), l.geometry().closestSegmentWithContext(cluster_ft.geometry().centroid().asPoint()) # TODO: startGeom.asPoint() ?
+                                            l.id(), l.geometry().closestSegmentWithContext(startPoint)
                                         ) for l in search_features],
                                         key=itemgetter(1)
                                     )
                                     minDistPoint = cswc[1][1]  # nearest point on line
                                     minDistFtId = cswc[0]  # line id of nearest point
-                                    # endPt = QgsPoint(minDistPoint[0], minDistPoint[1])
                                     endGeom = QgsGeometry.fromPointXY(QgsPointXY(minDistPoint[0], minDistPoint[1]))
                                 else:
                                     endGeom = startGeom
 
                             line = QgsGeometry.fromPolyline([
-                                QgsPoint(startGeom.asPoint()),
+                                QgsPoint(startPoint),
                                 QgsPoint(endGeom.asPoint())
                             ])
                             # creating line between point and nearest point
@@ -260,7 +283,7 @@ class CovariatesProcesser():
                         # Update extent of the layer
                         shortest_dist_lyr.updateExtents()
                         # Add the layer to the Layers panel
-                        registry.addMapLayer(shortest_dist_lyr)
+                        qgis_project.addMapLayer(shortest_dist_lyr)
 
                         search_fts = [{ref_layer_id_field: ft[ref_layer_id_field], column_name: ft['dist']} for ft in
                                       shortest_dist_lyr.getFeatures()]
@@ -274,13 +297,19 @@ class CovariatesProcesser():
                             on=ref_layer_id_field,
                             how='inner'
                         )
+
+                    else:
+                        msg_error = f"Shapefile covariate supports only 'distance_to_nearest' summary statistic, '{str(sum_stats)}' is not supported and will not be available in the output file."
+                        self.output_warning = msg_error
+                        progress_bar.update(int((i) / total_rows * 100))
+                        continue
                 
-                # Compute zonal stat and geotiff
+                # Compute zonal stats and geotiff
                 elif file_format == 'GeoTIFF':
                     column_prefix = '_'
                     # https://mapscaping.com/nodata-values-in-rasters-with-qgis/
-                    stats = self.zonal_stat(
-                        stat=sum_stat,
+                    stats_df = self.zonal_stat(
+                        stats=sum_stats, # list of one or more summary stats
                         vector_path=self.__ref_layer_shp,
                         raster_path=file_path,
                         raster_band=1,
@@ -289,16 +318,25 @@ class CovariatesProcesser():
                         cluster_no_field=ref_layer_id_field
                     )
                     
-                    results_df = stats[[f'{column_prefix}{sum_stat}', ref_layer_id_field]]
-                    results_df.columns = [column_name, ref_layer_id_field]
+                    outcols = [*[f'{column_prefix}{stat_name}' for stat_name in sum_stats], ref_layer_id_field]
+                    results_df = stats_df[outcols]
+                    results_df.columns = [*column_names, ref_layer_id_field]
                     results_df = results_df.astype({ref_layer_id_field: "string"}) # force string type for the ID field
 
                     summary_df = pd.merge(
                         summary_df,  # merge destination
-                        results_df[[column_name, ref_layer_id_field]],
+                        results_df[[*column_names, ref_layer_id_field]],
                         on=ref_layer_id_field,
                         how='inner'
                     )
+                
+                else:
+                    msg_error = f"Unknown file format '{file_format}' in row {row_index+1} of the input CSV file, it must be either 'Shapefile' or 'GeoTIFF'. The covariate will not be available in the output file."
+                    self.output_warning = msg_error
+                    progress_bar.update(int((i) / total_rows * 100))
+                    continue
+
+                progress_bar.update(int((i) / total_rows * 100))
 
             # iterating the columns
             selected_columns = []
@@ -340,7 +378,7 @@ class CovariatesProcesser():
         return x1, y1, xsize, ysize
     
     def zonal_stat(self,
-            stat,
+            stats,
             vector_path,
             raster_path,
             raster_band = 1,
@@ -381,8 +419,8 @@ class CovariatesProcesser():
 
             return exists
         
-        Logger.logInfo(f"[CovariatesProcesser] Processing {stat}...")
-        #print(f"[CovariatesProcesser] Processing {stat}...")
+        Logger.logInfo(f"[CovariatesProcesser] Processing {stats}...")
+        #print(f"[CovariatesProcesser] Processing {stats}...")
 
         if not os.path.isfile(vector_path):
             Logger.logInfo("[CovariatesProcesser | ZonalStat] vector dataset is missing")
@@ -392,7 +430,10 @@ class CovariatesProcesser():
             Logger.logInfo("[CovariatesProcesser | ZonalStat] raster dataset is missing")
             Logger.logInfo("[CovariatesProcesser | ZonalStat] raster_path path was: " + raster_path)     
 
-        if stat == 'yes_or_no':
+        has_yes_or_no = False
+        if 'yes_or_no' in stats:
+
+            has_yes_or_no = True
 
             yes_or_no_field = f'{column_prefix}yes_or_no'
 
@@ -429,7 +470,7 @@ class CovariatesProcesser():
             vlyr = vds.GetLayer(0)
 
             # Loop through vectors
-            stats = []
+            featureset_stats = []
             feat = vlyr.GetNextFeature()
 
             while feat is not None:
@@ -455,19 +496,23 @@ class CovariatesProcesser():
                     yes_or_no_field: yes_or_no
                 }
                 
-                stats.append(feature_stats)
+                featureset_stats.append(feature_stats)
                 feat = vlyr.GetNextFeature()
                 # print('')
 
             vds = None
             rds = None
 
-            results_df = pd.DataFrame(stats)[[yes_or_no_field, cluster_no_field]]
-            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] {stat} computed.")
+            yes_or_no_df = pd.DataFrame(featureset_stats)[[yes_or_no_field, cluster_no_field]]
+            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | yes_or_no] yes_or_no computed.")
 
-            return results_df                
+            if len(stats) == 1: # there is no other stat than yes_or_no
+                return yes_or_no_df
 
-        else:
+        #else:
+        if (has_yes_or_no and len(stats) > 1) or (not has_yes_or_no and len(stats) >= 1):
+            # other stats than yes_or_no
+
             stat_dict = {
                 '0' : 'count',
                 '1' : 'sum',
@@ -486,9 +531,12 @@ class CovariatesProcesser():
             def get_stat_id(stat_name):
                 """Get the stat id from the stat name
                 """
+                if stat_name == 'yes_or_no':
+                    return # not used in this function
                 for key, value in stat_dict.items():
                     if value == stat_name:
                         return int(key)
+                    
                 raise ValueError(f"Unknown statistic name: {stat_name}")
 
             # Set new nodata value for the raster
@@ -512,8 +560,8 @@ class CovariatesProcesser():
 
             # Check the current nodata value
             current_nodata = provider.sourceNoDataValue(1)
-            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Raster properties: nodata={current_nodata}")
-            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] User input: nodata={user_nodata_value}")
+            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | Raster] Raster properties: nodata={current_nodata}")
+            Logger.logInfo(f"[CovariatesProcesser | ZonalStat | Raster] User input: nodata={user_nodata_value}")
 
             # Flag to know if we need the temporal raster
             if user_nodata_value is None:
@@ -526,13 +574,13 @@ class CovariatesProcesser():
             if not use_temporal:
                 input_raster = raster_path
                 tmpfile = None
-                Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Using original raster with its own nodata value.")
+                Logger.logInfo(f"[CovariatesProcesser | ZonalStat | Raster] Using original raster with its own nodata value.")
                 # if user_nodata_value is None:
-                #     Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Using original raster with its current nodata value.")
+                #     Logger.logInfo(f"[CovariatesProcesser | ZonalStat | Raster] Using original raster with its current nodata value.")
                 # else:
-                #     Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Current nodata value matches with the value given by the user.") #, temporal raster is not generated.")
+                #     Logger.logInfo(f"[CovariatesProcesser | ZonalStat | Raster] Current nodata value matches with the value given by the user.") #, temporal raster is not generated.")
             else:
-                Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Nodata values do not match, creating temporal raster with the user nodata value...")
+                Logger.logInfo(f"[CovariatesProcesser | ZonalStat | Raster] Nodata values do not match, creating temporal raster with the user nodata value...")
 
                 # Redefine nodata
                 provider.setNoDataValue(1, user_nodata_value)
@@ -556,12 +604,15 @@ class CovariatesProcesser():
                 input_raster = tmpfile
             
             try:
+
+                stat_index_list = [get_stat_id(stat_name) for stat_name in stats if get_stat_id(stat_name) is not None] # exclude None values (yes_or_no)
+
                 result = processing.run("native:zonalstatisticsfb", {
                     'INPUT': vector_path,
                     'INPUT_RASTER': input_raster, #raster_path,
                     'RASTER_BAND': raster_band,
                     'COLUMN_PREFIX': column_prefix,
-                    'STATISTICS': [get_stat_id(stat)],
+                    'STATISTICS': stat_index_list,
                     'OUTPUT': 'memory:' #'TEMPORARY_OUTPUT'
                 })
                 layer = result['OUTPUT']
@@ -581,17 +632,25 @@ class CovariatesProcesser():
                 
                 # Create a Pandas DataFrame
                 df = pd.DataFrame(data, columns=fieldnames)
-                Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] {stat} computed.")
+                Logger.logInfo(f"[CovariatesProcesser | ZonalStat | Raster] {str(stats)} computed.")
 
             finally:
                 # Clean temporal raster if created
                 if use_temporal and tmpfile and os.path.exists(tmpfile):
                     try:
                         os.remove(tmpfile)
-                        Logger.logInfo(f"[CovariatesProcesser | ZonalStat | {stat}] Temporal raster {tmpfile} deleted.")
+                        Logger.logInfo(f"[CovariatesProcesser | ZonalStat | Raster] Temporal raster {tmpfile} deleted.")
                     except Exception as e:
-                        Logger.logWarning(f"[CovariatesProcesser | ZonalStat | {stat}] Temporal {tmpfile} could not be deleted: {e}")
+                        Logger.logWarning(f"[CovariatesProcesser | ZonalStat | Raster] Temporal {tmpfile} could not be deleted: {e}")
 
+            if has_yes_or_no:
+                # merge with yes_or_no_df
+                df = pd.merge(
+                    df, # merge destination
+                    yes_or_no_df[[yes_or_no_field, cluster_no_field]],
+                    on=cluster_no_field,
+                    how='inner'
+                )
 
             # Return a dataframe, unlike the original zonal_stats function (caution)
             return df

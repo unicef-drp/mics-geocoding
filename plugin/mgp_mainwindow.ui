@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>513</width>
-    <height>690</height>
+    <width>517</width>
+    <height>699</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -167,7 +167,7 @@
              <x>10</x>
              <y>10</y>
              <width>461</width>
-             <height>301</height>
+             <height>321</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -194,7 +194,7 @@
               <x>0</x>
               <y>20</y>
               <width>461</width>
-              <height>274</height>
+              <height>301</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -295,7 +295,7 @@
               </layout>
              </item>
              <item>
-              <spacer name="verticalSpacer">
+              <spacer name="verticalSpacer_7">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
@@ -308,30 +308,34 @@
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="loadCentroidsButton">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Generate Centroids</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="generateCentroidBuffersButton">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Generate Centroid Buffers</string>
-               </property>
-              </widget>
+              <layout class="QVBoxLayout" name="verticalLayout_7">
+               <item>
+                <widget class="QPushButton" name="loadCentroidsButton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Generate Centroids</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="generateCentroidBuffersButton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Generate Centroid Buffers</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
             </layout>
            </widget>
@@ -347,7 +351,7 @@
              <x>10</x>
              <y>10</y>
              <width>461</width>
-             <height>251</height>
+             <height>281</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -371,7 +375,7 @@
               <x>0</x>
               <y>20</y>
               <width>461</width>
-              <height>221</height>
+              <height>261</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -530,6 +534,41 @@
               </layout>
              </item>
              <item>
+              <layout class="QHBoxLayout" name="horizontalLayoutUrbanism">
+               <item>
+                <widget class="QCheckBox" name="urbanismCheckBox">
+                 <property name="text">
+                  <string>Displace within same DEGURBA</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="urbanismFileLineEdit">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="urbanismFileToolButton">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="urbanismInfoToolButton">
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
               <spacer name="verticalSpacer_6">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -562,7 +601,7 @@
            <property name="geometry">
             <rect>
              <x>404</x>
-             <y>270</y>
+             <y>290</y>
              <width>81</width>
              <height>25</height>
             </rect>
@@ -608,24 +647,41 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>20</y>
+              <y>30</y>
               <width>461</width>
-              <height>61</height>
+              <height>41</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_5">
              <item>
-              <widget class="QPushButton" name="exportDisplacedCentroidsButton">
-               <property name="minimumSize">
-                <size>
-                 <width>0</width>
-                 <height>30</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Export Displaced Centroids</string>
-               </property>
-              </widget>
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <item>
+                <widget class="QPushButton" name="exportDisplacedCentroidsButton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Export Displaced Centroids</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QToolButton" name="displacedCentroidsOpenFileToolButton">
+                 <property name="maximumSize">
+                  <size>
+                   <width>30</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
             </layout>
            </widget>
@@ -671,7 +727,7 @@
               <x>0</x>
               <y>20</y>
               <width>461</width>
-              <height>311</height>
+              <height>319</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -1053,8 +1109,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>301</width>
-          <height>75</height>
+          <width>291</width>
+          <height>50</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -1066,7 +1122,7 @@
         <property name="minimumSize">
          <size>
           <width>90</width>
-          <height>75</height>
+          <height>50</height>
          </size>
         </property>
         <property name="maximumSize">
@@ -1088,6 +1144,19 @@
          <bool>true</bool>
         </property>
        </widget>
+       <widget class="QProgressBar" name="progressBar">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>50</y>
+          <width>191</width>
+          <height>23</height>
+         </rect>
+        </property>
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
       </widget>
      </item>
     </layout>
@@ -1098,8 +1167,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>513</width>
-     <height>26</height>
+     <width>517</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menutest">

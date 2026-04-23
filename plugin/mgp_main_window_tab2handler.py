@@ -17,7 +17,7 @@
 import os
 import csv
 
-from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5 import QtWidgets, QtCore#, QtGui
 from pathlib import Path
 from datetime import datetime
 
@@ -28,7 +28,9 @@ from .ui_mgp_mainwindow import Ui_MGPDialog
 from .micsgeocode import CentroidsDisplacer as Displacer
 from .micsgeocode import CentroidBuffersMaxDistanceComputer as Radier
 from .micsgeocode.Logger import Logger
+from .micsgeocode.ProgressBar import ProgressBar
 from .micsgeocode import Utils
+from .mgp_file import openFile as MGP_OPEN_FILE
 from qgis.core import QgsVectorLayer, QgsProject  # QGIS3
 
 
@@ -43,10 +45,29 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         super().__init__()
         self.mainwindow = mainwindow
         self.ui = self.mainwindow.ui
+        self.displacedanon_file = None
+        self.ui.displacedCentroidsOpenFileToolButton.setEnabled(False)
 
         # Values are stored after the centroids displacement
         # --> Used for generating buffer around original buffer
         self.maxDistancesPerBufferId = None
+
+        ## Hide DEGURBA for the current release # TODO: remove when DEGURBA is ready for release
+        self.ui.urbanismCheckBox.setVisible(False)
+        self.ui.urbanismFileLineEdit.setVisible(False)
+        self.ui.urbanismFileToolButton.setVisible(False)
+        self.ui.urbanismInfoToolButton.setVisible(False)
+
+        ## ####################################################################
+        # Init Icons
+        ## ####################################################################
+
+        style_app = self.ui.urbanismInfoToolButton.style()
+        icon_info = style_app.standardIcon(style_app.SP_MessageBoxInformation)
+        icon_open_directory = style_app.standardIcon(style_app.SP_DirOpenIcon)
+
+        self.ui.urbanismInfoToolButton.setIcon(icon_info)
+        self.ui.displacedCentroidsOpenFileToolButton.setIcon(icon_open_directory)
 
         ## #############################################################
         # Animation init
@@ -87,9 +108,15 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.centroidsLayerTypeFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerTypeFieldChanged)
         self.ui.centroidsLayerAdminFieldComboBox.currentTextChanged.connect(self.onCentroidsLayerAdminFieldChanged)
 
+        self.ui.urbanismCheckBox.toggled.connect(self.onUrbanismCheckBoxToggled)
+        self.ui.urbanismFileToolButton.clicked.connect(self.onUrbanismFileToolButtonClicked)
+        self.ui.urbanismFileLineEdit.textChanged.connect(self.onUrbanismFileLineEditChanged)
+        self.ui.urbanismInfoToolButton.clicked.connect(self.showUrbanismInfoMessage)
+
         self.ui.displaceCentroidsButton.clicked.connect(self.onDisplaceCentroidsButtonClicked)
 
         self.ui.exportDisplacedCentroidsButton.clicked.connect(self.onExportDisplacedCentroidsButtonClicked)
+        self.ui.displacedCentroidsOpenFileToolButton.clicked.connect(self.onDisplacedCentroidsOpenFileToolButtonClicked)
 
         # Command window
         self.ui.toggleShowMoreButton.clicked.connect(self.onToggleShowMoreButtonClicked)
@@ -108,11 +135,15 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         self.ui.centroidsLayerTypeFieldComboBox.setToolTip("Choose the field indicating cluster area variable.")
         self.ui.centroidsLayerAdminFieldComboBox.setToolTip("Choose the field indicating cluster admin variable.")
 
+        self.ui.urbanismFileToolButton.setToolTip("Browse for DEGURBA (Degree of Urbanisation) raster file on your computer. Click the info button for more details.")
+        self.ui.urbanismFileLineEdit.setToolTip("Degree of Urbanisation raster file on the computer.")
+
         self.ui.displaceCentroidsButton.setToolTip(
             "Displace Centroids. QGIS generates additional layers depending on inputs.\nThe final anonymised displaced cluster file is generated “BASENAME_cluster_anonymised_displaced_centroids”."
         )
 
         self.ui.exportDisplacedCentroidsButton.setToolTip("Export anonymised displaced cluster centroids as a CSV file.")
+        self.ui.displacedCentroidsOpenFileToolButton.setToolTip("Open anonymised displaced cluster centroids file.")
 
     ## #############################################################
     # reset
@@ -122,7 +153,13 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
 
         self.ui.centroidsLayerLineEdit.clear()
         self.ui.referenceLayerLineEdit.clear()
+        self.ui.urbanismCheckBox.setChecked(False)  
+        self.ui.urbanismFileLineEdit.clear()  
+        self.ui.urbanismFileLineEdit.setEnabled(False)  
+        self.ui.urbanismFileToolButton.setEnabled(False)
+        self.ui.displacedCentroidsOpenFileToolButton.setEnabled(False)
 
+        self.displacedanon_file = None
         self.maxDistancesPerBufferId = None
 
         # hide show more section
@@ -264,6 +301,37 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
         '''
         self.mainwindow.updateSaveStatus(True)
 
+    # #############################################################
+    # Degree of Urbanisation Layer
+    # #############################################################
+
+    def onUrbanismCheckBoxToggled(self, checked) -> typing.NoReturn:
+        '''Handle urbanism checkbox toggle'''
+        self.ui.urbanismFileLineEdit.setEnabled(checked)
+        self.ui.urbanismFileToolButton.setEnabled(checked)
+        self.mainwindow.updateSaveStatus(True)
+
+    def onUrbanismFileToolButtonClicked(self) -> typing.NoReturn:
+        '''Handle browse for urbanism raster file'''
+        settings = QtCore.QSettings('MICS Geocode', 'qgis plugin')
+        dir = settings.value("last_file_directory", QtCore.QDir.homePath())
+        file, _ = QtWidgets.QFileDialog.getOpenFileName(None, "Open Degree of Urbanisation raster file", dir, "(*.tif *.tiff)")
+        if file:
+            self.ui.urbanismFileLineEdit.setText(os.path.normpath(file))
+            settings.setValue("last_file_directory", os.path.dirname(file))
+
+    def onUrbanismFileLineEditChanged(self) -> typing.NoReturn:  
+        '''Handle urbanism file path changed'''  
+        self.mainwindow.updateSaveStatus(True)
+            
+    def showUrbanismInfoMessage(self) -> typing.NoReturn:
+        msg = QtWidgets.QMessageBox(self.mainwindow)
+        msg.setWindowTitle("Degree of Urbanisation")
+        msg.setTextFormat(QtCore.Qt.RichText)
+        msg.setText('Enabling this option ensures displaced cluster locations remain within the same Degree of Urbanisation class.<br>'
+                    'Download the <a href="https://human-settlement.emergency.copernicus.eu/download.php?ds=smod">GHS Settlement Model Grid</a> to load it into the plugin.')
+        msg.exec_()
+
     ## #############################################################
     # Main action
     ## #############################################################
@@ -280,6 +348,7 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
             return
 
         try:
+            self.mainwindow.progress.show()
             self.maxDistancesPerBufferId = None
 
             displacer = Displacer.CentroidsDisplacer()
@@ -303,18 +372,32 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
             displacer.setReferenceLayer(self.ui.referenceLayerLineEdit.text())
             displacer.ref_id_field = self.ui.referenceLayerFieldCombobox.currentText()
 
-            displacer.displaceCentroids()
+            # Set urbanism restriction if enabled  
+            if self.ui.urbanismCheckBox.isChecked():
+                # TODO: should not enter here as DEGURBA is not part of the current release
+                if self.ui.urbanismFileLineEdit.text():  
+                    displacer.setUrbanismRestriction(self.ui.urbanismFileLineEdit.text())
+                else:
+                    # Logger.logWarning("[Displace] Urbanism restriction is enabled but no valid raster file has been provided. Ignoring urbanism restriction.")
+                    self.ui.urbanismCheckBox.setChecked(False)  
+                    self.ui.urbanismFileLineEdit.clear()  
+                    self.ui.urbanismFileLineEdit.setEnabled(False)  
+                    self.ui.urbanismFileToolButton.setEnabled(False)
+                    
+            displacer.displaceCentroids(self.mainwindow.progress)
 
             Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)
 
             Utils.reloadLayerFromDiskToAvoidMemoryFlag(Utils.LayersType.CENTROIDS)
 
+            self.mainwindow.progress.hide()
             Logger.logSuccess("[Displace] Centroids succcessfully displaced")
 
             self.maxDistancesPerBufferId = displacer.maxDistances
 
             self.centroidsDisplaced.emit()
         except BaseException as e:
+            self.mainwindow.progress.hide()
             Logger.logException("[Displace] A problem occured while displacing centroids", e)
 
     def onExportDisplacedCentroidsButtonClicked(self) -> typing.NoReturn:
@@ -337,7 +420,17 @@ class MGPMainWindowTab2Handler(QtCore.QObject):
                             ft['MICSGEO']
                         ])
                 
+                self.displacedanon_file = filename
+                if self.displacedanon_file:
+                    self.ui.displacedCentroidsOpenFileToolButton.setEnabled(True)
+                else:
+                    self.ui.displacedCentroidsOpenFileToolButton.setEnabled(False)
+
                 Logger.logSuccess("[Displace] Centroids succcessfully exported as CSV")
 
         except BaseException as e:
             Logger.logException("[Displace] A problem occured while saving displaced anonymised centroids", e)
+
+    def onDisplacedCentroidsOpenFileToolButtonClicked(self) -> typing.NoReturn:
+        if self.displacedanon_file:
+            MGP_OPEN_FILE(self.displacedanon_file)

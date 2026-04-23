@@ -25,6 +25,7 @@ from .mgp_main_window_tab2handler import MGPMainWindowTab2Handler
 from .mgp_main_window_tab3handler import MGPMainWindowTab3Handler
 
 from .micsgeocode.Logger import Logger
+from .micsgeocode.ProgressBar import ProgressBar
 
 from .micsgeocode import Utils
 
@@ -52,8 +53,9 @@ class MGPMainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_MGPDialog()
         self.ui.setupUi(self)
 
-        # Init Logger
+        # Init Logger & progress bar
         Logger.widget = self.ui.l_status
+        self.progress = ProgressBar(self.ui.progressBar)
 
         # Initiate ui properties
         self.setFixedSize(self.width(), self.height())
