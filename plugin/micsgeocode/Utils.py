@@ -115,14 +115,19 @@ def putLayerOnTopIfExists(layerType: LayersType) -> typing.NoReturn:
         if lyr:
             QgsProject.instance().addMapLayer(lyr)
 
-def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typing.List[QgsField]) -> QgsVectorLayer:
-    """ Create layer method, given a type, a name and some attributes
+def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typing.List[QgsField], skip_memory_check: bool = True) -> QgsVectorLayer:
+    """ Create layer method, given a type, a name and some attributes.
+
+        skip_memory_check suppresses QGIS's "unsaved memory layers" prompt on close.
+        Pass False for any layer that holds original (re-identifying) coordinates, so QGIS
+        still warns the user before such a layer could be saved into a project.
     """
     removeLayerIfExists(layerCategorie)
 
     # error = QgsVectorFileWriter.writeAsVectorFormatV2(layer, "testdata/my_new_shapefile", transform_context, save_options)
     layer = QgsVectorLayer(layerType, LayersName.layerName(layerCategorie), 'memory')
-    layer.setCustomProperty("skipMemoryLayersCheck", 1)  # Skip the check when closing qgis !
+    if skip_memory_check:
+        layer.setCustomProperty("skipMemoryLayersCheck", 1)  # Skip the check when closing qgis !
     provider = layer.dataProvider()
     provider.addAttributes(layerAttributes)
     layer.updateFields()

@@ -60,6 +60,12 @@ class CentroidsDisplacer():
 
     MAX_ITERATIONS = 20
 
+    # The links and (un-anonymised) displaced layers retain each cluster's original
+    # coordinates and the full displacement vector, so they are re-identifying. They are
+    # diagnostic-only and are kept out of the QGIS project unless this is set True for
+    # debugging, so they can never be persisted into a saved .qgs/.qgz project.
+    SHOW_DIAGNOSTIC_LAYERS = False
+
     def __init__(self):
         self.__generatedLayers = {}  # layer collection for centroids dispalcement
         self.ref_id_field = ""
@@ -306,7 +312,7 @@ class CentroidsDisplacer():
             QgsField("ref_orig", QVariant.String),
             QgsField("ref_disp", QVariant.String),
             QgsField("iter", QVariant.Int)
-        ])
+        ], skip_memory_check=False)  # holds original coordinates: keep QGIS's save warning
 
         # create layer for displaced centroids
         self.__generatedLayers[Utils.LayersType.DISPLACED] = Utils.createLayer('Point?crs='+CRS.WGS84, Utils.LayersType.DISPLACED, [
@@ -325,7 +331,7 @@ class CentroidsDisplacer():
             QgsField("ref_disp", QVariant.String),
             QgsField("iter", QVariant.Int),
             QgsField("Remarks", QVariant.String)
-        ])
+        ], skip_memory_check=False)  # holds original coordinates: keep QGIS's save warning
 
         # create layer for anonymised displaced centroids
         self.__generatedLayers[Utils.LayersType.DISPLACEDANON] = Utils.createLayer('Point?crs='+CRS.WGS84, Utils.LayersType.DISPLACEDANON, [
@@ -338,9 +344,14 @@ class CentroidsDisplacer():
 
         # add layers to project following correct z order
         QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.BUFFERSANON])
-        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.LINKS])
+        # The links and un-anonymised displaced layers retain original coordinates, so they are
+        # kept out of the project by default and can never be persisted into a saved project.
+        if CentroidsDisplacer.SHOW_DIAGNOSTIC_LAYERS:
+            Logger.logWarning("[CentroidsDisplacer] Diagnostic layers (links, un-anonymised displaced) "
+                              "contain original coordinates and must not be saved in or shared via a QGIS project.")
+            QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.LINKS])
+            QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.DISPLACED])
         Utils.putLayerOnTopIfExists(Utils.LayersType.CENTROIDS)  # fix z order
-        QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.DISPLACED])
         QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.DISPLACEDANON])
 
     def __updateOutputsMemoryLayer(self,
