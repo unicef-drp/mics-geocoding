@@ -173,12 +173,10 @@ def getval(ft: QgsFeature, field: QgsField) -> str:
     if field:
         val = ft[field]
         if val:
-            if isinstance(val, basestring):
-                # ToDo: decode or encode???: val.encode('UTF-8').strip()
-                result = "{}".format(val.encode(
-                    'UTF-8').decode('UTF-8').strip())
-            else:
-                result = "{}".format(val)
+            # str() handles both text and numeric field values on Python 3.
+            # The previous code used the Python-2-only `basestring` builtin,
+            # which raised NameError here for any non-empty value.
+            result = "{}".format(str(val).strip())
         else:
             result = ""
     else:
