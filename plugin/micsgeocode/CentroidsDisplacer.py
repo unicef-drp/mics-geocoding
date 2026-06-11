@@ -63,7 +63,8 @@ class CentroidsDisplacer():
     # The links and (un-anonymised) displaced layers retain each cluster's original
     # coordinates and the full displacement vector, so they are re-identifying. They are
     # diagnostic-only and are kept out of the QGIS project unless this is set True for
-    # debugging, so they can never be persisted into a saved .qgs/.qgz project.
+    # debugging, so by default they are never persisted into a saved project; when enabled,
+    # QGIS warns before they can be saved (see skip_memory_check in __createOutputsMemoryLayer).
     SHOW_DIAGNOSTIC_LAYERS = False
 
     def __init__(self):
@@ -344,8 +345,9 @@ class CentroidsDisplacer():
 
         # add layers to project following correct z order
         QgsProject.instance().addMapLayer(self.__generatedLayers[Utils.LayersType.BUFFERSANON])
-        # The links and un-anonymised displaced layers retain original coordinates, so they are
-        # kept out of the project by default and can never be persisted into a saved project.
+        # The links and un-anonymised displaced layers retain original coordinates, so by
+        # default they are kept out of the project; when SHOW_DIAGNOSTIC_LAYERS is enabled they
+        # are added and QGIS warns before they can be saved.
         if CentroidsDisplacer.SHOW_DIAGNOSTIC_LAYERS:
             Logger.logWarning("[CentroidsDisplacer] Diagnostic layers (links, un-anonymised displaced) "
                               "contain original coordinates and must not be saved in or shared via a QGIS project.")

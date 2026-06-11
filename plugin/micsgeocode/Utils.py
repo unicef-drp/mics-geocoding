@@ -172,21 +172,20 @@ def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
         # reloadLayerFromDiskToAvoidMemoryFlag(layerType)
 
 
-def getval(ft: QgsFeature, field: QgsField) -> str:
-    """ get value as string from feature / field combo
+def getval(ft: QgsFeature, field: str) -> str:
+    """ Return a feature's field value as a stripped string; "" for a missing/NULL/empty field.
+
+    A QGIS NULL stringifies to "NULL" and None to "None"; treat those (and empty) as missing,
+    but preserve a legitimate 0 -- the previous `if val:` test dropped falsy-but-valid values.
+    (`str` replaced the Python-2-only `basestring` builtin used here originally.)
     """
-    if field:
-        val = ft[field]
-        if val:
-            # str() handles both text and numeric field values on Python 3.
-            # The previous code used the Python-2-only `basestring` builtin,
-            # which raised NameError here for any non-empty value.
-            result = "{}".format(str(val).strip())
-        else:
-            result = ""
-    else:
-        result = ""
-    return result
+    if not field:
+        return ""
+    val = ft[field]
+    if val is None:
+        return ""
+    text = str(val).strip()
+    return "" if text in ("", "NULL") else text
 
 
 def getFieldsListAsStrArray(file: str) -> typing.List[str]:
