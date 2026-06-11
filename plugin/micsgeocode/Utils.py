@@ -115,14 +115,19 @@ def putLayerOnTopIfExists(layerType: LayersType) -> typing.NoReturn:
         if lyr:
             QgsProject.instance().addMapLayer(lyr)
 
-def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typing.List[QgsField]) -> QgsVectorLayer:
-    """ Create layer method, given a type, a name and some attributes
+def createLayer(layerType: str, layerCategorie: LayersType, layerAttributes: typing.List[QgsField], skip_memory_check: bool = True) -> QgsVectorLayer:
+    """ Create layer method, given a type, a name and some attributes.
+
+        skip_memory_check suppresses QGIS's "unsaved memory layers" prompt on close.
+        Pass False for any layer that holds original (re-identifying) coordinates, so QGIS
+        still warns the user before such a layer could be saved into a project.
     """
     removeLayerIfExists(layerCategorie)
 
     # error = QgsVectorFileWriter.writeAsVectorFormatV2(layer, "testdata/my_new_shapefile", transform_context, save_options)
     layer = QgsVectorLayer(layerType, LayersName.layerName(layerCategorie), 'memory')
-    layer.setCustomProperty("skipMemoryLayersCheck", 1)  # Skip the check when closing qgis !
+    if skip_memory_check:
+        layer.setCustomProperty("skipMemoryLayersCheck", 1)  # Skip the check when closing qgis !
     provider = layer.dataProvider()
     provider.addAttributes(layerAttributes)
     layer.updateFields()
@@ -167,23 +172,20 @@ def writeLayerIfExists(layerType: LayersType) -> typing.NoReturn:
         # reloadLayerFromDiskToAvoidMemoryFlag(layerType)
 
 
-def getval(ft: QgsFeature, field: QgsField) -> str:
-    """ get value as string from feature / field combo
+def getval(ft: QgsFeature, field: str) -> str:
+    """ Return a feature's field value as a stripped string; "" for a missing/NULL/empty field.
+
+    A QGIS NULL stringifies to "NULL" and None to "None"; treat those (and empty) as missing,
+    but preserve a legitimate 0 -- the previous `if val:` test dropped falsy-but-valid values.
+    (`str` replaced the Python-2-only `basestring` builtin used here originally.)
     """
-    if field:
-        val = ft[field]
-        if val:
-            if isinstance(val, basestring):
-                # ToDo: decode or encode???: val.encode('UTF-8').strip()
-                result = "{}".format(val.encode(
-                    'UTF-8').decode('UTF-8').strip())
-            else:
-                result = "{}".format(val)
-        else:
-            result = ""
-    else:
-        result = ""
-    return result
+    if not field:
+        return ""
+    val = ft[field]
+    if val is None:
+        return ""
+    text = str(val).strip()
+    return "" if text in ("", "NULL") else text
 
 
 def getFieldsListAsStrArray(file: str) -> typing.List[str]:
